@@ -1,11 +1,12 @@
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSession } from '@/context/SessionContext';
 import Layout from '@/components/layout/Layout';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import SessionCard from '@/components/sessions/SessionCard';
+import SessionTemplateDialog from '@/components/sessions/SessionTemplateDialog';
 
 const Index = () => {
   const { sessions } = useSession();
@@ -13,9 +14,11 @@ const Index = () => {
 
   const activeSessions = sessions.filter(session => session.status === 'active');
   const completedSessions = sessions.filter(session => session.status === 'completed');
+  const [showDialog, setShowDialog] = useState(false);
 
   return (
     <Layout>
+      <SessionTemplateDialog open={showDialog} onOpenChange={setShowDialog} />
       <div className="space-y-10">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
@@ -26,7 +29,7 @@ const Index = () => {
           </div>
           <Button 
             className="self-start md:self-center"
-            onClick={() => navigate('/create-session')}
+            onClick={() => setShowDialog(true)}
           >
             Create New Session
           </Button>
@@ -53,7 +56,7 @@ const Index = () => {
                   <Button 
                     variant="outline" 
                     className="mt-4"
-                    onClick={() => navigate('/create-session')}
+                    onClick={() => setShowDialog(true)}
                   >
                     Create a new session
                   </Button>
@@ -135,3 +138,4 @@ const Index = () => {
 };
 
 export default Index;
+

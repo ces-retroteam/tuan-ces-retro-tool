@@ -33,16 +33,10 @@ export default function Header() {
                 View Session
               </Button>
             </div>
-          ) : (
-            <Button 
-              variant="default" 
-              onClick={() => navigate('/create-session')}
-            >
-              Create Session
-            </Button>
-          )}
+          ) : null /* Remove button here as requested */}
         </div>
       </div>
     </header>
   );
 }
+
