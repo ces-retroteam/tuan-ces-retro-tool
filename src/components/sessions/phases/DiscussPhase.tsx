@@ -1,12 +1,11 @@
+
 import { useState, useEffect } from 'react';
 import { useSession } from '@/context/SessionContext';
-import { Session, Comment, Response } from '@/types';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Session } from '@/types';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { toast } from "sonner";
 import RadarChartSection from './RadarChartSection';
-import { MessageSquare } from "lucide-react";
 
 interface DiscussPhaseProps {
   session: Session;
@@ -14,8 +13,7 @@ interface DiscussPhaseProps {
 }
 
 export default function DiscussPhase({ session, isParticipant = false }: DiscussPhaseProps) {
-  const { updateSession, participants, comments, addComment } = useSession();
-  const [newComments, setNewComments] = useState<Record<string, string>>({});
+  const { updateSession, participants } = useSession();
   const [aggregatedResponses, setAggregatedResponses] = useState<Record<string, any>>({});
   
   useEffect(() => {
@@ -29,7 +27,7 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
       if (question.type === 'scale') {
         const responses = relevantParticipants
           .map(p => p.responses?.find(r => r.questionId === question.id))
-          .filter(Boolean) as Response[];
+          .filter(Boolean);
         
         const sum = responses.reduce((acc, r) => acc + (Number(r.value) || 0), 0);
         const avg = responses.length > 0 ? sum / responses.length : 0;
@@ -38,50 +36,12 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
           average: Math.round(avg * 10) / 10,
           count: responses.length
         };
-      } else if (question.type === 'text') {
-        const textResponses = relevantParticipants
-          .map(p => {
-            const response = p.responses?.find(r => r.questionId === question.id);
-            if (response && response.value && typeof response.value === 'string' && response.value.trim()) {
-              return {
-                value: response.value,
-                participant: p.name
-              };
-            }
-            return null;
-          })
-          .filter(Boolean);
-        
-        agg[question.id] = {
-          responses: textResponses,
-          count: textResponses?.length || 0
-        };
       }
     });
     
     setAggregatedResponses(agg);
   }, [participants, session.template.questions]);
-  
-  const filteredComments = comments.filter(c => c.sessionId === session.id);
-  
-  const handleAddComment = (questionId: string) => {
-    if (newComments[questionId]) {
-      addComment({
-        sessionId: session.id,
-        questionId,
-        text: newComments[questionId],
-        userName: isParticipant ? undefined : "Facilitator"
-      });
-      
-      setNewComments(prev => ({
-        ...prev,
-        [questionId]: ''
-      }));
-      
-      toast.success("Comment added successfully!");
-    }
-  };
-  
+
   const handleNext = () => {
     if (!isParticipant) {
       const updatedSession = {
@@ -90,14 +50,6 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
       };
       updateSession(updatedSession);
     }
-  };
-  
-  const getScaleLabel = (value: number) => {
-    if (value < 2) return "Poor";
-    if (value < 3) return "Below Average";
-    if (value < 4) return "Average";
-    if (value < 5) return "Good";
-    return "Excellent";
   };
 
   const radarData = session.template.questions
@@ -126,26 +78,54 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
           return (
             <div
               key={question.id}
-              className={
-                (isPerfect
-                  ? "bg-[#163111]"
-                  : "bg-[#443813]"
-                )
-                + " rounded-lg px-7 py-4 flex items-center gap-6 shadow-sm"
-              }
+              className={`
+                bg-white 
+                rounded-lg 
+                px-6 py-4 
+                flex 
+                items-center 
+                gap-6 
+                shadow-sm 
+                border 
+                ${isPerfect 
+                  ? "border-green-500 shadow-green-100" 
+                  : "border-orange-500 shadow-orange-100"
+                }
+              `}
             >
               <div
-                className={
-                  (isPerfect ? "bg-[#5E9323]" : "bg-[#F97316]")
-                  + " w-16 h-16 flex flex-col items-center justify-center rounded-full text-white font-bold text-xl"
-                }
+                className={`
+                  w-16 
+                  h-16 
+                  flex 
+                  flex-col 
+                  items-center 
+                  justify-center 
+                  rounded-full 
+                  font-bold 
+                  text-xl
+                  ${isPerfect 
+                    ? "bg-green-500 text-white" 
+                    : "bg-orange-500 text-white"
+                  }
+                `}
               >
                 {avg.toFixed(1)}
               </div>
               <div className="flex-1 min-w-0">
-                <span className="block text-lg font-semibold text-white">{question.text}</span>
+                <span className="block text-lg font-semibold text-gray-900">{question.text}</span>
                 <div className="flex items-center gap-3 mt-2">
-                  <span className={(isPerfect ? "bg-[#5E9323]" : "bg-[#F97316]") + " rounded-full px-3 py-1 text-white text-sm font-bold"}>
+                  <span className={`
+                    rounded-full 
+                    px-3 
+                    py-1 
+                    text-sm 
+                    font-bold
+                    ${isPerfect 
+                      ? "bg-green-100 text-green-800" 
+                      : "bg-orange-100 text-orange-800"
+                    }
+                  `}>
                     {avg.toFixed(1)}
                   </span>
                 </div>
@@ -155,13 +135,13 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
         })}
       </div>
 
-      <Card className="m-6">
+      <Card className="m-6 bg-white border border-gray-200">
         <CardContent className="p-6">
           {!isParticipant && (
             <div className="flex justify-end mt-4">
               <Button 
                 onClick={handleNext}
-                className="bg-[#E15D2F] hover:bg-[#E15D2F]/90 text-white font-medium"
+                className="bg-orange-500 hover:bg-orange-600 text-white font-medium"
               >
                 Proceed to Review
               </Button>
@@ -172,3 +152,4 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
     </div>
   );
 }
+
