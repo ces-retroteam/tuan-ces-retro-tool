@@ -1,4 +1,3 @@
-
 import { ResponsiveContainer, Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from "recharts";
 import { MessageSquare } from "lucide-react";
 
@@ -52,7 +51,12 @@ export default function RadarChartSection({ data }: RadarChartSectionProps) {
               <stop offset="100%" stopColor="#F2FCE2" /> {/* Score 5 */}
             </linearGradient>
           </defs>
-          <PolarGrid stroke="#e5e7eb" fill="url(#scoreGradient)" fillOpacity={0.3} />
+          <PolarGrid 
+            stroke="#e5e7eb" 
+            gridType="circle"
+            fill="url(#scoreGradient)" 
+            fillOpacity={0.6} 
+          />
           <PolarAngleAxis
             dataKey="label"
             tick={({ payload, x, y, index }) => {
@@ -92,28 +96,22 @@ export default function RadarChartSection({ data }: RadarChartSectionProps) {
           <Radar
             name="Average"
             dataKey="average"
-            stroke="url(#colorGradient)"
-            fill="url(#colorGradient)"
-            fillOpacity={0.15}
+            stroke="#FFFFFF"
+            strokeWidth={3}
+            fill="rgba(255, 255, 255, 0.3)"
             dot={{ r: 6, fill: "#fff", stroke: "#E15D2F", strokeWidth: 2 }}
             isAnimationActive={false}
           />
-          <defs>
-            <linearGradient id="colorGradient" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stopColor="#E15D2F" />
-              <stop offset="50%" stopColor="#F97316" />
-              <stop offset="100%" stopColor="#5E9323" />
-            </linearGradient>
-          </defs>
         </RadarChart>
       </ResponsiveContainer>
+      
       <div className="flex items-center mt-4 gap-8 text-xs">
         <div className="flex items-center gap-1">
-          <span style={{ width:12, height:7, background: "linear-gradient(90deg,#E15D2F 10%,#ffe345 96%,#5E9323 133%)", display:"inline-block",borderRadius:2,marginRight:8 }}></span>
+          <span style={{ width:12, height:7, background: "linear-gradient(90deg,#FDE1D3 0%,#FEC6A1 50%,#F2FCE2 100%)", display:"inline-block", borderRadius:2, marginRight:8 }}></span>
           <span className="text-gray-600 uppercase tracking-tight font-medium">Distribution</span>
         </div>
         <div className="flex items-center gap-1">
-          <span style={{ width: 30, height: 6, display: "inline-block", background: "#E15D2F", borderRadius: 2 }}></span>
+          <span style={{ width: 30, height: 3, display: "inline-block", background: "#FFFFFF", borderRadius: 2, border: "1px solid #E5E7EB" }}></span>
           <span className="text-gray-600 uppercase tracking-tight font-medium">Mean</span>
         </div>
       </div>
