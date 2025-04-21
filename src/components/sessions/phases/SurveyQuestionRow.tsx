@@ -58,27 +58,34 @@ export default function SurveyQuestionRow({
       {/* SCORE SCALE (always visible) */}
       <div className="flex flex-row items-center gap-8">
         <div className="flex flex-row gap-3">
-          {[1, 2, 3, 4, 5].map((num, idx) => (
-            <button
-              key={num}
-              type="button"
-              className={[
-                "w-10 h-10 rounded-full flex items-center justify-center text-base font-bold border-2 transition focus-visible:ring-2 ring-[#E15D2F]",
-                value === num
-                  ? "ring-2 border-orange-500 ring-orange-500 scale-110"
-                  : "border-gray-200",
-                COLORS[idx],
-                disabled
-                  ? "opacity-60 cursor-not-allowed"
-                  : "hover:brightness-110 hover:scale-105",
-              ].join(" ")}
-              disabled={disabled}
-              onClick={() => !disabled && onValueChange(num)}
-              aria-label={`Score ${num}`}
-            >
-              {num}
-            </button>
-          ))}
+          {[1, 2, 3, 4, 5].map((num, idx) => {
+            const isSelected = value === num;
+            const colorClass = isSelected
+              ? COLORS[idx]
+              : "bg-gray-300 text-white"; // Gray for unselected, colored for selected
+
+            return (
+              <button
+                key={num}
+                type="button"
+                className={[
+                  "w-10 h-10 rounded-full flex items-center justify-center text-base font-bold border-2 transition focus-visible:ring-2 ring-[#E15D2F]",
+                  isSelected
+                    ? "ring-2 border-orange-500 ring-orange-500 scale-110"
+                    : "border-gray-200 opacity-80",
+                  colorClass,
+                  disabled
+                    ? "opacity-60 cursor-not-allowed"
+                    : "hover:brightness-110 hover:scale-105",
+                ].join(" ")}
+                disabled={disabled}
+                onClick={() => !disabled && onValueChange(num)}
+                aria-label={`Score ${num}`}
+              >
+                {num}
+              </button>
+            );
+          })}
         </div>
         <div className="flex flex-row items-center gap-2 ml-6">
           <span className="text-xs text-gray-600 font-medium">Never</span>
@@ -108,4 +115,3 @@ export default function SurveyQuestionRow({
     </div>
   );
 }
-

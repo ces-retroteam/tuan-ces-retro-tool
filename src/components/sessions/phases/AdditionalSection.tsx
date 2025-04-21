@@ -28,6 +28,18 @@ export default function AdditionalSection({
       <Label className="text-base text-[#222] font-semibold flex gap-2 mb-3">
         {additionalPrompt}
       </Label>
+      {/* MOVE ADD BUTTON HERE */}
+      {!isSubmitted && (
+        <Button
+          variant="outline"
+          onClick={addAdditionalItem}
+          className="w-full mb-4 flex items-center gap-2 border-[#E15D2F] hover:bg-[#FFF4F0]"
+          style={{ color: "#E15D2F" }}
+        >
+          <Plus size={18} />
+          <span className="uppercase font-semibold tracking-wide">Add Another Challenge</span>
+        </Button>
+      )}
       <div className="space-y-3">
         {additionalItems.map((item, index) => (
           <Input
@@ -42,17 +54,6 @@ export default function AdditionalSection({
           />
         ))}
       </div>
-      {!isSubmitted && (
-        <Button
-          variant="outline"
-          onClick={addAdditionalItem}
-          className="w-full mt-3 flex items-center gap-2 border-[#E15D2F] hover:bg-[#FFF4F0]"
-          style={{ color: "#E15D2F" }}
-        >
-          <Plus size={18} />
-          <span className="uppercase font-semibold tracking-wide">Add Another Challenge</span>
-        </Button>
-      )}
     </div>
   );
 }
