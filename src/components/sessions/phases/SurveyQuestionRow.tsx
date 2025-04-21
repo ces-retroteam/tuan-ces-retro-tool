@@ -4,6 +4,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { MessageSquare } from "lucide-react";
 
+// Colors for scores 1-5 (matches palette: red, orange, gold, light green, green)
+const COLORS = [
+  "bg-[#ea384c] text-white", // 1 - Red
+  "bg-[#E15D2F] text-white", // 2 - Warm Orange (branding primary accent)
+  "bg-[#aa9231] text-white", // 3 - Yellow/Gold
+  "bg-[#6ca543] text-white", // 4 - Light Green
+  "bg-[#55bb6a] text-white", // 5 - Green
+];
+
 export interface SurveyQuestionRowProps {
   question: {
     id: string;
@@ -18,15 +27,6 @@ export interface SurveyQuestionRowProps {
   disabled?: boolean;
 }
 
-// Color classes for scores 1-5
-const COLORS = [
-  "bg-[#ea384c] text-white", // 1 - Red
-  "bg-[#c07213] text-white", // 2 - Orange
-  "bg-[#aa9231] text-white", // 3 - Yellow/Gold
-  "bg-[#6ca543] text-white", // 4 - Light Green
-  "bg-[#55bb6a] text-white", // 5 - Green
-];
-
 export default function SurveyQuestionRow({
   question,
   value,
@@ -36,56 +36,76 @@ export default function SurveyQuestionRow({
   disabled,
 }: SurveyQuestionRowProps) {
   return (
-    <div className="bg-[#1a1f2c] rounded-2xl px-6 py-6 my-6 flex flex-col gap-2 md:gap-4">
+    <div className="bg-white rounded-2xl px-6 py-6 my-6 flex flex-col gap-4 shadow-sm border border-gray-100">
+      {/* QUESTION TEXT */}
       <div className="flex flex-col gap-1">
-        <Label className="text-base text-white font-bold flex items-center gap-2">
+        <Label
+          className="
+            text-[1.125rem] font-bold leading-tight text-[#222]
+            flex items-center gap-2 uppercase tracking-tight
+          "
+        >
           {question.text}
-          {question.required && <span className="text-[#ea384c] text-lg">*</span>}
+          {question.required && (
+            <span className="text-[#ea384c] text-lg" aria-label="Required">*</span>
+          )}
         </Label>
         {question.description && (
-          <span className="text-sm text-[#9f9ea1]">{question.description}</span>
+          <span className="text-sm text-[#555] font-normal">{question.description}</span>
         )}
       </div>
-      {/* Scale options 1-5, laid out horizontally, separated */}
-      <div className="flex flex-row items-center gap-6 mt-3">
-        <div className="flex flex-row items-center gap-4">
+
+      {/* SCORE SCALE (always visible) */}
+      <div className="flex flex-row items-center gap-8">
+        <div className="flex flex-row gap-3">
           {[1, 2, 3, 4, 5].map((num, idx) => (
             <button
               key={num}
               type="button"
-              className={`
-                w-11 h-11 rounded-full flex items-center justify-center text-lg font-bold border-2 focus-visible:ring-2 transition
-                ${value === num ? "ring-2 ring-[#6ca543]" : ""}
-                ${COLORS[idx]}
-                ${disabled ? "opacity-60 cursor-not-allowed" : "hover:brightness-110"}
-              `}
+              className={[
+                "w-10 h-10 rounded-full flex items-center justify-center text-base font-bold border-2 transition focus-visible:ring-2 ring-[#E15D2F]",
+                value === num
+                  ? "ring-2 border-orange-500 ring-orange-500 scale-110"
+                  : "border-gray-200",
+                COLORS[idx],
+                disabled
+                  ? "opacity-60 cursor-not-allowed"
+                  : "hover:brightness-110 hover:scale-105",
+              ].join(" ")}
               disabled={disabled}
               onClick={() => !disabled && onValueChange(num)}
-              aria-label={"Rate " + num}
+              aria-label={`Score ${num}`}
             >
               {num}
             </button>
           ))}
         </div>
-        <div className="flex flex-row items-center gap-2 ml-4">
-          <span className="text-xs text-[#8e9196] font-medium">Never</span>
-          <span className="mx-2 text-xs text-[#8e9196]">|</span>
-          <span className="text-xs text-[#8e9196] font-medium">Always</span>
+        <div className="flex flex-row items-center gap-2 ml-6">
+          <span className="text-xs text-gray-600 font-medium">Never</span>
+          <span className="text-gray-300">|</span>
+          <span className="text-xs text-gray-600 font-medium">Always</span>
         </div>
       </div>
-      {/* Comment Box */}
-      <div className="flex flex-row items-center gap-3 mt-4">
-        <MessageSquare className="text-[#8e9196]" size={20} />
+
+      {/* COMMENT INPUT (always visible) */}
+      <div className="flex flex-row items-start gap-3 mt-2">
+        <MessageSquare className="text-gray-400 mt-1" size={18} />
         <Textarea
-          placeholder="Your comment (optional)..."
-          className="bg-[#222] border border-[#333] text-white min-h-[44px] px-3 py-2 text-sm flex-1 resize-none shadow-sm rounded-lg"
+          placeholder="   Add a comment (optional)..."
+          className="bg-[#F7F7F7] border border-gray-200 text-[#222] min-h-[42px] px-3 py-2 text-base flex-1 resize-none shadow-sm rounded-lg focus-visible:border-orange-500"
           value={comment}
           onChange={e => onCommentChange(e.target.value)}
           disabled={disabled}
           id={"comment_" + question.id}
           maxLength={256}
+          style={{
+            fontFamily: "Inter, Helvetica, Arial, sans-serif",
+            lineHeight: 1.5,
+            fontWeight: 400,
+          }}
         />
       </div>
     </div>
   );
 }
+
