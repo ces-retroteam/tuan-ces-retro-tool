@@ -4,6 +4,8 @@ import { useSession } from '@/context/SessionContext';
 import { Session } from '@/types';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+// Import QRCode from the newly-installed package
+import { QRCode } from 'qrcode.react';
 
 interface WelcomePhaseProps {
   session: Session;
@@ -13,17 +15,18 @@ interface WelcomePhaseProps {
 export default function WelcomePhase({ session, isParticipant = false }: WelcomePhaseProps) {
   const { updateSession } = useSession();
   const [copying, setCopying] = useState(false);
-  
+
+  const sessionLink = `${window.location.origin}/join/${session.id}`;
+
   const handleCopyLink = () => {
-    const sessionLink = `${window.location.origin}/join/${session.id}`;
     navigator.clipboard.writeText(sessionLink);
     setCopying(true);
-    
+
     setTimeout(() => {
       setCopying(false);
     }, 2000);
   };
-  
+
   const handleNext = () => {
     if (!isParticipant) {
       const updatedSession = {
@@ -48,7 +51,7 @@ export default function WelcomePhase({ session, isParticipant = false }: Welcome
             about your team's health and dynamics.
           </p>
         </div>
-        
+
         <div>
           <h3 className="text-lg font-medium mb-2">How It Works</h3>
           <ol className="list-decimal list-inside space-y-2 text-muted-foreground">
@@ -57,20 +60,33 @@ export default function WelcomePhase({ session, isParticipant = false }: Welcome
             <li>Finally, we'll <strong>close</strong> by identifying actions to address key issues.</li>
           </ol>
         </div>
-        
+
         {!isParticipant && (
-          <div className="bg-accent p-4 rounded-lg">
-            <h3 className="text-lg font-medium mb-2">Share With Your Team</h3>
-            <p className="text-sm mb-4">
-              Invite participants by sharing this link:
-            </p>
-            <div className="flex items-center space-x-2">
-              <div className="bg-background p-2 rounded border flex-1 truncate">
-                {`${window.location.origin}/join/${session.id}`}
+          <div className="bg-accent p-4 rounded-lg flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div className="flex-1 w-full">
+              <h3 className="text-lg font-medium mb-2">Share With Your Team</h3>
+              <p className="text-sm mb-4">
+                Invite participants by sharing this link:
+              </p>
+              <div className="flex items-center space-x-2">
+                <div className="bg-background p-2 rounded border flex-1 truncate">
+                  {sessionLink}
+                </div>
+                <Button onClick={handleCopyLink} variant="secondary" size="sm">
+                  {copying ? "Copied!" : "Copy"}
+                </Button>
               </div>
-              <Button onClick={handleCopyLink} variant="secondary" size="sm">
-                {copying ? "Copied!" : "Copy"}
-              </Button>
+            </div>
+            {/* QR Code Section */}
+            <div className="flex-shrink-0 flex justify-center items-center p-2">
+              <QRCode
+                value={sessionLink}
+                size={96}
+                bgColor="#fff"
+                fgColor="#E15D2F"
+                includeMargin
+                style={{ borderRadius: 8, border: '1px solid #eee', background: '#fff' }}
+              />
             </div>
           </div>
         )}
