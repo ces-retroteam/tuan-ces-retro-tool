@@ -1,4 +1,3 @@
-
 import { ResponsiveContainer, Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from "recharts";
 import { MessageSquare } from "lucide-react";
 
@@ -11,16 +10,43 @@ interface RadarChartSectionProps {
   }[];
 }
 
+const getTopicFromQuestion = (question: string): string => {
+  // Map of keywords to their topic labels
+  const topicMap: { [key: string]: string } = {
+    'job satisfaction': 'Satisfaction',
+    'collaborating': 'Collaboration',
+    'ideas': 'Ideas',
+    'work-life balance': 'Work-Life',
+    'effective': 'Effectiveness',
+    'communication': 'Communication',
+    'meetings': 'Meetings',
+    'information': 'Information',
+    'delivering value': 'Value'
+  };
+
+  // Find the first matching keyword in the question
+  const topic = Object.entries(topicMap).find(([key]) => 
+    question.toLowerCase().includes(key)
+  );
+
+  return topic ? topic[1] : question.split('?')[0].slice(0, 12) + '...';
+};
+
 export default function RadarChartSection({ data }: RadarChartSectionProps) {
+  const formattedData = data.map(item => ({
+    ...item,
+    label: getTopicFromQuestion(item.label)
+  }));
+
   return (
     <div className="w-full flex flex-col items-center justify-center py-6 bg-white">
       <ResponsiveContainer width={500} height={380}>
-        <RadarChart cx="50%" cy="50%" outerRadius="70%" data={data}>
+        <RadarChart cx="50%" cy="50%" outerRadius="70%" data={formattedData}>
           <PolarGrid stroke="#e5e7eb" />
           <PolarAngleAxis
             dataKey="label"
             tick={({ payload, x, y, index }) => {
-              const item = data[index];
+              const item = formattedData[index];
               return (
                 <g transform={`translate(${x},${y})`}>
                   <foreignObject x={-60} y={-35} width={120} height={60}>
