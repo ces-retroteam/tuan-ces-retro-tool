@@ -1,31 +1,26 @@
-import { useState, useEffect } from "react";
+
+import React, { useState, useEffect } from "react";
 import { useSession } from "@/context/SessionContext";
 import { Session, Response, Participant } from "@/types";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
+  CardDescription,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import DeliverySection from "./DeliverySection";
-import CollaborationSection from "./CollaborationSection";
-import AdditionalSection from "./AdditionalSection";
-import { Plus } from "lucide-react";
-import SurveyQuestionRow from "./SurveyQuestionRow";
+import DeliverySectionStep from "./DeliverySectionStep";
+import CollaborationSectionStep from "./CollaborationSectionStep";
+import AdditionalSectionStep from "./AdditionalSectionStep";
 
 interface SurveyPhaseProps {
   session: Session;
   isParticipant?: boolean;
   participantId?: string;
 }
-
-type SurveySection = "delivery" | "collaboration" | "additional";
 
 export default function SurveyPhase({
   session,
@@ -39,7 +34,7 @@ export default function SurveyPhase({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [additionalItems, setAdditionalItems] = useState<string[]>([""]);
-  const [currentSection, setCurrentSection] = useState<SurveySection>("delivery");
+  const [currentSection, setCurrentSection] = useState<number>(0);
 
   useEffect(() => {
     if (isParticipant && participantId) {
@@ -179,10 +174,57 @@ export default function SurveyPhase({
   const additionalPrompt =
     "What are the top 3 challenges facing the team? (Add as many as you'd like)";
 
-  const surveySections = ["delivery", "collaboration", "additional"] as const;
-  type SurveySection = typeof surveySections[number];
+  const surveySections = [
+    {
+      label: "Delivery & Execution",
+      Component: (
+        <DeliverySectionStep
+          questions={deliveryQuestions}
+          responses={responses}
+          comments={comments}
+          onResponseChange={handleResponseChange}
+          onCommentChange={handleCommentChange}
+          isSubmitted={isSubmitted}
+          sessionIsAnonymous={session.isAnonymous}
+          name={name}
+          setName={setName}
+        />
+      ),
+    },
+    {
+      label: "Team Collaboration",
+      Component: (
+        <CollaborationSectionStep
+          questions={collaborationQuestions}
+          responses={responses}
+          comments={comments}
+          onResponseChange={handleResponseChange}
+          onCommentChange={handleCommentChange}
+          isSubmitted={isSubmitted}
+        />
+      ),
+    },
+    {
+      label: "Additional Questions",
+      Component: (
+        <AdditionalSectionStep
+          prompt={additionalPrompt}
+          items={additionalItems}
+          onItemChange={handleAdditionalItemChange}
+          addItem={addAdditionalItem}
+          isSubmitted={isSubmitted}
+        />
+      ),
+    },
+  ];
 
   if (!isParticipant) {
+    const participantCount = participants.filter(
+      (p) =>
+        p.responses &&
+        p.responses.some((r) => r.questionId === deliveryQuestions[0].id)
+    ).length;
+
     return (
       <Card>
         <CardHeader>
@@ -197,18 +239,10 @@ export default function SurveyPhase({
             <h3 className="text-lg font-semibold mb-2 text-[#222]">
               Participation Status
             </h3>
-            <p className="text-[#555]">
-              {
-                participants.filter(
-                  (p: any) =>
-                    p.responses &&
-                    p.responses.some((r: any) => r.questionId === deliveryQuestions[0].id)
-                ).length
-              } participants have submitted responses.
-            </p>
+            <p className="text-[#555]">{participantCount} participants have submitted responses.</p>
           </div>
-          <DeliverySection
-            deliveryQuestions={deliveryQuestions}
+          <DeliverySectionStep
+            questions={deliveryQuestions}
             responses={responses}
             comments={comments}
             onResponseChange={handleResponseChange}
@@ -218,70 +252,64 @@ export default function SurveyPhase({
             name={name}
             setName={setName}
           />
-          <CollaborationSection
-            collaborationQuestions={collaborationQuestions}
+          <CollaborationSectionStep
+            questions={collaborationQuestions}
             responses={responses}
             comments={comments}
             onResponseChange={handleResponseChange}
             onCommentChange={handleCommentChange}
             isSubmitted={isSubmitted}
           />
-          <AdditionalSection
-            additionalPrompt={additionalPrompt}
-            additionalItems={additionalItems}
-            onAdditionalItemChange={handleAdditionalItemChange}
-            addAdditionalItem={addAdditionalItem}
+          <AdditionalSectionStep
+            prompt={additionalPrompt}
+            items={additionalItems}
+            onItemChange={handleAdditionalItemChange}
+            addItem={addAdditionalItem}
             isSubmitted={isSubmitted}
           />
         </CardContent>
-        {/* No Proceed to Discussion button */}
       </Card>
     );
   }
 
+  const isDeliveryValid =
+    deliveryQuestions.filter((q) => q.required).every((q) => [1, 2, 3, 4, 5].includes(responses[q.id])) &&
+    (session.isAnonymous || name.trim().length > 0);
+
+  const isCollabValid =
+    collaborationQuestions.filter((q) => q.required).every((q) => [1, 2, 3, 4, 5].includes(responses[q.id]));
+
   return (
     <Card>
       <CardContent className="space-y-10 pt-6 pb-2">
-        {currentSection === "delivery" && (
-          <DeliverySection
-            deliveryQuestions={deliveryQuestions}
-            responses={responses}
-            comments={comments}
-            onResponseChange={handleResponseChange}
-            onCommentChange={handleCommentChange}
-            isSubmitted={isSubmitted}
-            sessionIsAnonymous={session.isAnonymous}
-            name={name}
-            setName={setName}
-          />
-        )}
-        {currentSection === "collaboration" && (
-          <CollaborationSection
-            collaborationQuestions={collaborationQuestions}
-            responses={responses}
-            comments={comments}
-            onResponseChange={handleResponseChange}
-            onCommentChange={handleCommentChange}
-            isSubmitted={isSubmitted}
-          />
-        )}
-        {currentSection === "additional" && (
-          <AdditionalSection
-            additionalPrompt={additionalPrompt}
-            additionalItems={additionalItems}
-            onAdditionalItemChange={handleAdditionalItemChange}
-            addAdditionalItem={addAdditionalItem}
-            isSubmitted={isSubmitted}
-          />
-        )}
-        {isSubmitted && (
-          <div className="bg-accent p-4 rounded-lg text-center">
-            <h3 className="text-lg font-medium">Thank You!</h3>
-            <p className="text-muted-foreground">
-              Your responses have been recorded.
-            </p>
+        {/* Step UI */}
+        <div>
+          <div className="flex items-center justify-between mb-6">
+            <div className="text-lg font-bold" style={{ fontFamily: "Clarendon, serif" }}>
+              {surveySections[currentSection].label}
+            </div>
+            <div className="flex gap-2">
+              {surveySections.map((section, idx) => (
+                <div
+                  key={section.label}
+                  className={`w-3 h-3 rounded-full ${currentSection === idx
+                    ? "bg-orange-500"
+                    : "bg-gray-200"
+                    }`}
+                ></div>
+              ))}
+            </div>
           </div>
-        )}
+          {surveySections[currentSection].Component}
+          {isSubmitted && (
+            <div className="bg-accent p-4 rounded-lg text-center mt-2">
+              <h3 className="text-lg font-medium">Thank You!</h3>
+              <p className="text-muted-foreground">
+                Your responses have been recorded.
+              </p>
+            </div>
+          )}
+        </div>
       </CardContent>
       {!isSubmitted && (
         <CardFooter className="flex flex-col gap-4 items-end">
@@ -289,16 +317,12 @@ export default function SurveyPhase({
             <Button
               variant="outline"
               style={{ color: "#222", borderColor: "#E15D2F" }}
-              disabled={currentSection === "delivery"}
-              onClick={() =>
-                setCurrentSection(
-                  surveySections[surveySections.indexOf(currentSection) - 1]
-                )
-              }
+              disabled={currentSection === 0}
+              onClick={() => setCurrentSection(currentSection - 1)}
             >
               Prev
             </Button>
-            {currentSection !== "additional" ? (
+            {currentSection < surveySections.length - 1 ? (
               <Button
                 style={{
                   backgroundColor: "#E15D2F",
@@ -307,27 +331,10 @@ export default function SurveyPhase({
                   letterSpacing: "0.04em",
                   fontFamily: "Inter, Helvetica, Arial, sans-serif",
                 }}
-                onClick={() =>
-                  setCurrentSection(
-                    surveySections[surveySections.indexOf(currentSection) + 1]
-                  )
-                }
+                onClick={() => setCurrentSection(currentSection + 1)}
                 disabled={
-                  (currentSection === "delivery" &&
-                    deliveryQuestions
-                      .filter((q) => q.required)
-                      .some(
-                        (q) =>
-                          ![1, 2, 3, 4, 5].includes(responses[q.id])
-                      )) ||
-                  (currentSection === "collaboration" &&
-                    collaborationQuestions
-                      .filter((q) => q.required)
-                      .some(
-                        (q) =>
-                          ![1, 2, 3, 4, 5].includes(responses[q.id])
-                      )) ||
-                  (!session.isAnonymous && !name.trim())
+                  (currentSection === 0 && !isDeliveryValid) ||
+                  (currentSection === 1 && !isCollabValid)
                 }
               >
                 Next
@@ -337,19 +344,8 @@ export default function SurveyPhase({
                 onClick={handleSubmit}
                 disabled={
                   isSubmitting ||
-                  (!session.isAnonymous && !name.trim()) ||
-                  deliveryQuestions
-                    .filter((q) => q.required)
-                    .some(
-                      (q) =>
-                        ![1, 2, 3, 4, 5].includes(responses[q.id])
-                    ) ||
-                  collaborationQuestions
-                    .filter((q) => q.required)
-                    .some(
-                      (q) =>
-                        ![1, 2, 3, 4, 5].includes(responses[q.id])
-                    )
+                  !isDeliveryValid ||
+                  !isCollabValid
                 }
                 className="font-bold"
                 style={{

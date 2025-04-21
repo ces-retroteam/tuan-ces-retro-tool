@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -35,6 +34,9 @@ export default function SurveyQuestionRow({
   onCommentChange,
   disabled,
 }: SurveyQuestionRowProps) {
+  // We need to know if ANY score is selected
+  const anySelected = typeof value === "number" && [1,2,3,4,5].includes(value);
+
   return (
     <div className="bg-white rounded-2xl px-6 py-6 my-6 flex flex-col gap-4 shadow-sm border border-gray-100">
       {/* QUESTION TEXT */}
@@ -55,14 +57,17 @@ export default function SurveyQuestionRow({
         )}
       </div>
 
-      {/* SCORE SCALE (always visible) */}
+      {/* SCORE SCALE */}
       <div className="flex flex-row items-center gap-8">
         <div className="flex flex-row gap-3">
           {[1, 2, 3, 4, 5].map((num, idx) => {
             const isSelected = value === num;
-            const colorClass = isSelected
-              ? COLORS[idx]
-              : "bg-gray-300 text-white"; // Gray for unselected, colored for selected
+            // Only when ANY is selected: colorClass for unselected = gray
+            // If none is selected, show all colored
+            const colorClass =
+              anySelected
+                ? (isSelected ? COLORS[idx] : "bg-gray-300 text-white")
+                : COLORS[idx];
 
             return (
               <button
@@ -94,7 +99,7 @@ export default function SurveyQuestionRow({
         </div>
       </div>
 
-      {/* COMMENT INPUT (always visible) */}
+      {/* COMMENT INPUT */}
       <div className="flex flex-row items-start gap-3 mt-2">
         <MessageSquare className="text-gray-400 mt-1" size={18} />
         <Textarea
