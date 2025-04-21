@@ -1,10 +1,8 @@
-
 import { useState } from 'react';
 import { useSession } from '@/context/SessionContext';
 import { Session } from '@/types';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-// Correct import of QRCodeSVG (not default) from qrcode.react
 import { QRCodeSVG } from 'qrcode.react';
 
 interface WelcomePhaseProps {
@@ -61,6 +59,7 @@ export default function WelcomePhase({ session, isParticipant = false }: Welcome
           </ol>
         </div>
 
+        {/* Share Link Section */}
         {!isParticipant && (
           <div className="bg-accent p-4 rounded-lg flex flex-col sm:flex-row items-start sm:items-center gap-4">
             <div className="flex-1 w-full">
@@ -77,17 +76,21 @@ export default function WelcomePhase({ session, isParticipant = false }: Welcome
                 </Button>
               </div>
             </div>
-            {/* QR Code Section */}
-            <div className="flex-shrink-0 flex justify-center items-center p-2">
-              <QRCodeSVG
-                value={sessionLink}
-                size={96}
-                bgColor="#fff"
-                fgColor="#E15D2F"
-                includeMargin={true}
-                style={{ borderRadius: 8, border: '1px solid #eee', background: '#fff' }}
-              />
-            </div>
+          </div>
+        )}
+
+        {/* QR Code - moved out and made larger */}
+        {!isParticipant && (
+          <div className="flex flex-col items-center py-6">
+            <h3 className="text-lg font-medium mb-3">Or Scan to Join</h3>
+            <QRCodeSVG
+              value={sessionLink}
+              size={180}
+              bgColor="#fff"
+              fgColor="#E15D2F"
+              includeMargin={true}
+              style={{ borderRadius: 12, border: '2px solid #eee', background: '#fff' }}
+            />
           </div>
         )}
       </CardContent>
