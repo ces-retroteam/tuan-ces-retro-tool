@@ -48,30 +48,35 @@ export default function SessionPhases({ session, isParticipant = false, particip
             <TabsTrigger 
               value="welcome" 
               disabled={isParticipant && session.currentPhase !== 'welcome'}
+              className="data-[state=active]:bg-[#E15D2F] data-[state=active]:text-white"
             >
               Welcome
             </TabsTrigger>
             <TabsTrigger 
               value="survey" 
               disabled={isParticipant && session.currentPhase !== 'survey'}
+              className="data-[state=active]:bg-[#E15D2F] data-[state=active]:text-white"
             >
               Survey
             </TabsTrigger>
             <TabsTrigger 
               value="discuss" 
               disabled={isParticipant && session.currentPhase !== 'discuss'}
+              className="data-[state=active]:bg-[#E15D2F] data-[state=active]:text-white"
             >
               Discuss
             </TabsTrigger>
             <TabsTrigger 
               value="review" 
               disabled={isParticipant && session.currentPhase !== 'review'}
+              className="data-[state=active]:bg-[#E15D2F] data-[state=active]:text-white"
             >
               Review
             </TabsTrigger>
             <TabsTrigger 
               value="close" 
               disabled={isParticipant && session.currentPhase !== 'close'}
+              className="data-[state=active]:bg-[#E15D2F] data-[state=active]:text-white"
             >
               Close
             </TabsTrigger>
@@ -105,3 +110,4 @@ export default function SessionPhases({ session, isParticipant = false, particip
     </div>
   );
 }
+
