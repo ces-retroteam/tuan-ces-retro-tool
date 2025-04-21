@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useSession } from '@/context/SessionContext';
 import { Session, Response, Participant } from '@/types';
@@ -10,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { toast } from "sonner";
 import { ArrowLeft, ArrowRight, Plus } from 'lucide-react';
+import SurveyQuestionRow from "./SurveyQuestionRow";
 
 interface SurveyPhaseProps {
   session: Session;
@@ -29,7 +29,6 @@ export default function SurveyPhase({ session, isParticipant = false, participan
   const [currentSection, setCurrentSection] = useState<SurveySection>('delivery');
   const [additionalItems, setAdditionalItems] = useState<string[]>(['']);
   
-  // Check if this participant has already submitted responses
   useEffect(() => {
     if (isParticipant && participantId) {
       const participant = participants.find(p => p.id === participantId);
@@ -73,17 +72,14 @@ export default function SurveyPhase({ session, isParticipant = false, participan
       setIsSubmitting(true);
       
       const participantResponses: Response[] = [
-        // Convert regular responses
         ...Object.entries(responses).map(([questionId, value]) => ({
           questionId,
           value
         })),
-        // Add comments as responses with special prefix
         ...Object.entries(comments).map(([questionId, value]) => ({
           questionId: `comment_${questionId}`,
           value
         })),
-        // Add additional items
         ...additionalItems.filter(item => item.trim()).map((item, index) => ({
           questionId: `additional_${index}`,
           value: item
@@ -131,7 +127,6 @@ export default function SurveyPhase({ session, isParticipant = false, participan
     }
   };
   
-  // Mock questions for the different sections
   const deliveryQuestions = [
     { id: 'delivery_1', text: 'How effectively does the team deliver on its commitments?', type: 'scale', required: true },
     { id: 'delivery_2', text: 'How would you rate the quality of our deliverables?', type: 'scale', required: true },
@@ -149,92 +144,68 @@ export default function SurveyPhase({ session, isParticipant = false, participan
   ];
   
   const renderQuestionInput = (question: any) => {
-    switch (question.type) {
-      case 'scale':
+    if (question.type === "scale") {
+      return (
+        <SurveyQuestionRow
+          key={question.id}
+          question={question}
+          value={typeof responses[question.id] !== "undefined" ? responses[question.id] : 0}
+          comment={comments[question.id] || ""}
+          onValueChange={val => handleResponseChange(question.id, val)}
+          onCommentChange={val => handleCommentChange(question.id, val)}
+          disabled={isSubmitted}
+        />
+      );
+    }
+    if (question.type === "text") {
+      if (question.id === "additional") {
         return (
           <div className="space-y-4">
-            <div className="flex justify-between text-xs text-muted-foreground">
-              <span>1 - Poor</span>
-              <span>3 - Average</span>
-              <span>5 - Excellent</span>
-            </div>
-            <div className="flex items-center gap-4">
-              <Slider
-                className="flex-1"
-                defaultValue={[responses[question.id] || 3]}
-                min={1}
-                max={5}
-                step={1}
-                onValueChange={([value]) => handleResponseChange(question.id, value)}
+            {additionalItems.map((item, index) => (
+              <Input
+                key={index}
+                type="text"
+                placeholder={`Challenge ${index + 1}`}
+                value={item}
+                onChange={(e) => handleAdditionalItemChange(index, e.target.value)}
                 disabled={isSubmitted}
+                className="mb-2 bg-[#222] text-white border-[#333]"
               />
-              <div className="text-center font-medium min-w-8">
-                {responses[question.id] || 3}
-              </div>
-            </div>
-            <div className="mt-2">
-              <Label htmlFor={`comment_${question.id}`}>Comments (optional)</Label>
-              <Textarea
-                id={`comment_${question.id}`}
-                placeholder="Add any comments about your rating..."
-                value={comments[question.id] || ''}
-                onChange={(e) => handleCommentChange(question.id, e.target.value)}
-                disabled={isSubmitted}
-                className="mt-1"
-              />
-            </div>
-          </div>
-        );
-      case 'text':
-        return (
-          <div>
-            {question.id === 'additional' ? (
-              <div className="space-y-4">
-                {additionalItems.map((item, index) => (
-                  <Input
-                    key={index}
-                    type="text"
-                    placeholder={`Challenge ${index + 1}`}
-                    value={item}
-                    onChange={(e) => handleAdditionalItemChange(index, e.target.value)}
-                    disabled={isSubmitted}
-                    className="mb-2"
-                  />
-                ))}
-                {!isSubmitted && (
-                  <Button 
-                    variant="outline" 
-                    onClick={addAdditionalItem}
-                    className="w-full mt-2"
-                  >
-                    <Plus className="mr-2 h-4 w-4" /> Add Another Challenge
-                  </Button>
-                )}
-              </div>
-            ) : (
-              <Textarea
-                placeholder="Enter your response here..."
-                value={responses[question.id] || ''}
-                onChange={(e) => handleResponseChange(question.id, e.target.value)}
-                disabled={isSubmitted}
-              />
+            ))}
+            {!isSubmitted && (
+              <Button 
+                variant="outline" 
+                onClick={addAdditionalItem}
+                className="w-full mt-2"
+              >
+                <span className="text-white">Add Another Challenge</span>
+              </Button>
             )}
           </div>
         );
-      default:
-        return (
-          <Input
-            type="text"
-            placeholder="Enter your response here..."
-            value={responses[question.id] || ''}
-            onChange={(e) => handleResponseChange(question.id, e.target.value)}
-            disabled={isSubmitted}
-          />
-        );
+      }
+      return (
+        <Textarea
+          placeholder="Enter your response here..."
+          value={responses[question.id] || ''}
+          onChange={(e) => handleResponseChange(question.id, e.target.value)}
+          disabled={isSubmitted}
+          className="bg-[#222] text-white border-[#333]"
+        />
+      );
     }
+    return (
+      <Input
+        type="text"
+        placeholder="Enter your response here..."
+        value={responses[question.id] || ''}
+        onChange={(e) => handleResponseChange(question.id, e.target.value)}
+        disabled={isSubmitted}
+        className="bg-[#222] text-white border-[#333]"
+      />
+    );
   };
   
-  // For facilitators, show a dashboard of responses
   if (!isParticipant) {
     const participantCount = participants.filter(p => 
       p.responses && p.responses.some(r => r.questionId === session.template.questions[0].id)
@@ -280,7 +251,6 @@ export default function SurveyPhase({ session, isParticipant = false, participan
     );
   }
   
-  // Render the appropriate section based on currentSection state
   const renderSectionContent = () => {
     switch (currentSection) {
       case 'delivery':
@@ -292,16 +262,17 @@ export default function SurveyPhase({ session, isParticipant = false, participan
                 Please rate how well the team delivers and executes on its goals.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent>
               {!session.isAnonymous && !isSubmitted && (
                 <div className="space-y-2">
-                  <Label htmlFor="name">Your Name</Label>
+                  <Label htmlFor="name" className="text-white">Your Name</Label>
                   <Input
                     id="name"
                     placeholder="Enter your name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     required
+                    className="bg-[#222] text-white border-[#333]"
                   />
                 </div>
               )}
@@ -314,13 +285,9 @@ export default function SurveyPhase({ session, isParticipant = false, participan
                   </p>
                 </div>
               ) : (
-                <div className="space-y-6">
+                <div>
                   {deliveryQuestions.map((question) => (
-                    <div key={question.id} className="space-y-2">
-                      <Label htmlFor={question.id}>
-                        {question.text}
-                        {question.required && <span className="text-destructive ml-1">*</span>}
-                      </Label>
+                    <div key={question.id}>
                       {renderQuestionInput(question)}
                     </div>
                   ))}
@@ -338,7 +305,7 @@ export default function SurveyPhase({ session, isParticipant = false, participan
                 Please rate how well the team collaborates internally.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent>
               {isSubmitted ? (
                 <div className="bg-accent p-4 rounded-lg text-center">
                   <h3 className="text-lg font-medium">Thank You!</h3>
@@ -347,13 +314,9 @@ export default function SurveyPhase({ session, isParticipant = false, participan
                   </p>
                 </div>
               ) : (
-                <div className="space-y-6">
+                <div>
                   {collaborationQuestions.map((question) => (
-                    <div key={question.id} className="space-y-2">
-                      <Label htmlFor={question.id}>
-                        {question.text}
-                        {question.required && <span className="text-destructive ml-1">*</span>}
-                      </Label>
+                    <div key={question.id}>
                       {renderQuestionInput(question)}
                     </div>
                   ))}
@@ -371,7 +334,7 @@ export default function SurveyPhase({ session, isParticipant = false, participan
                 Please provide responses to these additional questions about the team.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent>
               {isSubmitted ? (
                 <div className="bg-accent p-4 rounded-lg text-center">
                   <h3 className="text-lg font-medium">Thank You!</h3>
@@ -380,12 +343,11 @@ export default function SurveyPhase({ session, isParticipant = false, participan
                   </p>
                 </div>
               ) : (
-                <div className="space-y-6">
+                <div>
                   {additionalQuestions.map((question) => (
-                    <div key={question.id} className="space-y-2">
-                      <Label htmlFor={question.id}>
+                    <div key={question.id}>
+                      <Label className="text-base text-white font-semibold flex gap-2 mb-2">
                         {question.text}
-                        {question.required && <span className="text-destructive ml-1">*</span>}
                       </Label>
                       {renderQuestionInput(question)}
                     </div>
@@ -400,7 +362,6 @@ export default function SurveyPhase({ session, isParticipant = false, participan
     }
   };
   
-  // For participants, show the survey form with navigation
   return (
     <Card>
       {renderSectionContent()}
