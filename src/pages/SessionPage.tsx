@@ -5,7 +5,6 @@ import { useSession } from '@/context/SessionContext';
 import Layout from '@/components/layout/Layout';
 import SessionPhases from '@/components/sessions/SessionPhases';
 import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 
 const SessionPage = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
@@ -28,7 +27,12 @@ const SessionPage = () => {
           <p className="text-muted-foreground mb-6">
             The session you're looking for doesn't exist or has been deleted.
           </p>
-          <Button onClick={() => navigate('/')}>Return to Dashboard</Button>
+          <button 
+            onClick={() => navigate('/')}
+            className="bg-primary text-primary-foreground px-4 py-2 rounded hover:bg-primary/90"
+          >
+            Return to Dashboard
+          </button>
         </div>
       </Layout>
     );

@@ -1,14 +1,14 @@
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSession } from '@/context/SessionContext';
 import { Session } from '@/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import WelcomePhase from './phases/WelcomePhase';
 import SurveyPhase from './phases/SurveyPhase';
 import DiscussPhase from './phases/DiscussPhase';
 import ClosePhase from './phases/ClosePhase';
+import ReviewPhase from './phases/ReviewPhase';
 
 interface SessionPhasesProps {
   session: Session;
@@ -21,7 +21,7 @@ export default function SessionPhases({ session, isParticipant = false, particip
   const { updateSession } = useSession();
   const [activeTab, setActiveTab] = useState(session.currentPhase);
   
-  const handlePhaseChange = (phase: 'welcome' | 'survey' | 'discuss' | 'close') => {
+  const handlePhaseChange = (phase: 'welcome' | 'survey' | 'discuss' | 'review' | 'close') => {
     if (!isParticipant) {
       const updatedSession = {
         ...session,
@@ -29,18 +29,6 @@ export default function SessionPhases({ session, isParticipant = false, particip
       };
       updateSession(updatedSession);
       setActiveTab(phase);
-    }
-  };
-  
-  const handleCompleteSession = () => {
-    if (!isParticipant) {
-      const updatedSession = {
-        ...session,
-        status: 'completed' as const,
-        currentPhase: 'close' as const
-      };
-      updateSession(updatedSession);
-      navigate('/');
     }
   };
 
@@ -55,8 +43,8 @@ export default function SessionPhases({ session, isParticipant = false, particip
         onValueChange={(value) => handlePhaseChange(value as any)}
         className="w-full"
       >
-        <div className="flex justify-between items-center mb-4">
-          <TabsList className="grid grid-cols-4">
+        <div className="mb-4">
+          <TabsList className="grid grid-cols-5">
             <TabsTrigger 
               value="welcome" 
               disabled={isParticipant && session.currentPhase !== 'welcome'}
@@ -76,22 +64,18 @@ export default function SessionPhases({ session, isParticipant = false, particip
               Discuss
             </TabsTrigger>
             <TabsTrigger 
+              value="review" 
+              disabled={isParticipant && session.currentPhase !== 'review'}
+            >
+              Review
+            </TabsTrigger>
+            <TabsTrigger 
               value="close" 
               disabled={isParticipant && session.currentPhase !== 'close'}
             >
               Close
             </TabsTrigger>
           </TabsList>
-          
-          {!isParticipant && (
-            <Button 
-              variant="default" 
-              size="sm"
-              onClick={handleCompleteSession}
-            >
-              Complete Session
-            </Button>
-          )}
         </div>
 
         <TabsContent value="welcome">
@@ -108,6 +92,10 @@ export default function SessionPhases({ session, isParticipant = false, particip
         
         <TabsContent value="discuss">
           <DiscussPhase session={session} isParticipant={isParticipant} />
+        </TabsContent>
+        
+        <TabsContent value="review">
+          <ReviewPhase session={session} isParticipant={isParticipant} />
         </TabsContent>
         
         <TabsContent value="close">

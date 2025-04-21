@@ -22,7 +22,7 @@ export interface Session {
   facilitatorId: string;
   dateCreated: string;
   status: 'draft' | 'active' | 'completed';
-  currentPhase: 'welcome' | 'survey' | 'discuss' | 'close';
+  currentPhase: 'welcome' | 'survey' | 'discuss' | 'review' | 'close';
   isAnonymous: boolean;
 }
 
