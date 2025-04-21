@@ -1,3 +1,4 @@
+
 import { ResponsiveContainer, Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from "recharts";
 import { MessageSquare } from "lucide-react";
 
@@ -44,18 +45,18 @@ export default function RadarChartSection({ data }: RadarChartSectionProps) {
         <RadarChart cx="50%" cy="50%" outerRadius="75%" data={formattedData}>
           <defs>
             <linearGradient id="scoreGradient" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stopColor="#FDE1D3" /> {/* Score 1 */}
-              <stop offset="25%" stopColor="#FFDEE2" /> {/* Score 2 */}
-              <stop offset="50%" stopColor="#FEC6A1" /> {/* Score 3 */}
-              <stop offset="75%" stopColor="#FEF7CD" /> {/* Score 4 */}
-              <stop offset="100%" stopColor="#F2FCE2" /> {/* Score 5 */}
+              <stop offset="0%" stopColor="#FF6B6B" /> {/* Score 1 - Red */}
+              <stop offset="25%" stopColor="#FFB86C" /> {/* Score 2 - Orange */}
+              <stop offset="50%" stopColor="#FFD93D" /> {/* Score 3 - Yellow */}
+              <stop offset="75%" stopColor="#95E08D" /> {/* Score 4 - Light Green */}
+              <stop offset="100%" stopColor="#4CAF50" /> {/* Score 5 - Green */}
             </linearGradient>
           </defs>
           <PolarGrid 
             stroke="#e5e7eb" 
             gridType="circle"
             fill="url(#scoreGradient)" 
-            fillOpacity={0.6} 
+            fillOpacity={0.15} 
           />
           <PolarAngleAxis
             dataKey="label"
@@ -91,7 +92,7 @@ export default function RadarChartSection({ data }: RadarChartSectionProps) {
             tickCount={6} 
             angle={90} 
             axisLine={false} 
-            tick={{ fill: "#374151" }} 
+            tick={{ fill: "#374151" }}
           />
           <Radar
             name="Average"
@@ -107,7 +108,7 @@ export default function RadarChartSection({ data }: RadarChartSectionProps) {
       
       <div className="flex items-center mt-4 gap-8 text-xs">
         <div className="flex items-center gap-1">
-          <span style={{ width:12, height:7, background: "linear-gradient(90deg,#FDE1D3 0%,#FEC6A1 50%,#F2FCE2 100%)", display:"inline-block", borderRadius:2, marginRight:8 }}></span>
+          <span style={{ width:12, height:7, background: "linear-gradient(90deg,#FF6B6B 0%,#FFB86C 25%,#FFD93D 50%,#95E08D 75%,#4CAF50 100%)", display:"inline-block", borderRadius:2, marginRight:8 }}></span>
           <span className="text-gray-600 uppercase tracking-tight font-medium">Distribution</span>
         </div>
         <div className="flex items-center gap-1">
