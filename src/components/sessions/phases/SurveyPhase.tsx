@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useSession } from '@/context/SessionContext';
 import { Session, Response, Participant } from '@/types';
@@ -215,10 +214,10 @@ export default function SurveyPhase({ session, isParticipant = false, participan
   };
   
   if (!isParticipant) {
-    const participantCount = participants.filter(p => 
+    const participantCount = participants.filter(p =>
       p.responses && p.responses.some(r => r.questionId === session.template.questions[0].id)
     ).length;
-    
+
     return (
       <Card>
         <CardHeader>
@@ -234,17 +233,20 @@ export default function SurveyPhase({ session, isParticipant = false, participan
               {participantCount} participants have submitted responses.
             </p>
           </div>
-          
+
           <div>
             <h3 className="text-lg font-medium mb-4">Questions</h3>
             <div className="space-y-4">
-              {[
-                ...deliveryQuestions,
-                ...collaborationQuestions,
-                ...additionalQuestions
-              ].map((question) => (
+              {[...deliveryQuestions, ...collaborationQuestions, ...additionalQuestions].map((question) => (
                 <div key={question.id} className="p-4 bg-card border rounded-lg">
-                  <p className="font-medium">{question.text}</p>
+                  <SurveyQuestionRow
+                    question={question}
+                    value={responses[question.id]}
+                    comment={comments[question.id] || ""}
+                    onValueChange={(val) => handleResponseChange(question.id, val)}
+                    onCommentChange={(val) => handleCommentChange(question.id, val)}
+                    disabled={isSubmitted}
+                  />
                 </div>
               ))}
             </div>
