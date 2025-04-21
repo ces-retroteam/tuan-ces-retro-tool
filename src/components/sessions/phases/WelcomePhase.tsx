@@ -4,8 +4,8 @@ import { useSession } from '@/context/SessionContext';
 import { Session } from '@/types';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-// Import QRCode from the newly-installed package
-import { QRCode } from 'qrcode.react';
+// Correct import of QRCode as default from qrcode.react
+import QRCode from 'qrcode.react';
 
 interface WelcomePhaseProps {
   session: Session;
