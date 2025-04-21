@@ -1,5 +1,5 @@
 
-import { createContext, useState, useContext, ReactNode } from 'react';
+import React, { createContext, useState, useContext, ReactNode } from 'react';
 import { Session, Participant, Comment, Action } from '../types';
 import { sessions as mockSessions, participants as mockParticipants, comments as mockComments, actions as mockActions } from '../data/mockData';
 
@@ -10,7 +10,7 @@ interface SessionContextType {
   comments: Comment[];
   actions: Action[];
   setCurrentSession: (session: Session | null) => void;
-  createSession: (session: Omit<Session, 'id' | 'dateCreated' | 'status' | 'currentPhase'>) => void;
+  createSession: (session: Omit<Session, 'id' | 'dateCreated' | 'status' | 'currentPhase'>) => Session;
   updateSession: (session: Session) => void;
   addParticipant: (participant: Omit<Participant, 'id' | 'joinedAt'>) => string;
   addComment: (comment: Omit<Comment, 'id' | 'createdAt'>) => void;
