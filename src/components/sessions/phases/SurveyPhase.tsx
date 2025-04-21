@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useSession } from "@/context/SessionContext";
 import { Session, Response, Participant } from "@/types";
@@ -38,6 +37,7 @@ export default function SurveyPhase({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [additionalItems, setAdditionalItems] = useState<string[]>([""]);
+  const [currentSection, setCurrentSection] = useState<SurveySection>("delivery");
 
   useEffect(() => {
     if (isParticipant && participantId) {
@@ -126,7 +126,6 @@ export default function SurveyPhase({
     }
   };
 
-  // --- New: Section question arrays, always visible and split into three parts ---
   const deliveryQuestions = [
     {
       id: "delivery_1",
@@ -178,7 +177,6 @@ export default function SurveyPhase({
   const additionalPrompt =
     "What are the top 3 challenges facing the team? (Add as many as you'd like)";
 
-  // --- Admin/Facilitator view ---
   if (!isParticipant) {
     const participantCount = participants.filter(
       (p) =>
@@ -202,7 +200,6 @@ export default function SurveyPhase({
             </h3>
             <p className="text-[#555]">{participantCount} participants have submitted responses.</p>
           </div>
-
           {/* Section: Delivery & Execution */}
           <div className="bg-white rounded-2xl px-6 py-6 shadow-sm border border-gray-100 mb-8">
             <h2 className="font-bold text-[1.35rem] text-[#222] mb-2" style={{ fontFamily: "Clarendon, serif" }}>
@@ -263,38 +260,17 @@ export default function SurveyPhase({
                 />
               ))}
             </div>
-            {!isSubmitted && (
-              <Button
-                variant="outline"
-                onClick={addAdditionalItem}
-                className="w-full mt-3 flex items-center gap-2 border-[#E15D2F] hover:bg-[#FFF4F0]"
-                style={{ color: "#E15D2F" }}
-              >
-                <Plus size={18} />
-                <span className="uppercase font-semibold tracking-wide">Add Another Challenge</span>
-              </Button>
-            )}
+            {/* No add button in admin mode */}
           </div>
         </CardContent>
-        <CardFooter className="flex justify-end">
-          <Button onClick={() => {
-            updateSession({
-              ...session,
-              currentPhase: "discuss",
-            });
-          }}>
-            Proceed to Discussion
-          </Button>
-        </CardFooter>
+        {/* No Proceed to Discussion button */}
       </Card>
     );
   }
 
-  // --- Participant view (form with always visible inputs, sectioned) ---
-  return (
-    <Card>
-      <CardContent className="space-y-10 pt-6 pb-2">
-        {/* SECTION 1: Delivery & Execution */}
+  function renderSection(section: SurveySection) {
+    if (section === "delivery") {
+      return (
         <div className="bg-white rounded-2xl px-6 py-6 shadow-sm border border-gray-100 mb-4">
           <h2 className="font-bold text-[1.35rem] text-[#222] mb-2"
             style={{ fontFamily: "Clarendon, serif" }}>
@@ -320,19 +296,24 @@ export default function SurveyPhase({
               />
             </div>
           )}
-          {deliveryQuestions.map((question) => (
-            <SurveyQuestionRow
-              key={question.id}
-              question={question}
-              value={responses[question.id]}
-              comment={comments[question.id] || ""}
-              onValueChange={(val) => handleResponseChange(question.id, val)}
-              onCommentChange={(val) => handleCommentChange(question.id, val)}
-              disabled={isSubmitted}
-            />
-          ))}
+          <div className="space-y-6">
+            {deliveryQuestions.map((question) => (
+              <SurveyQuestionRow
+                key={question.id}
+                question={question}
+                value={responses[question.id]}
+                comment={comments[question.id] || ""}
+                onValueChange={(val) => handleResponseChange(question.id, val)}
+                onCommentChange={(val) => handleCommentChange(question.id, val)}
+                disabled={isSubmitted}
+              />
+            ))}
+          </div>
         </div>
-        {/* SECTION 2: Team Collaboration */}
+      );
+    }
+    if (section === "collaboration") {
+      return (
         <div className="bg-white rounded-2xl px-6 py-6 shadow-sm border border-gray-100 mb-4">
           <h2 className="font-bold text-[1.35rem] text-[#222] mb-2"
             style={{ fontFamily: "Clarendon, serif" }}>
@@ -341,19 +322,24 @@ export default function SurveyPhase({
           <CardDescription className="mb-4 text-[#555]">
             Please rate how well the team collaborates internally.
           </CardDescription>
-          {collaborationQuestions.map((question) => (
-            <SurveyQuestionRow
-              key={question.id}
-              question={question}
-              value={responses[question.id]}
-              comment={comments[question.id] || ""}
-              onValueChange={(val) => handleResponseChange(question.id, val)}
-              onCommentChange={(val) => handleCommentChange(question.id, val)}
-              disabled={isSubmitted}
-            />
-          ))}
+          <div className="space-y-6">
+            {collaborationQuestions.map((question) => (
+              <SurveyQuestionRow
+                key={question.id}
+                question={question}
+                value={responses[question.id]}
+                comment={comments[question.id] || ""}
+                onValueChange={(val) => handleResponseChange(question.id, val)}
+                onCommentChange={(val) => handleCommentChange(question.id, val)}
+                disabled={isSubmitted}
+              />
+            ))}
+          </div>
         </div>
-        {/* SECTION 3: Additional Questions (challenges input only) */}
+      );
+    }
+    if (section === "additional") {
+      return (
         <div className="bg-white rounded-2xl px-6 py-6 shadow-sm border border-gray-100 mb-4">
           <h2 className="font-bold text-[1.35rem] text-[#222] mb-2" style={{ fontFamily: "Clarendon, serif" }}>
             Additional Questions
@@ -387,7 +373,15 @@ export default function SurveyPhase({
             </Button>
           )}
         </div>
-        {/* Thank you state */}
+      );
+    }
+    return null;
+  }
+
+  return (
+    <Card>
+      <CardContent className="space-y-10 pt-6 pb-2">
+        {renderSection(currentSection)}
         {isSubmitted && (
           <div className="bg-accent p-4 rounded-lg text-center">
             <h3 className="text-lg font-medium">Thank You!</h3>
@@ -397,28 +391,59 @@ export default function SurveyPhase({
           </div>
         )}
       </CardContent>
-      {/* Actions */}
       {!isSubmitted && (
-        <CardFooter className="flex justify-end gap-2">
-          <Button
-            onClick={handleSubmit}
-            disabled={isSubmitting
-              // basic validation: all required scores provided
-              || deliveryQuestions.filter((q) => q.required).some((q) => ![1, 2, 3, 4, 5].includes(responses[q.id]))
-              || collaborationQuestions.filter((q) => q.required).some((q) => ![1, 2, 3, 4, 5].includes(responses[q.id]))
-              || (!session.isAnonymous && !name.trim())
-            }
-            className="font-bold"
-            style={{
-              backgroundColor: "#E15D2F",
-              color: "#fff",
-              textTransform: "uppercase",
-              letterSpacing: "0.04em",
-              fontFamily: "Inter, Helvetica, Arial, sans-serif"
-            }}
-          >
-            {isSubmitting ? "Submitting..." : "Submit Survey"}
-          </Button>
+        <CardFooter className="flex flex-col gap-4 items-end">
+          <div className="flex justify-between w-full">
+            <Button
+              variant="outline"
+              style={{ color: "#222", borderColor: "#E15D2F" }}
+              disabled={currentSection === "delivery"}
+              onClick={() => setCurrentSection(surveySections[surveySections.indexOf(currentSection) - 1])}
+            >
+              Prev
+            </Button>
+            {currentSection !== "additional" ? (
+              <Button
+                style={{
+                  backgroundColor: "#E15D2F",
+                  color: "#fff",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.04em",
+                  fontFamily: "Inter, Helvetica, Arial, sans-serif"
+                }}
+                onClick={() => setCurrentSection(surveySections[surveySections.indexOf(currentSection) + 1])}
+                disabled={
+                  (currentSection === "delivery" &&
+                    deliveryQuestions.filter((q) => q.required).some((q) => ![1, 2, 3, 4, 5].includes(responses[q.id])) ||
+                  (currentSection === "collaboration" &&
+                    collaborationQuestions.filter((q) => q.required).some((q) => ![1, 2, 3, 4, 5].includes(responses[q.id])) ||
+                  (!session.isAnonymous && !name.trim()))
+                }
+              >
+                Next
+              </Button>
+            ) : (
+              <Button
+                onClick={handleSubmit}
+                disabled={
+                  isSubmitting ||
+                  (!session.isAnonymous && !name.trim()) ||
+                  deliveryQuestions.filter((q) => q.required).some((q) => ![1, 2, 3, 4, 5].includes(responses[q.id])) ||
+                  collaborationQuestions.filter((q) => q.required).some((q) => ![1, 2, 3, 4, 5].includes(responses[q.id]))
+                }
+                className="font-bold"
+                style={{
+                  backgroundColor: "#E15D2F",
+                  color: "#fff",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.04em",
+                  fontFamily: "Inter, Helvetica, Arial, sans-serif"
+                }}
+              >
+                {isSubmitting ? "Submitting..." : "Submit Survey"}
+              </Button>
+            )}
+          </div>
         </CardFooter>
       )}
     </Card>
