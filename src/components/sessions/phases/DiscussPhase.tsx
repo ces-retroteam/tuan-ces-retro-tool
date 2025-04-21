@@ -103,14 +103,14 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
 
   const radarData = session.template.questions
     .filter(q => q.type === "scale")
-    .map(q => {
-      const item = aggregatedResponses[q.id];
+    .map(question => {
+      const item = aggregatedResponses[question.id];
       let color = "#F97316"; // orange (default)
       if (item?.average === 5) color = "#5E9323"; // green for perfect
       return {
-        label: q.text,
+        label: question.text,
         average: item ? item.average : 1,
-        commentCount: filteredComments.filter(c => c.questionId === q.id).length,
+        commentCount: filteredComments.filter(c => c.questionId === question.id).length,
         color
       };
     });
@@ -123,7 +123,7 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
         {session.template.questions.filter(q => q.type === "scale").map((question, idx) => {
           const data = aggregatedResponses[question.id];
           const avg = data ? data.average : 1;
-          const commentCount = filteredComments.filter(c => c.questionId === q.id).length;
+          const commentCount = filteredComments.filter(c => c.questionId === question.id).length;
           const isPerfect = avg === 5;
           return (
             <div
@@ -286,3 +286,4 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
     </div>
   );
 }
+
