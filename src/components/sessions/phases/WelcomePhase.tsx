@@ -4,8 +4,8 @@ import { useSession } from '@/context/SessionContext';
 import { Session } from '@/types';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-// Correct import of QRCode as default from qrcode.react
-import QRCode from 'qrcode.react';
+// Correct import of QRCodeSVG (not default) from qrcode.react
+import { QRCodeSVG } from 'qrcode.react';
 
 interface WelcomePhaseProps {
   session: Session;
@@ -79,12 +79,12 @@ export default function WelcomePhase({ session, isParticipant = false }: Welcome
             </div>
             {/* QR Code Section */}
             <div className="flex-shrink-0 flex justify-center items-center p-2">
-              <QRCode
+              <QRCodeSVG
                 value={sessionLink}
                 size={96}
                 bgColor="#fff"
                 fgColor="#E15D2F"
-                includeMargin
+                includeMargin={true}
                 style={{ borderRadius: 8, border: '1px solid #eee', background: '#fff' }}
               />
             </div>
