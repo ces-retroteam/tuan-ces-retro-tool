@@ -1,6 +1,5 @@
 
 import { ResponsiveContainer, Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from "recharts";
-import { Comment } from "@/types";
 import { MessageSquare } from "lucide-react";
 
 interface RadarChartSectionProps {
@@ -14,14 +13,13 @@ interface RadarChartSectionProps {
 
 export default function RadarChartSection({ data }: RadarChartSectionProps) {
   return (
-    <div className="w-full flex flex-col items-center justify-center py-6" style={{ background: "#1A1F2C" }}>
+    <div className="w-full flex flex-col items-center justify-center py-6 bg-white">
       <ResponsiveContainer width={500} height={380}>
         <RadarChart cx="50%" cy="50%" outerRadius="70%" data={data}>
-          <PolarGrid stroke="#333" />
+          <PolarGrid stroke="#e5e7eb" />
           <PolarAngleAxis
             dataKey="label"
             tick={({ payload, x, y, index }) => {
-              // Custom label with comment icon and count
               const item = data[index];
               return (
                 <g transform={`translate(${x},${y})`}>
@@ -48,26 +46,33 @@ export default function RadarChartSection({ data }: RadarChartSectionProps) {
             }}
             tickLine={false}
           />
-          <PolarRadiusAxis domain={[1, 5]} tickCount={5} angle={90} axisLine={false} tick={{ fill: "#fff" }} />
+          <PolarRadiusAxis domain={[1, 5]} tickCount={5} angle={90} axisLine={false} tick={{ fill: "#374151" }} />
           <Radar
             name="Average"
             dataKey="average"
-            stroke="#fff"
-            fill="#fff"
+            stroke="url(#colorGradient)"
+            fill="url(#colorGradient)"
             fillOpacity={0.15}
-            dot={{ r: 6, fill: "#fff", stroke: "#fff", strokeWidth: 2 }}
+            dot={{ r: 6, fill: "#fff", stroke: "#E15D2F", strokeWidth: 2 }}
             isAnimationActive={false}
           />
+          <defs>
+            <linearGradient id="colorGradient" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="#E15D2F" />
+              <stop offset="50%" stopColor="#F97316" />
+              <stop offset="100%" stopColor="#5E9323" />
+            </linearGradient>
+          </defs>
         </RadarChart>
       </ResponsiveContainer>
       <div className="flex items-center mt-4 gap-8 text-xs">
         <div className="flex items-center gap-1">
           <span style={{ width:12, height:7, background: "linear-gradient(90deg,#E15D2F 10%,#ffe345 96%,#5E9323 133%)", display:"inline-block",borderRadius:2,marginRight:8 }}></span>
-          <span className="text-gray-400 uppercase tracking-tight font-medium">Distribution</span>
+          <span className="text-gray-600 uppercase tracking-tight font-medium">Distribution</span>
         </div>
         <div className="flex items-center gap-1">
-          <span style={{ width: 30, height: 6, display: "inline-block", background: "#fff", borderRadius: 2 }}></span>
-          <span className="text-gray-400 uppercase tracking-tight font-medium">Mean</span>
+          <span style={{ width: 30, height: 6, display: "inline-block", background: "#E15D2F", borderRadius: 2 }}></span>
+          <span className="text-gray-600 uppercase tracking-tight font-medium">Mean</span>
         </div>
       </div>
     </div>
