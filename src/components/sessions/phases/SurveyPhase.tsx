@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useSession } from '@/context/SessionContext';
 import { Session, Response, Participant } from '@/types';
@@ -6,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Slider } from '@/components/ui/slider';
 import { toast } from "sonner";
 import { ArrowLeft, ArrowRight, Plus } from 'lucide-react';
 import SurveyQuestionRow from "./SurveyQuestionRow";
@@ -34,10 +34,18 @@ export default function SurveyPhase({ session, isParticipant = false, participan
       const participant = participants.find(p => p.id === participantId);
       if (participant?.responses) {
         const responseObj: Record<string, any> = {};
+        const commentObj: Record<string, string> = {};
+        
         participant.responses.forEach(response => {
-          responseObj[response.questionId] = response.value;
+          if (response.questionId.startsWith('comment_')) {
+            commentObj[response.questionId.replace('comment_', '')] = response.value as string;
+          } else {
+            responseObj[response.questionId] = response.value;
+          }
         });
+        
         setResponses(responseObj);
+        setComments(commentObj);
         setIsSubmitted(true);
       }
     }
@@ -149,12 +157,7 @@ export default function SurveyPhase({ session, isParticipant = false, participan
         <SurveyQuestionRow
           key={question.id}
           question={question}
-          value={
-            typeof responses[question.id] === "number" &&
-            [1, 2, 3, 4, 5].includes(responses[question.id])
-              ? responses[question.id]
-              : undefined
-          }
+          value={responses[question.id]}
           comment={comments[question.id] || ""}
           onValueChange={val => handleResponseChange(question.id, val)}
           onCommentChange={val => handleCommentChange(question.id, val)}
@@ -269,7 +272,7 @@ export default function SurveyPhase({ session, isParticipant = false, participan
             </CardHeader>
             <CardContent>
               {!session.isAnonymous && !isSubmitted && (
-                <div className="space-y-2">
+                <div className="space-y-2 mb-6">
                   <Label htmlFor="name" className="text-white">Your Name</Label>
                   <Input
                     id="name"
