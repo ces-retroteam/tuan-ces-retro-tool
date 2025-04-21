@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useSession } from '@/context/SessionContext';
 import { Session } from '@/types';
@@ -8,9 +9,10 @@ import { QRCodeSVG } from 'qrcode.react';
 interface WelcomePhaseProps {
   session: Session;
   isParticipant?: boolean;
+  onBeginSurvey?: () => void; // New prop
 }
 
-export default function WelcomePhase({ session, isParticipant = false }: WelcomePhaseProps) {
+export default function WelcomePhase({ session, isParticipant = false, onBeginSurvey }: WelcomePhaseProps) {
   const { updateSession } = useSession();
   const [copying, setCopying] = useState(false);
 
@@ -25,13 +27,10 @@ export default function WelcomePhase({ session, isParticipant = false }: Welcome
     }, 2000);
   };
 
+  // Remove the local handleNext, use the onBeginSurvey prop for the button
   const handleNext = () => {
-    if (!isParticipant) {
-      const updatedSession = {
-        ...session,
-        currentPhase: 'survey' as const
-      };
-      updateSession(updatedSession);
+    if (!isParticipant && onBeginSurvey) {
+      onBeginSurvey();
     }
   };
 
@@ -50,19 +49,11 @@ export default function WelcomePhase({ session, isParticipant = false }: Welcome
           </p>
         </div>
 
-        <div>
-          <h3 className="text-lg font-medium mb-2">How It Works</h3>
-          <ol className="list-decimal list-inside space-y-2 text-muted-foreground">
-            <li>We'll start with a <strong>survey</strong> to collect everyone's feedback.</li>
-            <li>Then we'll move to <strong>discussion</strong> to review results together.</li>
-            <li>Finally, we'll <strong>close</strong> by identifying actions to address key issues.</li>
-          </ol>
-        </div>
-
-        {/* Share Link Section */}
+        {/* Share/QR Row */}
         {!isParticipant && (
-          <div className="bg-accent p-4 rounded-lg flex flex-col sm:flex-row items-start sm:items-center gap-4">
-            <div className="flex-1 w-full">
+          <div className="bg-accent p-4 rounded-lg flex flex-col md:flex-row items-center gap-6">
+            {/* Share Link */}
+            <div className="flex-1 w-full flex flex-col mb-4 md:mb-0">
               <h3 className="text-lg font-medium mb-2">Share With Your Team</h3>
               <p className="text-sm mb-4">
                 Invite participants by sharing this link:
@@ -76,21 +67,20 @@ export default function WelcomePhase({ session, isParticipant = false }: Welcome
                 </Button>
               </div>
             </div>
-          </div>
-        )}
-
-        {/* QR Code - moved out and made larger */}
-        {!isParticipant && (
-          <div className="flex flex-col items-center py-6">
-            <h3 className="text-lg font-medium mb-3">Or Scan to Join</h3>
-            <QRCodeSVG
-              value={sessionLink}
-              size={180}
-              bgColor="#fff"
-              fgColor="#E15D2F"
-              includeMargin={true}
-              style={{ borderRadius: 12, border: '2px solid #eee', background: '#fff' }}
-            />
+            {/* QR Code */}
+            <div className="flex-shrink-0 flex justify-center items-center p-2">
+              <div className="flex flex-col items-center">
+                <span className="text-sm text-muted-foreground mb-2">Or Scan to Join</span>
+                <QRCodeSVG
+                  value={sessionLink}
+                  size={180}
+                  bgColor="#fff"
+                  fgColor="#E15D2F"
+                  includeMargin={true}
+                  style={{ borderRadius: 12, border: '2px solid #eee', background: '#fff' }}
+                />
+              </div>
+            </div>
           </div>
         )}
       </CardContent>

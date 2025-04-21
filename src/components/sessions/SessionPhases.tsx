@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSession } from '@/context/SessionContext';
@@ -43,6 +42,10 @@ export default function SessionPhases({ session, isParticipant = false, particip
       updateSession(updatedSession);
       navigate('/');
     }
+  };
+
+  const handleBeginSurvey = () => {
+    handlePhaseChange('survey');
   };
 
   return (
@@ -92,7 +95,7 @@ export default function SessionPhases({ session, isParticipant = false, particip
         </div>
 
         <TabsContent value="welcome">
-          <WelcomePhase session={session} isParticipant={isParticipant} />
+          <WelcomePhase session={session} isParticipant={isParticipant} onBeginSurvey={handleBeginSurvey} />
         </TabsContent>
         
         <TabsContent value="survey">
