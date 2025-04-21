@@ -12,6 +12,7 @@ export interface Question {
   type: 'scale' | 'text' | 'multiple-choice';
   options?: string[];
   required: boolean;
+  description?: string; // Added this optional property
 }
 
 export interface Session {

@@ -123,7 +123,7 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
         {session.template.questions.filter(q => q.type === "scale").map((question, idx) => {
           const data = aggregatedResponses[question.id];
           const avg = data ? data.average : 1;
-          const commentCount = filteredComments.filter(c => c.questionId === question.id).length;
+          const commentCount = filteredComments.filter(c => c.questionId === q.id).length;
           const isPerfect = avg === 5;
           return (
             <div
@@ -146,7 +146,7 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
               </div>
               <div className="flex-1 min-w-0">
                 <span className="block text-lg font-semibold text-white">{question.text}</span>
-                {/* Safely access description property only if it exists */}
+                {/* Safely check if description exists before rendering it */}
                 {question.description && (
                   <span className="block text-sm text-gray-300">{question.description}</span>
                 )}
