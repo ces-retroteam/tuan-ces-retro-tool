@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSession } from '@/context/SessionContext';
@@ -94,41 +93,6 @@ const Index = () => {
                 Team Pulse helps you run effective team health checks to identify strengths,
                 pain points, and opportunities for improvement.
               </p>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-lg">Create</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-muted-foreground">
-                      Create sessions using predefined templates or customize your own.
-                    </p>
-                  </CardContent>
-                </Card>
-                
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-lg">Collect</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-muted-foreground">
-                      Gather anonymous feedback from your team members easily.
-                    </p>
-                  </CardContent>
-                </Card>
-                
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-lg">Improve</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-muted-foreground">
-                      Track actions and measure improvement over time.
-                    </p>
-                  </CardContent>
-                </Card>
-              </div>
             </div>
           </CardContent>
         </Card>
@@ -138,4 +102,3 @@ const Index = () => {
 };
 
 export default Index;
-

@@ -9,7 +9,7 @@ import { QRCodeSVG } from 'qrcode.react';
 interface WelcomePhaseProps {
   session: Session;
   isParticipant?: boolean;
-  onBeginSurvey?: () => void; // New prop
+  onBeginSurvey?: () => void;
 }
 
 export default function WelcomePhase({ session, isParticipant = false, onBeginSurvey }: WelcomePhaseProps) {
@@ -27,7 +27,6 @@ export default function WelcomePhase({ session, isParticipant = false, onBeginSu
     }, 2000);
   };
 
-  // Remove the local handleNext, use the onBeginSurvey prop for the button
   const handleNext = () => {
     if (!isParticipant && onBeginSurvey) {
       onBeginSurvey();
@@ -49,36 +48,34 @@ export default function WelcomePhase({ session, isParticipant = false, onBeginSu
           </p>
         </div>
 
-        {/* Share/QR Row */}
+        {/* Share/QR Section - single row, larger QR */}
         {!isParticipant && (
-          <div className="bg-accent p-4 rounded-lg flex flex-col md:flex-row items-center gap-6">
+          <div className="flex flex-col md:flex-row gap-8 items-center md:items-start bg-accent p-6 rounded-lg">
+            {/* QR Code */}
+            <div className="flex flex-col items-center">
+              <span className="text-sm text-muted-foreground mb-2">Scan to Join</span>
+              <QRCodeSVG
+                value={sessionLink}
+                size={230}
+                bgColor="#fff"
+                fgColor="#E15D2F"
+                includeMargin={true}
+                style={{ borderRadius: 16, border: '2px solid #eee', background: '#fff', width: 230, height: 230 }}
+              />
+            </div>
             {/* Share Link */}
-            <div className="flex-1 w-full flex flex-col mb-4 md:mb-0">
+            <div className="flex-1 w-full flex flex-col justify-center">
               <h3 className="text-lg font-medium mb-2">Share With Your Team</h3>
               <p className="text-sm mb-4">
                 Invite participants by sharing this link:
               </p>
-              <div className="flex items-center space-x-2">
-                <div className="bg-background p-2 rounded border flex-1 truncate">
+              <div className="flex items-center space-x-3">
+                <div className="bg-background p-2 rounded border flex-1 truncate text-sm">
                   {sessionLink}
                 </div>
                 <Button onClick={handleCopyLink} variant="secondary" size="sm">
                   {copying ? "Copied!" : "Copy"}
                 </Button>
-              </div>
-            </div>
-            {/* QR Code */}
-            <div className="flex-shrink-0 flex justify-center items-center p-2">
-              <div className="flex flex-col items-center">
-                <span className="text-sm text-muted-foreground mb-2">Or Scan to Join</span>
-                <QRCodeSVG
-                  value={sessionLink}
-                  size={180}
-                  bgColor="#fff"
-                  fgColor="#E15D2F"
-                  includeMargin={true}
-                  style={{ borderRadius: 12, border: '2px solid #eee', background: '#fff' }}
-                />
               </div>
             </div>
           </div>
