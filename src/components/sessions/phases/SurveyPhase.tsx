@@ -1,13 +1,21 @@
-import { useState, useEffect } from 'react';
-import { useSession } from '@/context/SessionContext';
-import { Session, Response, Participant } from '@/types';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
+
+import { useState, useEffect } from "react";
+import { useSession } from "@/context/SessionContext";
+import { Session, Response, Participant } from "@/types";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { ArrowLeft, ArrowRight, Plus } from 'lucide-react';
+import { Plus } from "lucide-react";
 import SurveyQuestionRow from "./SurveyQuestionRow";
 
 interface SurveyPhaseProps {
@@ -16,54 +24,58 @@ interface SurveyPhaseProps {
   participantId?: string;
 }
 
-type SurveySection = 'delivery' | 'collaboration' | 'additional';
+type SurveySection = "delivery" | "collaboration" | "additional";
 
-export default function SurveyPhase({ session, isParticipant = false, participantId }: SurveyPhaseProps) {
+export default function SurveyPhase({
+  session,
+  isParticipant = false,
+  participantId,
+}: SurveyPhaseProps) {
   const { updateSession, participants, addParticipant } = useSession();
   const [responses, setResponses] = useState<Record<string, any>>({});
   const [comments, setComments] = useState<Record<string, string>>({});
   const [name, setName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [currentSection, setCurrentSection] = useState<SurveySection>('delivery');
-  const [additionalItems, setAdditionalItems] = useState<string[]>(['']);
-  
+  const [additionalItems, setAdditionalItems] = useState<string[]>([""]);
+
   useEffect(() => {
     if (isParticipant && participantId) {
-      const participant = participants.find(p => p.id === participantId);
+      const participant = participants.find((p) => p.id === participantId);
       if (participant?.responses) {
         const responseObj: Record<string, any> = {};
         const commentObj: Record<string, string> = {};
-        
-        participant.responses.forEach(response => {
-          if (response.questionId.startsWith('comment_')) {
-            commentObj[response.questionId.replace('comment_', '')] = response.value as string;
+
+        participant.responses.forEach((response) => {
+          if (response.questionId.startsWith("comment_")) {
+            commentObj[response.questionId.replace("comment_", "")] =
+              response.value as string;
           } else {
             responseObj[response.questionId] = response.value;
           }
         });
-        
+
         setResponses(responseObj);
         setComments(commentObj);
         setIsSubmitted(true);
       }
     }
   }, [isParticipant, participantId, participants]);
-  
+
   const handleResponseChange = (questionId: string, value: any) => {
-    setResponses(prev => ({
+    setResponses((prev) => ({
       ...prev,
-      [questionId]: value
+      [questionId]: value,
     }));
   };
 
   const handleCommentChange = (questionId: string, value: string) => {
-    setComments(prev => ({
+    setComments((prev) => ({
       ...prev,
-      [questionId]: value
+      [questionId]: value,
     }));
   };
-  
+
   const handleAdditionalItemChange = (index: number, value: string) => {
     const newItems = [...additionalItems];
     newItems[index] = value;
@@ -71,36 +83,38 @@ export default function SurveyPhase({ session, isParticipant = false, participan
   };
 
   const addAdditionalItem = () => {
-    setAdditionalItems([...additionalItems, '']);
+    setAdditionalItems([...additionalItems, ""]);
   };
-  
+
   const handleSubmit = () => {
     if (isParticipant) {
       setIsSubmitting(true);
-      
+
       const participantResponses: Response[] = [
         ...Object.entries(responses).map(([questionId, value]) => ({
           questionId,
-          value
+          value,
         })),
         ...Object.entries(comments).map(([questionId, value]) => ({
           questionId: `comment_${questionId}`,
-          value
+          value,
         })),
-        ...additionalItems.filter(item => item.trim()).map((item, index) => ({
-          questionId: `additional_${index}`,
-          value: item
-        }))
+        ...additionalItems
+          .filter((item) => item.trim())
+          .map((item, index) => ({
+            questionId: `additional_${index}`,
+            value: item,
+          })),
       ];
-      
+
       try {
-        const participantData: Omit<Participant, 'id' | 'joinedAt'> = {
-          name: session.isAnonymous ? `Anonymous User` : name,
-          responses: participantResponses
+        const participantData: Omit<Participant, "id" | "joinedAt"> = {
+          name: session.isAnonymous ? "Anonymous User" : name,
+          responses: participantResponses,
         };
-        
+
         addParticipant(participantData);
-        
+
         setIsSubmitted(true);
         setIsSubmitting(false);
         toast.success("Survey submitted successfully!");
@@ -111,63 +125,243 @@ export default function SurveyPhase({ session, isParticipant = false, participan
       }
     }
   };
-  
-  const handleNext = () => {
-    if (currentSection === 'delivery') {
-      setCurrentSection('collaboration');
-    } else if (currentSection === 'collaboration') {
-      setCurrentSection('additional');
-    } else if (!isParticipant) {
-      const updatedSession = {
-        ...session,
-        currentPhase: 'discuss' as const
-      };
-      updateSession(updatedSession);
-    }
-  };
-  
-  const handlePrevious = () => {
-    if (currentSection === 'additional') {
-      setCurrentSection('collaboration');
-    } else if (currentSection === 'collaboration') {
-      setCurrentSection('delivery');
-    }
-  };
-  
+
+  // --- New: Section question arrays, always visible and split into three parts ---
   const deliveryQuestions = [
-    { id: 'delivery_1', text: 'How effectively does the team deliver on its commitments?', type: 'scale', required: true },
-    { id: 'delivery_2', text: 'How would you rate the quality of our deliverables?', type: 'scale', required: true },
-    { id: 'delivery_3', text: 'How well does the team handle unexpected obstacles?', type: 'scale', required: true },
+    {
+      id: "delivery_1",
+      text: "How effectively does the team deliver on its commitments?",
+      description: "Consider meeting goals, deadlines, and expectations.",
+      type: "scale",
+      required: true,
+    },
+    {
+      id: "delivery_2",
+      text: "How would you rate the quality of our deliverables?",
+      description: "Think about clarity, accuracy, and completeness.",
+      type: "scale",
+      required: true,
+    },
+    {
+      id: "delivery_3",
+      text: "How well does the team handle unexpected obstacles?",
+      description: "Assess flexibility and problem-solving.",
+      type: "scale",
+      required: true,
+    },
   ];
-  
+
   const collaborationQuestions = [
-    { id: 'collab_1', text: 'How well does the team communicate internally?', type: 'scale', required: true },
-    { id: 'collab_2', text: 'How effectively do team members support each other?', type: 'scale', required: true },
-    { id: 'collab_3', text: "Rate the team's ability to constructively resolve conflicts", type: 'scale', required: true },
+    {
+      id: "collab_1",
+      text: "How well does the team communicate internally?",
+      description: "Includes regular updates and open sharing.",
+      type: "scale",
+      required: true,
+    },
+    {
+      id: "collab_2",
+      text: "How effectively do team members support each other?",
+      description: "Look for encouragement, mentorship, or help.",
+      type: "scale",
+      required: true,
+    },
+    {
+      id: "collab_3",
+      text: "Rate the team's ability to constructively resolve conflicts.",
+      description: "How are disagreements handled?",
+      type: "scale",
+      required: true,
+    },
   ];
-  
-  const additionalQuestions = [
-    { id: 'additional', text: 'What are the top 3 challenges facing the team?', type: 'text', required: false },
-  ];
-  
-  const renderQuestionInput = (question: any) => {
-    if (question.type === "scale") {
-      return (
-        <SurveyQuestionRow
-          key={question.id}
-          question={question}
-          value={responses[question.id]}
-          comment={comments[question.id] || ""}
-          onValueChange={val => handleResponseChange(question.id, val)}
-          onCommentChange={val => handleCommentChange(question.id, val)}
-          disabled={isSubmitted}
-        />
-      );
-    }
-    if (question.type === "text") {
-      if (question.id === "additional") {
-        return (
-          <div className="space-y-4">
+
+  const additionalPrompt =
+    "What are the top 3 challenges facing the team? (Add as many as you'd like)";
+
+  // --- Admin/Facilitator view ---
+  if (!isParticipant) {
+    const participantCount = participants.filter(
+      (p) =>
+        p.responses &&
+        p.responses.some((r) => r.questionId === deliveryQuestions[0].id)
+    ).length;
+
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Survey Phase</CardTitle>
+          <CardDescription>
+            Participants are completing the survey. Once everyone has responded,
+            proceed to the discussion phase.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-8">
+          <div className="bg-[#F7F7F7] p-4 rounded-lg border mb-2">
+            <h3 className="text-lg font-semibold mb-2 text-[#222]">
+              Participation Status
+            </h3>
+            <p className="text-[#555]">{participantCount} participants have submitted responses.</p>
+          </div>
+
+          {/* Section: Delivery & Execution */}
+          <div className="bg-white rounded-2xl px-6 py-6 shadow-sm border border-gray-100 mb-8">
+            <h2 className="font-bold text-[1.35rem] text-[#222] mb-2" style={{ fontFamily: "Clarendon, serif" }}>
+              Delivery & Execution
+            </h2>
+            <div className="space-y-6">
+              {deliveryQuestions.map((question) => (
+                <SurveyQuestionRow
+                  key={question.id}
+                  question={question}
+                  value={responses[question.id]}
+                  comment={comments[question.id] || ""}
+                  onValueChange={(val) => handleResponseChange(question.id, val)}
+                  onCommentChange={(val) => handleCommentChange(question.id, val)}
+                  disabled={isSubmitted}
+                />
+              ))}
+            </div>
+          </div>
+          {/* Section: Team Collaboration */}
+          <div className="bg-white rounded-2xl px-6 py-6 shadow-sm border border-gray-100 mb-8">
+            <h2 className="font-bold text-[1.35rem] text-[#222] mb-2" style={{ fontFamily: "Clarendon, serif" }}>
+              Team Collaboration
+            </h2>
+            <div className="space-y-6">
+              {collaborationQuestions.map((question) => (
+                <SurveyQuestionRow
+                  key={question.id}
+                  question={question}
+                  value={responses[question.id]}
+                  comment={comments[question.id] || ""}
+                  onValueChange={(val) => handleResponseChange(question.id, val)}
+                  onCommentChange={(val) => handleCommentChange(question.id, val)}
+                  disabled={isSubmitted}
+                />
+              ))}
+            </div>
+          </div>
+          {/* Section: Additional Questions */}
+          <div className="bg-white rounded-2xl px-6 py-6 shadow-sm border border-gray-100">
+            <h2 className="font-bold text-[1.35rem] text-[#222] mb-2" style={{ fontFamily: "Clarendon, serif" }}>
+              Additional Questions
+            </h2>
+            <Label className="text-base text-[#222] font-semibold flex gap-2 mb-3">
+              {additionalPrompt}
+            </Label>
+            <div className="space-y-3">
+              {additionalItems.map((item, index) => (
+                <Input
+                  key={index}
+                  type="text"
+                  placeholder={`Challenge ${index + 1}`}
+                  value={item}
+                  onChange={(e) => handleAdditionalItemChange(index, e.target.value)}
+                  disabled={isSubmitted}
+                  className="bg-[#F7F7F7] border border-gray-200 text-[#222] px-4 py-2 rounded-lg"
+                  style={{ fontFamily: "Inter, Helvetica, Arial, sans-serif" }}
+                />
+              ))}
+            </div>
+            {!isSubmitted && (
+              <Button
+                variant="outline"
+                onClick={addAdditionalItem}
+                className="w-full mt-3 flex items-center gap-2 border-[#E15D2F] hover:bg-[#FFF4F0]"
+                style={{ color: "#E15D2F" }}
+              >
+                <Plus size={18} />
+                <span className="uppercase font-semibold tracking-wide">Add Another Challenge</span>
+              </Button>
+            )}
+          </div>
+        </CardContent>
+        <CardFooter className="flex justify-end">
+          <Button onClick={() => {
+            updateSession({
+              ...session,
+              currentPhase: "discuss",
+            });
+          }}>
+            Proceed to Discussion
+          </Button>
+        </CardFooter>
+      </Card>
+    );
+  }
+
+  // --- Participant view (form with always visible inputs, sectioned) ---
+  return (
+    <Card>
+      <CardContent className="space-y-10 pt-6 pb-2">
+        {/* SECTION 1: Delivery & Execution */}
+        <div className="bg-white rounded-2xl px-6 py-6 shadow-sm border border-gray-100 mb-4">
+          <h2 className="font-bold text-[1.35rem] text-[#222] mb-2"
+            style={{ fontFamily: "Clarendon, serif" }}>
+            Delivery & Execution
+          </h2>
+          <CardDescription className="mb-4 text-[#555]">
+            Please rate how well the team delivers and executes on its goals.
+          </CardDescription>
+          {!session.isAnonymous && !isSubmitted && (
+            <div className="mb-6">
+              <Label htmlFor="name" className="text-[#222] font-semibold mb-1 block"
+                style={{ fontFamily: "Inter, Helvetica, Arial, sans-serif" }}>
+                Your Name
+              </Label>
+              <Input
+                id="name"
+                placeholder="Enter your name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                className="bg-[#F7F7F7] text-[#222] border border-gray-200 px-4 py-2 rounded-lg"
+                style={{ fontFamily: "Inter, Helvetica, Arial, sans-serif" }}
+              />
+            </div>
+          )}
+          {deliveryQuestions.map((question) => (
+            <SurveyQuestionRow
+              key={question.id}
+              question={question}
+              value={responses[question.id]}
+              comment={comments[question.id] || ""}
+              onValueChange={(val) => handleResponseChange(question.id, val)}
+              onCommentChange={(val) => handleCommentChange(question.id, val)}
+              disabled={isSubmitted}
+            />
+          ))}
+        </div>
+        {/* SECTION 2: Team Collaboration */}
+        <div className="bg-white rounded-2xl px-6 py-6 shadow-sm border border-gray-100 mb-4">
+          <h2 className="font-bold text-[1.35rem] text-[#222] mb-2"
+            style={{ fontFamily: "Clarendon, serif" }}>
+            Team Collaboration
+          </h2>
+          <CardDescription className="mb-4 text-[#555]">
+            Please rate how well the team collaborates internally.
+          </CardDescription>
+          {collaborationQuestions.map((question) => (
+            <SurveyQuestionRow
+              key={question.id}
+              question={question}
+              value={responses[question.id]}
+              comment={comments[question.id] || ""}
+              onValueChange={(val) => handleResponseChange(question.id, val)}
+              onCommentChange={(val) => handleCommentChange(question.id, val)}
+              disabled={isSubmitted}
+            />
+          ))}
+        </div>
+        {/* SECTION 3: Additional Questions (challenges input only) */}
+        <div className="bg-white rounded-2xl px-6 py-6 shadow-sm border border-gray-100 mb-4">
+          <h2 className="font-bold text-[1.35rem] text-[#222] mb-2" style={{ fontFamily: "Clarendon, serif" }}>
+            Additional Questions
+          </h2>
+          <Label className="text-base text-[#222] font-semibold flex gap-2 mb-3">
+            {additionalPrompt}
+          </Label>
+          <div className="space-y-3">
             {additionalItems.map((item, index) => (
               <Input
                 key={index}
@@ -176,242 +370,57 @@ export default function SurveyPhase({ session, isParticipant = false, participan
                 value={item}
                 onChange={(e) => handleAdditionalItemChange(index, e.target.value)}
                 disabled={isSubmitted}
-                className="mb-2 bg-[#222] text-white border-[#333]"
+                className="bg-[#F7F7F7] border border-gray-200 text-[#222] px-4 py-2 rounded-lg"
+                style={{ fontFamily: "Inter, Helvetica, Arial, sans-serif" }}
               />
             ))}
-            {!isSubmitted && (
-              <Button 
-                variant="outline" 
-                onClick={addAdditionalItem}
-                className="w-full mt-2"
-              >
-                <span className="text-white">Add Another Challenge</span>
-              </Button>
-            )}
           </div>
-        );
-      }
-      return (
-        <Textarea
-          placeholder="Enter your response here..."
-          value={responses[question.id] || ''}
-          onChange={(e) => handleResponseChange(question.id, e.target.value)}
-          disabled={isSubmitted}
-          className="bg-[#222] text-white border-[#333]"
-        />
-      );
-    }
-    return (
-      <Input
-        type="text"
-        placeholder="Enter your response here..."
-        value={responses[question.id] || ''}
-        onChange={(e) => handleResponseChange(question.id, e.target.value)}
-        disabled={isSubmitted}
-        className="bg-[#222] text-white border-[#333]"
-      />
-    );
-  };
-  
-  if (!isParticipant) {
-    const participantCount = participants.filter(p =>
-      p.responses && p.responses.some(r => r.questionId === session.template.questions[0].id)
-    ).length;
-
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Survey Phase</CardTitle>
-          <CardDescription>
-            Participants are completing the survey. Once everyone has responded, proceed to the discussion phase.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="bg-accent p-4 rounded-lg">
-            <h3 className="text-lg font-medium mb-2">Participation Status</h3>
-            <p className="text-muted-foreground">
-              {participantCount} participants have submitted responses.
-            </p>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-medium mb-4">Questions</h3>
-            <div className="space-y-4">
-              {[...deliveryQuestions, ...collaborationQuestions, ...additionalQuestions].map((question) => (
-                <div key={question.id} className="p-4 bg-card border rounded-lg">
-                  <SurveyQuestionRow
-                    question={question}
-                    value={responses[question.id]}
-                    comment={comments[question.id] || ""}
-                    onValueChange={(val) => handleResponseChange(question.id, val)}
-                    onCommentChange={(val) => handleCommentChange(question.id, val)}
-                    disabled={isSubmitted}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        </CardContent>
-        <CardFooter className="flex justify-end">
-          <Button onClick={handleNext}>
-            Proceed to Discussion
-          </Button>
-        </CardFooter>
-      </Card>
-    );
-  }
-  
-  const renderSectionContent = () => {
-    switch (currentSection) {
-      case 'delivery':
-        return (
-          <>
-            <CardHeader>
-              <CardTitle>Delivery & Execution</CardTitle>
-              <CardDescription>
-                Please rate how well the team delivers and executes on its goals.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {!session.isAnonymous && !isSubmitted && (
-                <div className="space-y-2 mb-6">
-                  <Label htmlFor="name" className="text-white">Your Name</Label>
-                  <Input
-                    id="name"
-                    placeholder="Enter your name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                    className="bg-[#222] text-white border-[#333]"
-                  />
-                </div>
-              )}
-              
-              {isSubmitted ? (
-                <div className="bg-accent p-4 rounded-lg text-center">
-                  <h3 className="text-lg font-medium">Thank You!</h3>
-                  <p className="text-muted-foreground">
-                    Your responses have been recorded.
-                  </p>
-                </div>
-              ) : (
-                <div>
-                  {deliveryQuestions.map((question) => (
-                    <div key={question.id}>
-                      {renderQuestionInput(question)}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </>
-        );
-      case 'collaboration':
-        return (
-          <>
-            <CardHeader>
-              <CardTitle>Team Collaboration</CardTitle>
-              <CardDescription>
-                Please rate how well the team collaborates internally.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {isSubmitted ? (
-                <div className="bg-accent p-4 rounded-lg text-center">
-                  <h3 className="text-lg font-medium">Thank You!</h3>
-                  <p className="text-muted-foreground">
-                    Your responses have been recorded.
-                  </p>
-                </div>
-              ) : (
-                <div>
-                  {collaborationQuestions.map((question) => (
-                    <div key={question.id}>
-                      {renderQuestionInput(question)}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </>
-        );
-      case 'additional':
-        return (
-          <>
-            <CardHeader>
-              <CardTitle>Additional Questions</CardTitle>
-              <CardDescription>
-                Please provide responses to these additional questions about the team.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {isSubmitted ? (
-                <div className="bg-accent p-4 rounded-lg text-center">
-                  <h3 className="text-lg font-medium">Thank You!</h3>
-                  <p className="text-muted-foreground">
-                    Your responses have been recorded.
-                  </p>
-                </div>
-              ) : (
-                <div>
-                  {additionalQuestions.map((question) => (
-                    <div key={question.id}>
-                      <Label className="text-base text-white font-semibold flex gap-2 mb-2">
-                        {question.text}
-                      </Label>
-                      {renderQuestionInput(question)}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </>
-        );
-      default:
-        return null;
-    }
-  };
-  
-  return (
-    <Card>
-      {renderSectionContent()}
-      <CardFooter className="flex justify-between">
-        <Button 
-          variant="outline" 
-          onClick={handlePrevious}
-          disabled={currentSection === 'delivery' || isSubmitted}
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" /> Previous
-        </Button>
-        
-        <div className="flex gap-2">
-          {currentSection === 'additional' && !isSubmitted ? (
-            <Button 
-              onClick={handleSubmit}
-              disabled={isSubmitting}
+          {!isSubmitted && (
+            <Button
+              variant="outline"
+              onClick={addAdditionalItem}
+              className="w-full mt-3 flex items-center gap-2 border-[#E15D2F] hover:bg-[#FFF4F0]"
+              style={{ color: "#E15D2F" }}
             >
-              {isSubmitting ? "Submitting..." : "Submit Survey"}
-            </Button>
-          ) : (
-            <Button 
-              onClick={handleNext}
-              disabled={isSubmitted || (
-                currentSection === 'delivery' && 
-                deliveryQuestions
-                  .filter(q => q.required)
-                  .some(q => ![1,2,3,4,5].includes(responses[q.id]))
-              ) || (
-                currentSection === 'collaboration' && 
-                collaborationQuestions
-                  .filter(q => q.required)
-                  .some(q => ![1,2,3,4,5].includes(responses[q.id]))
-              )}
-            >
-              Next <ArrowRight className="ml-2 h-4 w-4" />
+              <Plus size={18} />
+              <span className="uppercase font-semibold tracking-wide">Add Another Challenge</span>
             </Button>
           )}
         </div>
-      </CardFooter>
+        {/* Thank you state */}
+        {isSubmitted && (
+          <div className="bg-accent p-4 rounded-lg text-center">
+            <h3 className="text-lg font-medium">Thank You!</h3>
+            <p className="text-muted-foreground">
+              Your responses have been recorded.
+            </p>
+          </div>
+        )}
+      </CardContent>
+      {/* Actions */}
+      {!isSubmitted && (
+        <CardFooter className="flex justify-end gap-2">
+          <Button
+            onClick={handleSubmit}
+            disabled={isSubmitting
+              // basic validation: all required scores provided
+              || deliveryQuestions.filter((q) => q.required).some((q) => ![1, 2, 3, 4, 5].includes(responses[q.id]))
+              || collaborationQuestions.filter((q) => q.required).some((q) => ![1, 2, 3, 4, 5].includes(responses[q.id]))
+              || (!session.isAnonymous && !name.trim())
+            }
+            className="font-bold"
+            style={{
+              backgroundColor: "#E15D2F",
+              color: "#fff",
+              textTransform: "uppercase",
+              letterSpacing: "0.04em",
+              fontFamily: "Inter, Helvetica, Arial, sans-serif"
+            }}
+          >
+            {isSubmitting ? "Submitting..." : "Submit Survey"}
+          </Button>
+        </CardFooter>
+      )}
     </Card>
   );
 }
