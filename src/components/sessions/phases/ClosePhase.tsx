@@ -193,7 +193,7 @@ export default function ClosePhase({ session, isParticipant = false }: ClosePhas
                           <SelectValue placeholder="Select Question" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">None</SelectItem>
+                          <SelectItem value="none">None</SelectItem>
                           {session.template.questions.map((q) => (
                             <SelectItem key={q.id} value={q.id}>
                               {q.text.substring(0, 30)}...
