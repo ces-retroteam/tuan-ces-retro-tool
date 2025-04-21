@@ -38,6 +38,7 @@ export default function SurveyPhase({
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [additionalItems, setAdditionalItems] = useState<string[]>([""]);
   const [currentSection, setCurrentSection] = useState<SurveySection>("delivery");
+  const surveySections: SurveySection[] = ["delivery", "collaboration", "additional"];
 
   useEffect(() => {
     if (isParticipant && participantId) {
@@ -414,10 +415,10 @@ export default function SurveyPhase({
                 onClick={() => setCurrentSection(surveySections[surveySections.indexOf(currentSection) + 1])}
                 disabled={
                   (currentSection === "delivery" &&
-                    deliveryQuestions.filter((q) => q.required).some((q) => ![1, 2, 3, 4, 5].includes(responses[q.id])) ||
+                    deliveryQuestions.filter((q) => q.required).some((q) => ![1, 2, 3, 4, 5].includes(responses[q.id]))) ||
                   (currentSection === "collaboration" &&
-                    collaborationQuestions.filter((q) => q.required).some((q) => ![1, 2, 3, 4, 5].includes(responses[q.id])) ||
-                  (!session.isAnonymous && !name.trim()))
+                    collaborationQuestions.filter((q) => q.required).some((q) => ![1, 2, 3, 4, 5].includes(responses[q.id]))) ||
+                  (!session.isAnonymous && !name.trim())
                 }
               >
                 Next
