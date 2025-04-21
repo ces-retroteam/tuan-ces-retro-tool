@@ -1,3 +1,4 @@
+
 import { ResponsiveContainer, Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from "recharts";
 import { MessageSquare } from "lucide-react";
 
@@ -40,9 +41,18 @@ export default function RadarChartSection({ data }: RadarChartSectionProps) {
 
   return (
     <div className="w-full flex flex-col items-center justify-center py-6 bg-white">
-      <ResponsiveContainer width={500} height={380}>
-        <RadarChart cx="50%" cy="50%" outerRadius="70%" data={formattedData}>
-          <PolarGrid stroke="#e5e7eb" />
+      <ResponsiveContainer width={600} height={450}>
+        <RadarChart cx="50%" cy="50%" outerRadius="75%" data={formattedData}>
+          <defs>
+            <linearGradient id="scoreGradient" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="#FDE1D3" /> {/* Score 1 */}
+              <stop offset="25%" stopColor="#FFDEE2" /> {/* Score 2 */}
+              <stop offset="50%" stopColor="#FEC6A1" /> {/* Score 3 */}
+              <stop offset="75%" stopColor="#FEF7CD" /> {/* Score 4 */}
+              <stop offset="100%" stopColor="#F2FCE2" /> {/* Score 5 */}
+            </linearGradient>
+          </defs>
+          <PolarGrid stroke="#e5e7eb" fill="url(#scoreGradient)" fillOpacity={0.3} />
           <PolarAngleAxis
             dataKey="label"
             tick={({ payload, x, y, index }) => {
@@ -72,7 +82,13 @@ export default function RadarChartSection({ data }: RadarChartSectionProps) {
             }}
             tickLine={false}
           />
-          <PolarRadiusAxis domain={[1, 5]} tickCount={5} angle={90} axisLine={false} tick={{ fill: "#374151" }} />
+          <PolarRadiusAxis 
+            domain={[0, 5]} 
+            tickCount={6} 
+            angle={90} 
+            axisLine={false} 
+            tick={{ fill: "#374151" }} 
+          />
           <Radar
             name="Average"
             dataKey="average"
