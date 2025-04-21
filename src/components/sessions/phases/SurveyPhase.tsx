@@ -136,7 +136,7 @@ export default function SurveyPhase({ session, isParticipant = false, participan
   const collaborationQuestions = [
     { id: 'collab_1', text: 'How well does the team communicate internally?', type: 'scale', required: true },
     { id: 'collab_2', text: 'How effectively do team members support each other?', type: 'scale', required: true },
-    { id: 'collab_3', text: 'Rate the team\'s ability to constructively resolve conflicts', type: 'scale', required: true },
+    { id: 'collab_3', text: "Rate the team's ability to constructively resolve conflicts", type: 'scale', required: true },
   ];
   
   const additionalQuestions = [
@@ -149,7 +149,12 @@ export default function SurveyPhase({ session, isParticipant = false, participan
         <SurveyQuestionRow
           key={question.id}
           question={question}
-          value={typeof responses[question.id] !== "undefined" ? responses[question.id] : 0}
+          value={
+            typeof responses[question.id] === "number" &&
+            [1, 2, 3, 4, 5].includes(responses[question.id])
+              ? responses[question.id]
+              : undefined
+          }
           comment={comments[question.id] || ""}
           onValueChange={val => handleResponseChange(question.id, val)}
           onCommentChange={val => handleCommentChange(question.id, val)}
@@ -389,12 +394,12 @@ export default function SurveyPhase({ session, isParticipant = false, participan
                 currentSection === 'delivery' && 
                 deliveryQuestions
                   .filter(q => q.required)
-                  .some(q => !responses[q.id])
+                  .some(q => ![1,2,3,4,5].includes(responses[q.id]))
               ) || (
                 currentSection === 'collaboration' && 
                 collaborationQuestions
                   .filter(q => q.required)
-                  .some(q => !responses[q.id])
+                  .some(q => ![1,2,3,4,5].includes(responses[q.id]))
               )}
             >
               Next <ArrowRight className="ml-2 h-4 w-4" />
