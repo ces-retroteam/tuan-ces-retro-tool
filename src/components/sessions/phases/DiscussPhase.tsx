@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useSession } from '@/context/SessionContext';
 import { Session, Comment, Response } from '@/types';
@@ -86,7 +87,7 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
     if (!isParticipant) {
       const updatedSession = {
         ...session,
-        currentPhase: 'close' as const
+        currentPhase: 'review' as const
       };
       updateSession(updatedSession);
     }
@@ -145,7 +146,10 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
               </div>
               <div className="flex-1 min-w-0">
                 <span className="block text-lg font-semibold text-white">{question.text}</span>
-                <span className="block text-sm text-gray-300">{question.description}</span>
+                {/* Safely access description property only if it exists */}
+                {question.description && (
+                  <span className="block text-sm text-gray-300">{question.description}</span>
+                )}
                 <div className="flex items-center gap-3 mt-2">
                   <span className={(isPerfect ? "bg-[#5E9323]" : "bg-[#F97316]") + " rounded-full px-3 py-1 text-white text-sm font-bold"}>{avg.toFixed(1)}</span>
                   <span className="flex items-center text-gray-400 text-sm gap-1">
@@ -160,7 +164,7 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
 
       <Card className="m-6">
         <CardHeader>
-          <CardTitle>Discussion Phase</CardTitle>
+          <CardTitle className="font-bold" style={{ fontFamily: "Clarendon, serif" }}>Discussion Phase</CardTitle>
           <CardDescription>
             Review survey results and discuss as a team.
           </CardDescription>
@@ -173,7 +177,7 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
             return (
               <Card key={question.id} className="border shadow-sm">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-lg">{question.text}</CardTitle>
+                  <CardTitle className="text-lg" style={{ fontFamily: "Clarendon, serif" }}>{question.text}</CardTitle>
                   {question.type === 'scale' && data && (
                     <div className="flex items-center mt-2">
                       <div className="flex-1">
@@ -183,8 +187,11 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
                         </div>
                         <div className="h-2 bg-gray-200 rounded-full">
                           <div 
-                            className="h-2 bg-primary rounded-full" 
-                            style={{ width: `${(data.average / 5) * 100}%` }}
+                            className="h-2 rounded-full" 
+                            style={{ 
+                              width: `${(data.average / 5) * 100}%`,
+                              background: data.average === 5 ? "#5E9323" : "#E15D2F" 
+                            }}
                           ></div>
                         </div>
                       </div>
@@ -243,7 +250,7 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
                     <div className="flex gap-2">
                       <Textarea
                         placeholder="Add a comment..."
-                        className="text-sm"
+                        className="text-sm bg-[#F7F7F7] border border-gray-200"
                         value={newComments[question.id] || ''}
                         onChange={(e) => setNewComments(prev => ({
                           ...prev,
@@ -252,7 +259,7 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
                       />
                       <Button 
                         size="sm" 
-                        className="self-end"
+                        className="self-end bg-[#E15D2F] hover:bg-[#E15D2F]/90"
                         onClick={() => handleAddComment(question.id)}
                         disabled={!newComments[question.id]}
                       >
@@ -267,8 +274,11 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
         </CardContent>
         <CardFooter className="flex justify-end">
           {!isParticipant && (
-            <Button onClick={handleNext}>
-              Proceed to Close
+            <Button 
+              onClick={handleNext}
+              className="bg-[#E15D2F] hover:bg-[#E15D2F]/90 text-white font-medium"
+            >
+              Proceed to Review
             </Button>
           )}
         </CardFooter>

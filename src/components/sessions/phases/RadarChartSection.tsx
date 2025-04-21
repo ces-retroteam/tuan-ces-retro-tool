@@ -28,9 +28,10 @@ export default function RadarChartSection({ data }: RadarChartSectionProps) {
                   <foreignObject x={-60} y={-35} width={120} height={60}>
                     <div className="flex flex-col items-center">
                       <span
-                        className={`rounded-full px-3 py-0.5 font-bold text-xs ${item.color === "#5E9323"
-                          ? "bg-[rgba(94,147,35,1)] text-white"
-                          : "bg-[#F97316] text-white"
+                        className={`rounded-full px-3 py-0.5 font-bold text-xs ${
+                          item.color === "#5E9323" 
+                            ? "bg-[rgba(94,147,35,1)] text-white" 
+                            : "bg-[#E15D2F] text-white"
                         }`}
                         style={{ minWidth: "70px", textAlign: "center", display: "inline-block" }}
                       >
@@ -61,12 +62,12 @@ export default function RadarChartSection({ data }: RadarChartSectionProps) {
       </ResponsiveContainer>
       <div className="flex items-center mt-4 gap-8 text-xs">
         <div className="flex items-center gap-1">
-          <span style={{ width:12, height:7, background: "linear-gradient(90deg,#ea384c 10%,#ffe345 96%,#5E9323 133%)", display:"inline-block",borderRadius:2,marginRight:8 }}></span>
-          <span className="text-gray-400">DISTRIBUTION</span>
+          <span style={{ width:12, height:7, background: "linear-gradient(90deg,#E15D2F 10%,#ffe345 96%,#5E9323 133%)", display:"inline-block",borderRadius:2,marginRight:8 }}></span>
+          <span className="text-gray-400 uppercase tracking-tight font-medium">Distribution</span>
         </div>
         <div className="flex items-center gap-1">
           <span style={{ width: 30, height: 6, display: "inline-block", background: "#fff", borderRadius: 2 }}></span>
-          <span className="text-gray-400">MEAN</span>
+          <span className="text-gray-400 uppercase tracking-tight font-medium">Mean</span>
         </div>
       </div>
     </div>
