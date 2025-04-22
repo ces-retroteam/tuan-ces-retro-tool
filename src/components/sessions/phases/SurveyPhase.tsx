@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useSession } from "@/context/SessionContext";
 import { Session, Response, Participant } from "@/types";
@@ -235,12 +234,6 @@ export default function SurveyPhase({
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-8">
-          <div className="bg-[#F7F7F7] p-4 rounded-lg border mb-2">
-            <h3 className="text-lg font-semibold mb-2 text-[#222]">
-              Participation Status
-            </h3>
-            <p className="text-[#555]">{participantCount} participants have submitted responses.</p>
-          </div>
           <DeliverySectionStep
             questions={deliveryQuestions}
             responses={responses}
