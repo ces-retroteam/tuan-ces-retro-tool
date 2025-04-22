@@ -1,7 +1,8 @@
-import { RadarChart, PolarGrid, PolarAngleAxis, Radar, ResponsiveContainer, PolarRadiusAxis, Tooltip } from 'recharts';
+
+import { RadarChart, PolarGrid, PolarAngleAxis, Radar, ResponsiveContainer } from 'recharts';
 import { useSession } from '@/context/SessionContext';
 import { Session } from '@/types';
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { ChartContainer } from "@/components/ui/chart";
 
 interface TeamHealthChartProps {
   session: Session;
@@ -55,7 +56,7 @@ export default function TeamHealthChart({ session }: TeamHealthChartProps) {
   };
 
   return (
-    <div className="bg-white rounded-lg p-6 mb-8">
+    <div className="bg-white rounded-lg p-6">
       <h2 className="text-2xl font-bold text-gray-900">Team Health Summary</h2>
       <p className="text-gray-500 mb-6">Average scores from all participants for health check sprint</p>
       
@@ -77,26 +78,6 @@ export default function TeamHealthChart({ session }: TeamHealthChartProps) {
               stroke="none"
               fontSize={12}
               tickLine={false}
-            />
-            <PolarRadiusAxis 
-              domain={[0, 5]} 
-              tick={{ fill: '#555555', fontSize: 12 }}
-              axisLine={false}
-              tickCount={6}
-            />
-            <Tooltip
-              content={({ active, payload }) => {
-                if (active && payload && payload.length) {
-                  const data = payload[0].payload;
-                  return (
-                    <div className="bg-white p-2 border rounded shadow-md">
-                      <p className="font-medium text-[#555555]">{data.subject}</p>
-                      <p className="text-[#E15D2F] font-bold">{data.value.toFixed(1)}/5</p>
-                    </div>
-                  );
-                }
-                return null;
-              }}
             />
             <Radar
               name="Team Health"
