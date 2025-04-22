@@ -2,6 +2,7 @@
 import React from 'react';
 import { useSession } from '@/context/SessionContext';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Progress } from "@/components/ui/progress";
 import {
   Sidebar,
   SidebarContent,
@@ -19,15 +20,25 @@ const PLACEHOLDER_IMAGES = [
 
 export default function ParticipantsSidebar() {
   const { participants } = useSession();
+  const maxParticipants = 10; // This could be made dynamic based on session settings
+  const participationProgress = (participants.length / maxParticipants) * 100;
   
   return (
-    <Sidebar side="right" variant="floating">
+    <Sidebar 
+      side="right" 
+      variant="floating" 
+      className="fixed top-[64px] right-0 w-[300px] border-l h-[calc(100vh-64px)]"
+    >
       <SidebarHeader className="pb-0">
-        <div className="px-2 py-2">
+        <div className="px-2 py-2 space-y-2">
           <h3 className="font-semibold text-lg">Participants</h3>
-          <p className="text-sm text-muted-foreground">
-            {participants.length} joined
-          </p>
+          <div className="space-y-1">
+            <div className="flex justify-between text-sm text-muted-foreground">
+              <span>{participants.length} joined</span>
+              <span>{participants.length}/{maxParticipants}</span>
+            </div>
+            <Progress value={participationProgress} className="h-2" />
+          </div>
         </div>
       </SidebarHeader>
       <SidebarContent>
