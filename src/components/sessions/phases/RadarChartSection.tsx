@@ -1,5 +1,7 @@
+
 import { ResponsiveContainer, Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from "recharts";
-import { MessageSquare } from "lucide-react";
+import { ChevronDown } from "lucide-react";
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
 
 interface RadarChartSectionProps {
   data: {
@@ -37,70 +39,73 @@ export default function RadarChartSection({ data }: RadarChartSectionProps) {
   }));
 
   return (
-    <div className="w-full flex flex-col items-center justify-center py-6 bg-white">
-      <ResponsiveContainer width={700} height={500}>
-        <RadarChart cx="50%" cy="50%" outerRadius="80%" data={formattedData}>
-          <PolarGrid 
-            stroke="#e5e7eb" 
-            gridType="polygon"
-            strokeWidth={0.5}
-            strokeOpacity={0.5}
-          />
-          <PolarAngleAxis
-            dataKey="label"
-            tick={({ payload, x, y, index }) => {
-              const item = formattedData[index];
-              return (
-                <g transform={`translate(${x},${y})`}>
-                  <foreignObject x={-60} y={-35} width={120} height={60}>
-                    <div className="flex flex-col items-center">
-                      <span
-                        className={`rounded-full px-3 py-0.5 font-bold text-xs ${
-                          item.color === "#5E9323" 
-                            ? "bg-[rgba(94,147,35,1)] text-white" 
-                            : "bg-[#E15D2F] text-white"
-                        }`}
-                        style={{ minWidth: "70px", textAlign: "center", display: "inline-block" }}
-                      >
-                        {payload.value}
-                      </span>
-                      <span className="flex items-center justify-center gap-0.5 mt-1 text-[12px] text-gray-400">
-                        <MessageSquare size={13} color="#aaa" className="inline" />
-                        <span>{item.commentCount}</span>
-                      </span>
-                    </div>
-                  </foreignObject>
-                </g>
-              );
-            }}
-            tickLine={false}
-          />
-          <PolarRadiusAxis 
-            domain={[0, 5]} 
-            tickCount={6} 
-            angle={90} 
-            axisLine={false}
-            tick={{ fill: "#374151" }}
-            stroke="#e5e7eb"
-            strokeOpacity={0.5}
-          />
-          <Radar
-            name="Average"
-            dataKey="average"
-            stroke="#FF4444"
-            strokeWidth={2}
-            fill="#FFCDD2"
-            fillOpacity={0.3}
-            dot={{ r: 4, fill: "#fff", stroke: "#FF4444", strokeWidth: 2 }}
-            isAnimationActive={false}
-          />
-        </RadarChart>
-      </ResponsiveContainer>
-      
-      <div className="flex items-center mt-4 gap-8 text-xs">
-        <div className="flex items-center gap-1">
-          <span style={{ width:12, height:7, background: "#FFCDD2", border: "1px solid #FF4444", display:"inline-block", borderRadius:2, marginRight:8 }}></span>
-          <span className="text-gray-600 uppercase tracking-tight font-medium">Score Distribution</span>
+    <div className="w-full flex flex-col space-y-8 bg-white px-6">
+      <div>
+        <h2 className="text-2xl font-bold text-gray-900">Team Health Summary</h2>
+        <p className="text-gray-500 mt-1">Average scores from all participants for health check sprint 11</p>
+      </div>
+
+      <div className="w-full flex flex-col items-center justify-center">
+        <ResponsiveContainer width="100%" height={450}>
+          <RadarChart cx="50%" cy="50%" outerRadius="70%" data={formattedData}>
+            <PolarGrid 
+              stroke="#e5e7eb" 
+              gridType="polygon"
+              strokeWidth={0.5}
+              strokeOpacity={0.5}
+            />
+            <PolarAngleAxis
+              dataKey="label"
+              tick={{ fill: "#6B7280", fontSize: 12 }}
+              tickLine={false}
+            />
+            <PolarRadiusAxis 
+              domain={[0, 5]} 
+              tickCount={6} 
+              angle={90} 
+              axisLine={false}
+              tick={{ fill: "#374151", fontSize: 10 }}
+              stroke="#e5e7eb"
+              strokeOpacity={0.5}
+            />
+            <Radar
+              name="Average"
+              dataKey="average"
+              stroke="#E76F51"
+              strokeWidth={2}
+              fill="#FAE1DD"
+              fillOpacity={0.6}
+              dot={false}
+              isAnimationActive={true}
+              animationBegin={0}
+              animationDuration={800}
+              animationEasing="ease-out"
+            />
+          </RadarChart>
+        </ResponsiveContainer>
+      </div>
+
+      <div className="w-full">
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">Discussion Topics</h2>
+        <p className="text-gray-500 mb-6">Review feedback and comments from the team</p>
+        
+        <div className="space-y-4">
+          {formattedData.map((item) => (
+            <Collapsible key={item.label} className="border rounded-lg">
+              <CollapsibleTrigger className="flex items-center justify-between w-full p-4 hover:bg-gray-50">
+                <div className="flex items-center gap-4">
+                  <span className="font-medium text-gray-900">{item.label}</span>
+                  <span className="text-sm font-semibold bg-orange-100 text-orange-800 px-2 py-0.5 rounded">
+                    {item.average.toFixed(1)}/5
+                  </span>
+                </div>
+                <ChevronDown className="h-5 w-5 text-gray-500 transform transition-transform duration-200 ease-in-out" />
+              </CollapsibleTrigger>
+              <CollapsibleContent className="p-4 pt-0">
+                <p className="text-gray-600">No comments yet.</p>
+              </CollapsibleContent>
+            </Collapsible>
+          ))}
         </div>
       </div>
     </div>
