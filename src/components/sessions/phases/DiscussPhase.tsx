@@ -1,11 +1,7 @@
-
 import { useState, useEffect } from 'react';
 import { useSession } from '@/context/SessionContext';
 import { Session } from '@/types';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Button } from "@/components/ui/button";
-import { Info } from "lucide-react";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import TeamHealthChart from './TeamHealthChart';
 
 interface DiscussPhaseProps {
@@ -86,31 +82,6 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
             <h2 className="text-2xl font-bold text-gray-900">Discussion Topics</h2>
             <p className="text-gray-500">Review feedback and comments from the team</p>
           </div>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button 
-                variant="outline"
-                size="sm"
-                className="text-gray-600 hover:text-gray-900"
-              >
-                <Info className="mr-1 h-4 w-4" />
-                Explain Categories
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-80">
-              <div className="space-y-4">
-                <h4 className="font-medium text-sm">Health Check Categories</h4>
-                <div className="space-y-2">
-                  {healthCategories.map((category) => (
-                    <div key={category.id} className="text-sm">
-                      <p className="font-medium text-gray-900">{category.subject}</p>
-                      <p className="text-gray-500 text-xs">{category.explanation}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </PopoverContent>
-          </Popover>
         </div>
 
         <Accordion type="single" collapsible className="space-y-2">
