@@ -35,9 +35,9 @@ export default function TeamHealthChart({ session }: TeamHealthChartProps) {
     { subject: 'Team Morale', value: calculateAverageScore('collab_3') }
   ];
 
+  // Fixed chartConfig: Using only theme OR color, not both
   const chartConfig = {
     line1: { 
-      color: "#ea384c",
       theme: { light: "#ea384c", dark: "#ea384c" }
     }
   };
