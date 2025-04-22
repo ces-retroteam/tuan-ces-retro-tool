@@ -1,4 +1,3 @@
-
 import { RadarChart, PolarGrid, PolarAngleAxis, Radar, ResponsiveContainer, PolarRadiusAxis, Tooltip } from 'recharts';
 import { useSession } from '@/context/SessionContext';
 import { Session } from '@/types';
@@ -11,12 +10,10 @@ interface TeamHealthChartProps {
 export default function TeamHealthChart({ session }: TeamHealthChartProps) {
   const { participants } = useSession();
 
-  // Get all participants who have submitted responses
   const relevantParticipants = participants.filter(p => 
     p.responses && p.responses.some(r => r.questionId === 'delivery_1')
   );
 
-  // Calculate average scores for each category
   const calculateAverageScore = (questionId: string): number => {
     const responses = relevantParticipants
       .map(p => p.responses?.find(r => r.questionId === questionId))
@@ -35,18 +32,13 @@ export default function TeamHealthChart({ session }: TeamHealthChartProps) {
     { subject: 'Team Morale', value: calculateAverageScore('collab_3') }
   ];
 
-  // Fixed chartConfig: Using only theme OR color, not both
   const chartConfig = {
     line1: { 
-      theme: { light: "#ea384c", dark: "#ea384c" }
+      theme: { light: "#FEC6A1", dark: "#FEC6A1" }
     }
   };
 
-  // Custom label renderer to show value alongside axis label
   const renderPolarAngleAxis = ({ payload, x, y, cx, cy, ...rest }: any) => {
-    const category = chartData.find(item => item.subject === payload.value);
-    const score = category ? category.value : 0;
-
     return (
       <g>
         <text
@@ -57,16 +49,6 @@ export default function TeamHealthChart({ session }: TeamHealthChartProps) {
           fontSize={12}
         >
           {payload.value}
-        </text>
-        <text
-          x={x}
-          y={y + 16}
-          textAnchor={x > cx ? 'start' : x < cx ? 'end' : 'middle'}
-          fill="#E15D2F"
-          fontSize={12}
-          fontWeight="bold"
-        >
-          {score.toFixed(1)}/5
         </text>
       </g>
     );
@@ -79,21 +61,36 @@ export default function TeamHealthChart({ session }: TeamHealthChartProps) {
       
       <div className="w-full h-[400px]">
         <ChartContainer config={chartConfig} className="w-full h-full">
-          <RadarChart cx="50%" cy="50%" outerRadius="80%" data={chartData}>
-            <PolarGrid stroke="#aaadb0" strokeWidth={0.5} />
+          <RadarChart 
+            cx="50%" 
+            cy="50%" 
+            outerRadius="80%" 
+            data={chartData}
+          >
+            <PolarGrid 
+              stroke="#F1F0FB" 
+              strokeWidth={0.5} 
+            />
             <PolarAngleAxis
               dataKey="subject"
               tick={renderPolarAngleAxis}
               stroke="none"
+              fontSize={12}
+              tickLine={false}
             />
-            <PolarRadiusAxis domain={[0, 5]} tick={{ fill: '#555555' }} />
-            <Tooltip 
+            <PolarRadiusAxis 
+              domain={[0, 5]} 
+              tick={{ fill: '#555555', fontSize: 12 }}
+              axisLine={false}
+              tickCount={6}
+            />
+            <Tooltip
               content={({ active, payload }) => {
                 if (active && payload && payload.length) {
                   const data = payload[0].payload;
                   return (
                     <div className="bg-white p-2 border rounded shadow-md">
-                      <p className="font-medium">{data.subject}</p>
+                      <p className="font-medium text-[#555555]">{data.subject}</p>
                       <p className="text-[#E15D2F] font-bold">{data.value.toFixed(1)}/5</p>
                     </div>
                   );
@@ -104,9 +101,9 @@ export default function TeamHealthChart({ session }: TeamHealthChartProps) {
             <Radar
               name="Team Health"
               dataKey="value"
-              stroke="#ea384c"
-              strokeWidth={2}
-              fill="#FDE1D3"
+              stroke="#FEC6A1"
+              strokeWidth={1}
+              fill="#FEC6A1"
               fillOpacity={0.5}
             />
           </RadarChart>
