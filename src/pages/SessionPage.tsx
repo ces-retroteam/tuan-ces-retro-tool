@@ -4,9 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useSession } from '@/context/SessionContext';
 import Layout from '@/components/layout/Layout';
 import SessionPhases from '@/components/sessions/SessionPhases';
-import ParticipantsSidebar from '@/components/sessions/ParticipantsSidebar';
 import { Card, CardContent } from '@/components/ui/card';
-import { SidebarProvider } from '@/components/ui/sidebar';
 
 const SessionPage = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
@@ -42,25 +40,20 @@ const SessionPage = () => {
 
   return (
     <Layout>
-      <SidebarProvider>
-        <div className="flex w-full">
-          <div className="space-y-6 flex-1">
-            <div>
-              <h1 className="text-3xl font-bold">{session.name}</h1>
-              {session.description && (
-                <p className="text-muted-foreground mt-1">{session.description}</p>
-              )}
-            </div>
-
-            <Card>
-              <CardContent className="p-6">
-                <SessionPhases session={session} />
-              </CardContent>
-            </Card>
-          </div>
-          <ParticipantsSidebar />
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold">{session.name}</h1>
+          {session.description && (
+            <p className="text-muted-foreground mt-1">{session.description}</p>
+          )}
         </div>
-      </SidebarProvider>
+
+        <Card>
+          <CardContent className="p-6">
+            <SessionPhases session={session} />
+          </CardContent>
+        </Card>
+      </div>
     </Layout>
   );
 };
