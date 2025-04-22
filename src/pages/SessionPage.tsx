@@ -43,22 +43,20 @@ const SessionPage = () => {
   return (
     <Layout>
       <SidebarProvider>
-        <div className="flex w-full h-full relative">
-          <div className="flex-1 pr-[300px]">
-            <div className="space-y-6">
-              <div>
-                <h1 className="text-3xl font-bold">{session.name}</h1>
-                {session.description && (
-                  <p className="text-muted-foreground mt-1">{session.description}</p>
-                )}
-              </div>
-
-              <Card>
-                <CardContent className="p-6">
-                  <SessionPhases session={session} />
-                </CardContent>
-              </Card>
+        <div className="flex w-full">
+          <div className="space-y-6 flex-1">
+            <div>
+              <h1 className="text-3xl font-bold">{session.name}</h1>
+              {session.description && (
+                <p className="text-muted-foreground mt-1">{session.description}</p>
+              )}
             </div>
+
+            <Card>
+              <CardContent className="p-6">
+                <SessionPhases session={session} />
+              </CardContent>
+            </Card>
           </div>
           <ParticipantsSidebar />
         </div>
