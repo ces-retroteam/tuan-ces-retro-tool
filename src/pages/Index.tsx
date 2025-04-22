@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import { useSession } from '@/context/SessionContext';
 import Layout from '@/components/layout/Layout';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import SessionTemplateDialog from '@/components/sessions/SessionTemplateDialog';
 
 const Index = () => {
@@ -27,26 +26,13 @@ const Index = () => {
             className="self-start md:self-center"
             onClick={() => setShowDialog(true)}
           >
-            Create New Session
+            New Retrospective
           </Button>
         </div>
-
-        <Card className="bg-accent">
-          <CardHeader>
-            <CardTitle>About Team Pulse</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <p>
-                Team Pulse helps you run effective team health checks to identify strengths,
-                pain points, and opportunities for improvement.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </Layout>
   );
 };
 
 export default Index;
+
