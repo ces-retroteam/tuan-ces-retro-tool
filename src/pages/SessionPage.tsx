@@ -43,8 +43,8 @@ const SessionPage = () => {
   return (
     <Layout>
       <SidebarProvider>
-        <div className="flex w-full h-full">
-          <div className="flex-1 pr-[320px]">
+        <div className="flex w-full h-full relative">
+          <div className="flex-1 pr-[300px]">
             <div className="space-y-6">
               <div>
                 <h1 className="text-3xl font-bold">{session.name}</h1>

@@ -27,7 +27,7 @@ export default function ParticipantsSidebar() {
     <Sidebar 
       side="right" 
       variant="floating" 
-      className="fixed top-[64px] right-0 w-[300px] border-l h-[calc(100vh-64px)]"
+      className="absolute top-0 right-0 w-[300px] border-l h-full bg-sidebar"
     >
       <SidebarHeader className="pb-0">
         <div className="px-2 py-2 space-y-2">
