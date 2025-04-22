@@ -50,14 +50,9 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
     { id: "collab_3", subject: "Team Morale", questionId: "collab_3" },
   ];
 
-  const chartData = healthCategories.map(category => ({
-    subject: category.subject,
-    value: aggregatedResponses[category.questionId]?.average || 0
-  }));
-
   return (
     <div className="w-full space-y-6">
-      <TeamHealthChart data={chartData} />
+      <TeamHealthChart session={session} />
       
       <div className="bg-white rounded-lg p-6">
         <div className="flex justify-between items-center mb-6">
