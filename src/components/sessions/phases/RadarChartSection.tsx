@@ -1,4 +1,3 @@
-
 import { ResponsiveContainer, Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from "recharts";
 import { MessageSquare } from "lucide-react";
 
@@ -12,7 +11,6 @@ interface RadarChartSectionProps {
 }
 
 const getTopicFromQuestion = (question: string): string => {
-  // Map of keywords to their topic labels
   const topicMap: { [key: string]: string } = {
     'job satisfaction': 'Satisfaction',
     'collaborating': 'Collaboration',
@@ -25,7 +23,6 @@ const getTopicFromQuestion = (question: string): string => {
     'delivering value': 'Value'
   };
 
-  // Find the first matching keyword in the question
   const topic = Object.entries(topicMap).find(([key]) => 
     question.toLowerCase().includes(key)
   );
@@ -41,22 +38,13 @@ export default function RadarChartSection({ data }: RadarChartSectionProps) {
 
   return (
     <div className="w-full flex flex-col items-center justify-center py-6 bg-white">
-      <ResponsiveContainer width={600} height={450}>
-        <RadarChart cx="50%" cy="50%" outerRadius="75%" data={formattedData}>
-          <defs>
-            <linearGradient id="scoreGradient" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stopColor="#FF6B6B" /> {/* Score 1 - Red */}
-              <stop offset="25%" stopColor="#FFB86C" /> {/* Score 2 - Orange */}
-              <stop offset="50%" stopColor="#FFD93D" /> {/* Score 3 - Yellow */}
-              <stop offset="75%" stopColor="#95E08D" /> {/* Score 4 - Light Green */}
-              <stop offset="100%" stopColor="#4CAF50" /> {/* Score 5 - Green */}
-            </linearGradient>
-          </defs>
+      <ResponsiveContainer width={700} height={500}>
+        <RadarChart cx="50%" cy="50%" outerRadius="80%" data={formattedData}>
           <PolarGrid 
             stroke="#e5e7eb" 
-            gridType="circle"
-            fill="url(#scoreGradient)" 
-            fillOpacity={0.15} 
+            gridType="polygon"
+            strokeWidth={0.5}
+            strokeOpacity={0.5}
           />
           <PolarAngleAxis
             dataKey="label"
@@ -91,16 +79,19 @@ export default function RadarChartSection({ data }: RadarChartSectionProps) {
             domain={[0, 5]} 
             tickCount={6} 
             angle={90} 
-            axisLine={false} 
+            axisLine={false}
             tick={{ fill: "#374151" }}
+            stroke="#e5e7eb"
+            strokeOpacity={0.5}
           />
           <Radar
             name="Average"
             dataKey="average"
-            stroke="#FFFFFF"
-            strokeWidth={3}
-            fill="rgba(255, 255, 255, 0.3)"
-            dot={{ r: 6, fill: "#fff", stroke: "#E15D2F", strokeWidth: 2 }}
+            stroke="#FF4444"
+            strokeWidth={2}
+            fill="#FFCDD2"
+            fillOpacity={0.3}
+            dot={{ r: 4, fill: "#fff", stroke: "#FF4444", strokeWidth: 2 }}
             isAnimationActive={false}
           />
         </RadarChart>
@@ -108,12 +99,8 @@ export default function RadarChartSection({ data }: RadarChartSectionProps) {
       
       <div className="flex items-center mt-4 gap-8 text-xs">
         <div className="flex items-center gap-1">
-          <span style={{ width:12, height:7, background: "linear-gradient(90deg,#FF6B6B 0%,#FFB86C 25%,#FFD93D 50%,#95E08D 75%,#4CAF50 100%)", display:"inline-block", borderRadius:2, marginRight:8 }}></span>
-          <span className="text-gray-600 uppercase tracking-tight font-medium">Distribution</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <span style={{ width: 30, height: 3, display: "inline-block", background: "#FFFFFF", borderRadius: 2, border: "1px solid #E5E7EB" }}></span>
-          <span className="text-gray-600 uppercase tracking-tight font-medium">Mean</span>
+          <span style={{ width:12, height:7, background: "#FFCDD2", border: "1px solid #FF4444", display:"inline-block", borderRadius:2, marginRight:8 }}></span>
+          <span className="text-gray-600 uppercase tracking-tight font-medium">Score Distribution</span>
         </div>
       </div>
     </div>
