@@ -1,7 +1,8 @@
 
-import { RadarChart, PolarGrid, PolarAngleAxis, Radar, ResponsiveContainer } from 'recharts';
+import { RadarChart, PolarGrid, PolarAngleAxis, Radar, ResponsiveContainer, PolarRadiusAxis, Tooltip } from 'recharts';
 import { useSession } from '@/context/SessionContext';
 import { Session } from '@/types';
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 
 interface TeamHealthChartProps {
   session: Session;
@@ -34,19 +35,71 @@ export default function TeamHealthChart({ session }: TeamHealthChartProps) {
     { subject: 'Team Morale', value: calculateAverageScore('collab_3') }
   ];
 
+  const chartConfig = {
+    line1: { 
+      color: "#ea384c",
+      theme: { light: "#ea384c", dark: "#ea384c" }
+    }
+  };
+
+  // Custom label renderer to show value alongside axis label
+  const renderPolarAngleAxis = ({ payload, x, y, cx, cy, ...rest }: any) => {
+    const category = chartData.find(item => item.subject === payload.value);
+    const score = category ? category.value : 0;
+
+    return (
+      <g>
+        <text
+          x={x}
+          y={y}
+          textAnchor={x > cx ? 'start' : x < cx ? 'end' : 'middle'}
+          fill="#555555"
+          fontSize={12}
+        >
+          {payload.value}
+        </text>
+        <text
+          x={x}
+          y={y + 16}
+          textAnchor={x > cx ? 'start' : x < cx ? 'end' : 'middle'}
+          fill="#E15D2F"
+          fontSize={12}
+          fontWeight="bold"
+        >
+          {score.toFixed(1)}/5
+        </text>
+      </g>
+    );
+  };
+
   return (
     <div className="bg-white rounded-lg p-6 mb-8">
       <h2 className="text-2xl font-bold text-gray-900">Team Health Summary</h2>
       <p className="text-gray-500 mb-6">Average scores from all participants for health check sprint</p>
       
       <div className="w-full h-[400px]">
-        <ResponsiveContainer width="100%" height="100%">
+        <ChartContainer config={chartConfig} className="w-full h-full">
           <RadarChart cx="50%" cy="50%" outerRadius="80%" data={chartData}>
             <PolarGrid stroke="#aaadb0" strokeWidth={0.5} />
             <PolarAngleAxis
               dataKey="subject"
-              tick={{ fill: '#555555', fontSize: 12 }}
+              tick={renderPolarAngleAxis}
               stroke="none"
+            />
+            <PolarRadiusAxis domain={[0, 5]} tick={{ fill: '#555555' }} />
+            <Tooltip 
+              content={({ active, payload }) => {
+                if (active && payload && payload.length) {
+                  const data = payload[0].payload;
+                  return (
+                    <div className="bg-white p-2 border rounded shadow-md">
+                      <p className="font-medium">{data.subject}</p>
+                      <p className="text-[#E15D2F] font-bold">{data.value.toFixed(1)}/5</p>
+                    </div>
+                  );
+                }
+                return null;
+              }}
             />
             <Radar
               name="Team Health"
@@ -57,7 +110,7 @@ export default function TeamHealthChart({ session }: TeamHealthChartProps) {
               fillOpacity={0.5}
             />
           </RadarChart>
-        </ResponsiveContainer>
+        </ChartContainer>
       </div>
     </div>
   );
