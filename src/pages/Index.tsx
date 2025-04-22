@@ -1,18 +1,15 @@
-import { useEffect, useState } from 'react';
+
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSession } from '@/context/SessionContext';
 import Layout from '@/components/layout/Layout';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import SessionCard from '@/components/sessions/SessionCard';
 import SessionTemplateDialog from '@/components/sessions/SessionTemplateDialog';
 
 const Index = () => {
   const { sessions } = useSession();
   const navigate = useNavigate();
-
-  const activeSessions = sessions.filter(session => session.status === 'active');
-  const completedSessions = sessions.filter(session => session.status === 'completed');
   const [showDialog, setShowDialog] = useState(false);
 
   return (
@@ -32,55 +29,6 @@ const Index = () => {
           >
             Create New Session
           </Button>
-        </div>
-
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Active Sessions</CardTitle>
-              <CardDescription>
-                Sessions that are currently in progress
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {activeSessions.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {activeSessions.map((session) => (
-                    <SessionCard key={session.id} session={session} />
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <p className="text-muted-foreground">No active sessions</p>
-                  <Button 
-                    variant="outline" 
-                    className="mt-4"
-                    onClick={() => setShowDialog(true)}
-                  >
-                    Create a new session
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {completedSessions.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Completed Sessions</CardTitle>
-                <CardDescription>
-                  Review past session results
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {completedSessions.map((session) => (
-                    <SessionCard key={session.id} session={session} />
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
         </div>
 
         <Card className="bg-accent">
