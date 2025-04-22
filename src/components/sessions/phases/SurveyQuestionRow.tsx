@@ -34,7 +34,6 @@ export default function SurveyQuestionRow({
   onCommentChange,
   disabled,
 }: SurveyQuestionRowProps) {
-  // We need to know if ANY score is selected
   const anySelected = typeof value === "number" && [1,2,3,4,5].includes(value);
 
   return (
@@ -62,8 +61,6 @@ export default function SurveyQuestionRow({
         <div className="flex flex-row gap-3">
           {[1, 2, 3, 4, 5].map((num, idx) => {
             const isSelected = value === num;
-            // Only when ANY is selected: colorClass for unselected = gray
-            // If none is selected, show all colored
             const colorClass =
               anySelected
                 ? (isSelected ? COLORS[idx] : "bg-gray-300 text-white")
@@ -92,10 +89,11 @@ export default function SurveyQuestionRow({
             );
           })}
         </div>
-        <div className="flex flex-row items-center gap-2 ml-6">
-          <span className="text-xs text-gray-600 font-medium">Never</span>
-          <span className="text-gray-300">|</span>
-          <span className="text-xs text-gray-600 font-medium">Always</span>
+        <div className="flex flex-row items-center gap-2">
+          <div className="flex flex-col items-start">
+            <span className="text-xs text-gray-600 font-medium">1: Never / Poor performance</span>
+            <span className="text-xs text-gray-400">5: Always / Excellent performance</span>
+          </div>
         </div>
       </div>
 
