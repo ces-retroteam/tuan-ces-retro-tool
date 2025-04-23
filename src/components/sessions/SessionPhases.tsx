@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSession } from '@/context/SessionContext';
@@ -20,8 +19,8 @@ export default function SessionPhases({ session, isParticipant = false, particip
   const navigate = useNavigate();
   const { updateSession } = useSession();
   const [activeTab, setActiveTab] = useState(session.currentPhase);
-  
-  const handlePhaseChange = (phase: 'welcome' | 'survey' | 'discuss' | 'review' | 'close') => {
+
+  const handlePhaseChange = (phase: 'survey' | 'discuss' | 'review' | 'close') => {
     if (!isParticipant) {
       const updatedSession = {
         ...session,
@@ -32,10 +31,6 @@ export default function SessionPhases({ session, isParticipant = false, particip
     }
   };
 
-  const handleBeginSurvey = () => {
-    handlePhaseChange('survey');
-  };
-
   return (
     <div className="w-full">
       <Tabs 
@@ -44,14 +39,7 @@ export default function SessionPhases({ session, isParticipant = false, particip
         className="w-full"
       >
         <div className="mb-4">
-          <TabsList className="grid grid-cols-5">
-            <TabsTrigger 
-              value="welcome" 
-              disabled={isParticipant && session.currentPhase !== 'welcome'}
-              className="data-[state=active]:bg-[#E15D2F] data-[state=active]:text-white"
-            >
-              Welcome
-            </TabsTrigger>
+          <TabsList className="grid grid-cols-4">
             <TabsTrigger 
               value="survey" 
               disabled={isParticipant && session.currentPhase !== 'survey'}
@@ -83,10 +71,6 @@ export default function SessionPhases({ session, isParticipant = false, particip
           </TabsList>
         </div>
 
-        <TabsContent value="welcome">
-          <WelcomePhase session={session} isParticipant={isParticipant} onBeginSurvey={handleBeginSurvey} />
-        </TabsContent>
-        
         <TabsContent value="survey">
           <SurveyPhase 
             session={session} 
@@ -110,4 +94,3 @@ export default function SessionPhases({ session, isParticipant = false, particip
     </div>
   );
 }
-
