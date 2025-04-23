@@ -22,11 +22,19 @@ interface TagDropdownProps {
 export default function TagDropdown({ value, onChange }: TagDropdownProps) {
   // Find color class for selected value
   const tagObj = TAGS.find(t => t.value === value) || TAGS[0];
+  
+  // Function to truncate long tag names
+  const truncateText = (text: string, maxLength: number = 15) => {
+    return text.length > maxLength ? `${text.slice(0, maxLength)}...` : text;
+  };
+
   return (
     <Select value={value} onValueChange={onChange}>
       <SelectTrigger className="w-[170px] h-8 px-2 focus:ring-2 focus:ring-violet-400 bg-white shadow border">
         <SelectValue>
-          <Badge className={tagObj.color + " px-2 py-1"}>{tagObj.label}</Badge>
+          <Badge className={tagObj.color + " px-2 py-1 max-w-full truncate"}>
+            {truncateText(tagObj.label)}
+          </Badge>
         </SelectValue>
       </SelectTrigger>
       <SelectContent>
@@ -36,10 +44,13 @@ export default function TagDropdown({ value, onChange }: TagDropdownProps) {
             value={tag.value}
             className="flex items-center gap-2"
           >
-            <span className={"rounded px-2 py-1 text-xs font-medium " + tag.color}>{tag.label}</span>
+            <span className={"rounded px-2 py-1 text-xs font-medium " + tag.color}>
+              {tag.label}
+            </span>
           </SelectItem>
         ))}
       </SelectContent>
     </Select>
   );
 }
+
