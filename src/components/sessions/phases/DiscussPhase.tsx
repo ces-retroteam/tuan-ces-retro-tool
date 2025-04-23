@@ -127,24 +127,13 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
                 <div className="flex justify-between items-center flex-wrap mb-6">
                     {/* Stats at top-left */}
                     <div className="flex flex-col gap-1">
-                        <div className="flex items-center gap-4">
-                            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#FAFAFB] border">
-                                <span className="text-[15px] text-[#8E9196] font-medium">Avg. Score</span>
-                                <span className="font-bold text-[20px] text-[#F97316]">{avgScoreAllTopics}</span>
-                                <span className="ml-1 text-[#8E9196]">/5</span>
-                            </div>
-                            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#FAFAFB] border">
-                                <span className="text-[15px] text-[#8E9196] font-medium">Comments</span>
-                                <span className="font-bold text-[20px] text-[#9b87f5]">{totalComments}</span>
-                            </div>
-                        </div>
                         <h2 className="text-2xl font-bold text-gray-900 mt-2">Discussion Topics</h2>
                         <p className="text-gray-500">Review feedback and comments from the team</p>
                     </div>
                     {/* Expand/collapse all button */}
                     <Button
                         variant="outline"
-                        className="h-10 px-4 flex items-center gap-2 self-start mt-4 md:mt-0"
+                        className="h-10 px-4 flex items-center gap-2 self-start mt-4"
                         onClick={() => setAllOpen((open) => !open)}
                     >
                         {allOpen ? (
@@ -202,7 +191,7 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
                                     <span className="truncate max-w-[320px]" title={item}>
                                         {item}
                                     </span>
-                                    <span className="ml-4 min-w-[120px] max-w-[140px]">
+                                    <span className="ml-4">
                                         <TagDropdown
                                             value={challengeTags[idx] || "TBD"}
                                             onChange={(tag) => handleTagChange(idx, tag)}
