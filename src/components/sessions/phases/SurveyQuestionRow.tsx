@@ -37,7 +37,7 @@ export default function SurveyQuestionRow({
   const anySelected = typeof value === "number" && [1,2,3,4,5].includes(value);
 
   return (
-    <div className="bg-white rounded-2xl px-6 py-6 my-6 flex flex-col gap-4 shadow-sm border border-gray-100">
+    <div className="bg-white rounded-2xl px-6 py-6 my-6 flex flex-col gap-4 ">
       {/* QUESTION TEXT */}
       <div className="flex flex-col gap-1">
         <Label
@@ -57,7 +57,7 @@ export default function SurveyQuestionRow({
       </div>
 
       {/* SCORE SCALE */}
-      <div className="flex flex-row items-center gap-8">
+      <div className="flex flex-row items-center gap-8 ">
         <div className="flex flex-row gap-3">
           {[1, 2, 3, 4, 5].map((num, idx) => {
             const isSelected = value === num;
@@ -99,7 +99,6 @@ export default function SurveyQuestionRow({
 
       {/* COMMENT INPUT */}
       <div className="flex flex-row items-start gap-3 mt-2">
-        <MessageSquare className="text-gray-400 mt-1" size={18} />
         <Textarea
           placeholder="   Add a comment (optional)..."
           className="bg-[#F7F7F7] border border-gray-200 text-[#222] min-h-[42px] px-3 py-2 text-base flex-1 resize-none shadow-sm rounded-lg focus-visible:border-orange-500"

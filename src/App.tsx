@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -16,23 +15,23 @@ import JoinSession from "./pages/JoinSession";
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <SessionProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/create-session" element={<CreateSession />} />
-            <Route path="/session/:sessionId" element={<SessionPage />} />
-            <Route path="/join/:sessionId" element={<JoinSession />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </SessionProvider>
-  </QueryClientProvider>
+    <QueryClientProvider client={queryClient}>
+        <SessionProvider>
+            <TooltipProvider>
+                    <Toaster />
+                    <Sonner />
+                    <BrowserRouter>
+                        <Routes>
+                            <Route path="/" element={<Index />} />
+                            <Route path="/create-session" element={<CreateSession />} />
+                            <Route path="/session/:sessionId" element={<SessionPage />} />
+                            <Route path="/join/:sessionId" element={<JoinSession />} />
+                            <Route path="*" element={<NotFound />} />
+                        </Routes>
+                    </BrowserRouter>
+            </TooltipProvider>
+        </SessionProvider>
+    </QueryClientProvider>
 );
 
 export default App;

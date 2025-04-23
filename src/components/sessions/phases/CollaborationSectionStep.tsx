@@ -25,7 +25,7 @@ export default function CollaborationSectionStep({
   isSubmitted,
 }: CollaborationSectionStepProps) {
   return (
-    <div className="bg-white rounded-2xl px-6 py-6 mb-4">
+    <div className="bg-white rounded-2xl px-6 py-6 mb-4 shadow-sm border border-gray-100">
       <h2 className="font-bold text-[1.35rem] text-[#222] mb-2"
         style={{ fontFamily: "Clarendon, serif" }}>
         Team Collaboration
