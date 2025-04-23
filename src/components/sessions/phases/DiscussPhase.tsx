@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useSession } from "@/context/SessionContext";
 import { Session } from "@/types";
@@ -6,9 +7,8 @@ import TeamHealthChart from "./TeamHealthChart";
 import TagDropdown, { ChallengeTag } from "./TagDropdown";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import CommentList from "./CommentList";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface DiscussPhaseProps {
     session: Session;
@@ -121,7 +121,7 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
     // State for expanding/collapsing all topics
     const [allOpen, setAllOpen] = useState(false);
 
-    // State for focused topic modal (replaces Sheet)
+    // State for focused topic sheet
     const [focusedTopic, setFocusedTopic] = useState<null | typeof healthCategories[0]>(null);
 
     // For accordion open/close
@@ -153,7 +153,7 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
                         <h2 className="text-2xl font-bold text-gray-900 mt-2">Discussion Topics</h2>
                         <p className="text-gray-500">Review feedback and comments from the team</p>
                     </div>
-                    {/* Expand/collapse all button */}
+                    {/* Expand/collapse all button - now top right */}
                     <Button
                         variant="outline"
                         className="h-10 px-4 flex items-center gap-2 self-start mt-4"
@@ -214,7 +214,6 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
                                 <div className="ml-1 mt-2 text-[14px] text-gray-600">
                                     {category.explanation}
                                 </div>
-                                {/* Focused state: Show comments under card */}
                                 {isFocused && (
                                   <div className="mt-3">
                                     <div className="text-xs font-medium text-gray-500 mb-1">Comments for this topic:</div>
@@ -251,24 +250,23 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
                     )}
                 </div>
             </div>
-            {/* Pop-up Dialog for focused topic (scrollable) */}
-            <Dialog open={!!focusedTopic} onOpenChange={(open) => {
+            {/* Overlay for focused topic */}
+            <Sheet open={!!focusedTopic} onOpenChange={(open) => {
                 if (!open) {
                     setFocusedTopic(null);
-                    setCardFocusId(null);
                 }
             }}>
-                <DialogContent className="max-w-lg w-full max-h-[80vh] p-0 overflow-hidden">
+                <SheetContent side="right" className="max-w-lg w-full">
                     {focusedTopic && (
-                        <ScrollArea className="h-full max-h-[80vh] p-6">
-                            <DialogHeader>
-                                <DialogTitle>
+                        <>
+                            <SheetHeader>
+                                <SheetTitle>
                                     <span className="font-bold">{focusedTopic.subject}</span>
-                                </DialogTitle>
-                                <DialogDescription>
+                                </SheetTitle>
+                                <SheetDescription>
                                     {focusedTopic.explanation}
-                                </DialogDescription>
-                            </DialogHeader>
+                                </SheetDescription>
+                            </SheetHeader>
                             <div className="mt-2 mb-4">
                                 <span className="font-semibold text-orange-800">
                                     Score: {aggregatedResponses[focusedTopic.questionId]?.average?.toFixed(1)}/5
@@ -281,10 +279,11 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
                                     participants={participants}
                                 />
                             </div>
-                        </ScrollArea>
+                        </>
                     )}
-                </DialogContent>
-            </Dialog>
+                </SheetContent>
+            </Sheet>
         </div>
     );
 }
+// File is getting long; consider splitting further into more components if adding new features.
