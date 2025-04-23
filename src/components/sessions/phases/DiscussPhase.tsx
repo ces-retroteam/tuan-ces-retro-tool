@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import { useSession } from "@/context/SessionContext";
 import { Session } from "@/types";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -103,7 +104,7 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
     const topChallenges: string[] = extractTopChallenges(relevantParticipants);
 
     // State to track tags per challenge (for demo, stateful, not persisted)
-    const [challengeTags, setChallengeTags] = React.useState<Record<number, ChallengeTag>>({});
+    const [challengeTags, setChallengeTags] = useState<Record<number, ChallengeTag>>({});
 
     const handleTagChange = (idx: number, newTag: ChallengeTag) => {
         setChallengeTags((prev) => ({
