@@ -3,9 +3,10 @@ import { Session } from "@/types";
 import { PolarAngleAxis, PolarGrid, Radar, RadarChart } from "recharts";
 interface TeamHealthChartProps {
     session: Session;
+    avgScoreAllTopics: string;
+    totalComments: number;
 }
-
-export default function TeamHealthChart({ session }: TeamHealthChartProps) {
+export default function TeamHealthChart({ session, avgScoreAllTopics, totalComments }: TeamHealthChartProps) {
     const chartData = [
         { subject: "Team Collaboration", value: 3.5 },
         { subject: "Sprint Goal Confidence", value: 7 },
@@ -40,6 +41,18 @@ export default function TeamHealthChart({ session }: TeamHealthChartProps) {
         <div className="bg-white rounded-lg p-6">
             <h2 className="text-2xl font-bold text-gray-900">Team Health Summary</h2>
             <p className="text-gray-500 mb-6">Average scores from all participants for health check sprint</p>
+
+            <div className="flex gap-4 mb-2">
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#FAFAFB] border">
+                    <span className="text-[15px] text-[#8E9196] font-medium">Avg. Score</span>
+                    <span className="font-bold text-[20px] text-[#F97316]">{avgScoreAllTopics}</span>
+                    <span className="ml-1 text-[#8E9196]">/5</span>
+                </div>
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#FAFAFB] border">
+                    <span className="text-[15px] text-[#8E9196] font-medium">Comments</span>
+                    <span className="font-bold text-[20px] text-[#9b87f5]">{totalComments}</span>
+                </div>
+            </div>
 
             <div className="w-full h-[400px]">
                 <ChartContainer config={chartConfig} className="w-full h-full">

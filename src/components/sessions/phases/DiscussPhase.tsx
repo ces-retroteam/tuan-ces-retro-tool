@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useSession } from "@/context/SessionContext";
 import { Session } from "@/types";
@@ -88,7 +87,7 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
 
     // ---- AVG SCORE OF ALL TOPICS ----
     // Calculate the arithmetic mean of available categories
-    const actualAverages = Object.values(aggregatedResponses).map(r => r.average);
+    const actualAverages = Object.values(aggregatedResponses).map((r) => r.average);
     const avgScoreAllTopics =
         actualAverages.length > 0
             ? (actualAverages.reduce((sum, val) => sum + val, 0) / actualAverages.length).toFixed(1)
@@ -96,10 +95,9 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
 
     // ---- COMMENT COUNTER ----
     // Only count comments belonging to this session
-    const totalComments =
-        Array.isArray(comments)
-            ? comments.filter(comment => comment.sessionId === session.id).length
-            : 0;
+    const totalComments = Array.isArray(comments)
+        ? comments.filter((comment) => comment.sessionId === session.id).length
+        : 0;
 
     // Top challenges
     const topChallenges: string[] = extractTopChallenges(relevantParticipants);
@@ -116,20 +114,7 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
 
     return (
         <div className="w-full space-y-6">
-            {/* TOP LEFT INFO: Overall Avg Score + Comment Count */}
-            <div className="flex gap-4 mb-2">
-                <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#FAFAFB] border">
-                    <span className="text-[15px] text-[#8E9196] font-medium">Avg. Score</span>
-                    <span className="font-bold text-[20px] text-[#F97316]">{avgScoreAllTopics}</span>
-                    <span className="ml-1 text-[#8E9196]">/5</span>
-                </div>
-                <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#FAFAFB] border">
-                    <span className="text-[15px] text-[#8E9196] font-medium">Comments</span>
-                    <span className="font-bold text-[20px] text-[#9b87f5]">{totalComments}</span>
-                </div>
-            </div>
-
-            <TeamHealthChart session={session} />
+            <TeamHealthChart session={session} avgScoreAllTopics={avgScoreAllTopics} totalComments={totalComments} />
 
             <div className="bg-white rounded-lg p-6">
                 <div className="flex justify-between items-center mb-6">
@@ -196,4 +181,3 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
         </div>
     );
 }
-
