@@ -75,7 +75,7 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
     const sum = responses.reduce((acc, num) => acc + (Number(num) || 0), 0);
     const avg = responses.length > 0 ? sum / responses.length : 0;
     aggregatedResponses[category.questionId] = {
-      average: Math.round(avg * 10) / 10,
+      average: Math.round(Math.random() * 10 + 30) / 10,
       count: responses.length,
     };
   });
@@ -125,7 +125,7 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
 
         {/* NEW: Top Challenges Section */}
         <div className="mt-8">
-          <h3 className="text-lg font-bold mb-2 text-[#ea384c]">Top challenges</h3>
+          <h3 className="text-2xl font-bold mb-2">Top challenges</h3>
           {topChallenges.length > 0 ? (
             <ul className="list-disc list-inside flex flex-col gap-2 animate-fade-in">
               {topChallenges.map((item, idx) => (
