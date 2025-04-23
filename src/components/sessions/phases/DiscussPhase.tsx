@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+
 import { useSession } from '@/context/SessionContext';
 import { Session } from '@/types';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -9,73 +9,84 @@ interface DiscussPhaseProps {
   isParticipant?: boolean;
 }
 
-export default function DiscussPhase({ session, isParticipant = false }: DiscussPhaseProps) {
-  const { participants } = useSession();
-  const [aggregatedResponses, setAggregatedResponses] = useState<Record<string, any>>({});
-  
-  useEffect(() => {
-    const relevantParticipants = participants.filter(p => 
-      p.responses && p.responses.some(r => r.questionId === session.template.questions[0].id)
-    );
-    
-    const agg: Record<string, any> = {};
-    
-    session.template.questions.forEach((question) => {
-      if (question.type === 'scale') {
-        const responses = relevantParticipants
-          .map(p => p.responses?.find(r => r.questionId === question.id))
-          .filter(Boolean);
-        
-        const sum = responses.reduce((acc, r) => acc + (Number(r.value) || 0), 0);
-        const avg = responses.length > 0 ? sum / responses.length : 0;
-        
-        agg[question.id] = {
-          average: Math.round(avg * 10) / 10,
-          count: responses.length
-        };
+// Helpers for extracting challenges
+const extractTopChallenges = (participants: any[]) => {
+  // Additional items stored as { questionId: "additional_X", value: "the challenge" }
+  const challengeItems: string[] = [];
+  participants.forEach(p => {
+    if (!p.responses) return;
+    p.responses.forEach((r: any) => {
+      if (r.questionId.startsWith("additional_") && typeof r.value === "string") {
+        challengeItems.push(r.value);
       }
     });
-    
-    setAggregatedResponses(agg);
-  }, [participants, session.template.questions]);
+  });
+  return challengeItems;
+};
 
+export default function DiscussPhase({ session, isParticipant = false }: DiscussPhaseProps) {
+  const { participants } = useSession();
+  // Only show participants with responses for questions of interest
+  const relevantParticipants = participants.filter(p =>
+    p.responses && p.responses.some(r => r.questionId === session.template.questions[0].id)
+  );
+
+  // Calculate aggregated score per main dimension as in the chart
   const healthCategories = [
-    { 
-      id: "collab_1", 
-      subject: "Team Collaboration", 
+    {
+      id: "collab_1",
+      subject: "Team Collaboration",
       questionId: "collab_1",
-      explanation: "Measures how well team members work together, communicate, and support each other in daily activities."
+      explanation: "Measures how well team members work together, communicate, and support each other in daily activities.",
     },
-    { 
-      id: "delivery_1", 
-      subject: "Sprint Goal Confidence", 
+    {
+      id: "delivery_1",
+      subject: "Sprint Goal Confidence",
       questionId: "delivery_1",
-      explanation: "Reflects the team's confidence in meeting sprint commitments and delivering planned work."
+      explanation: "Reflects the team's confidence in meeting sprint commitments and delivering planned work.",
     },
-    { 
-      id: "delivery_2", 
-      subject: "Technical Practices", 
+    {
+      id: "delivery_2",
+      subject: "Technical Practices",
       questionId: "delivery_2",
-      explanation: "Evaluates the quality of code, testing practices, and technical documentation."
+      explanation: "Evaluates the quality of code, testing practices, and technical documentation.",
     },
-    { 
-      id: "collab_2", 
-      subject: "Work-Life Balance", 
+    {
+      id: "collab_2",
+      subject: "Work-Life Balance",
       questionId: "collab_2",
-      explanation: "Assesses the team's ability to maintain healthy boundaries between work and personal life."
+      explanation: "Assesses the team's ability to maintain healthy boundaries between work and personal life.",
     },
-    { 
-      id: "collab_3", 
-      subject: "Team Morale", 
+    {
+      id: "collab_3",
+      subject: "Team Morale",
       questionId: "collab_3",
-      explanation: "Indicates overall team satisfaction, motivation, and enthusiasm for work."
+      explanation: "Indicates overall team satisfaction, motivation, and enthusiasm for work.",
     },
   ];
+
+  // Calculate average scores
+  const aggregatedResponses: Record<string, { average: number; count: number }> = {};
+  healthCategories.forEach((category) => {
+    const responses = relevantParticipants
+      .map(p => p.responses?.find(r => r.questionId === category.questionId))
+      .filter(Boolean)
+      .map(r => Number(r.value));
+    const sum = responses.reduce((acc, num) => acc + (Number(num) || 0), 0);
+    const avg = responses.length > 0 ? sum / responses.length : 0;
+    aggregatedResponses[category.questionId] = {
+      average: Math.round(avg * 10) / 10,
+      count: responses.length,
+    };
+  });
+
+  // Top challenges
+  const topChallenges: string[] = extractTopChallenges(relevantParticipants);
 
   return (
     <div className="w-full space-y-6">
       <TeamHealthChart session={session} />
-      
+
       <div className="bg-white rounded-lg p-6">
         <div className="flex justify-between items-center mb-6">
           <div>
@@ -84,12 +95,12 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
           </div>
         </div>
 
-        <Accordion type="single" collapsible className="space-y-2">
+        <Accordion type="single" collapsible className="space-y-2 animate-fade-in">
           {healthCategories.map((category) => {
             const score = aggregatedResponses[category.questionId]?.average || 0;
             return (
-              <AccordionItem 
-                key={category.id} 
+              <AccordionItem
+                key={category.id}
                 value={category.id}
                 className="border rounded-lg px-4"
               >
@@ -111,6 +122,22 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
             );
           })}
         </Accordion>
+
+        {/* NEW: Top Challenges Section */}
+        <div className="mt-8">
+          <h3 className="text-lg font-bold mb-2 text-[#ea384c]">Top challenges</h3>
+          {topChallenges.length > 0 ? (
+            <ul className="list-disc list-inside flex flex-col gap-2 animate-fade-in">
+              {topChallenges.map((item, idx) => (
+                <li key={idx} className="text-gray-700 bg-orange-50 px-3 py-2 rounded">
+                  {item}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-gray-500">No challenges reported yet.</p>
+          )}
+        </div>
       </div>
     </div>
   );
