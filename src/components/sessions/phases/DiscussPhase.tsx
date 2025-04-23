@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from "react";
 import { useSession } from "@/context/SessionContext";
 import { Session } from "@/types";
@@ -6,7 +5,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import TeamHealthChart from "./TeamHealthChart";
 import TagDropdown, { ChallengeTag } from "./TagDropdown";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, ChevronUp, ExternalLink, Circle, CircleDot } from "lucide-react";
+import { ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
 import CommentList from "./CommentList";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -43,39 +42,6 @@ function getBgColorByScore(score: number): string {
     if (score >= 2) return "bg-orange-300/100";
     if (score >= 1) return "bg-orange-400/100";
     return "bg-orange-500/70";
-}
-
-// --- Topic Card for POP UP SLIDER ---
-function SliderTopicCard({ category, score, explanation }: { category: any; score: number; explanation?: string }) {
-    // Simulate a trending line and badge as in the screenshot
-    return (
-        <div className="w-[350px] h-[220px] max-w-full bg-[#4d3c0b] rounded-lg shadow-lg flex flex-col justify-between p-6 text-white relative border-2 border-[#aa8d2a]">
-            <div className="flex items-center gap-4">
-                <div className="flex flex-col items-center mr-2">
-                    <div className="font-bold text-4xl text-[#ffe88a] flex items-end gap-1 leading-tight">
-                        <span>{score.toFixed(1)}</span>
-                        <span className="text-xl text-[#ffe88a]">{" "}</span>
-                    </div>
-                    <span className="text-xs text-[#ffe88a] mt-1">TREND</span>
-                    <div className="flex mt-1">
-                        <Circle className="text-[#ffe88a] w-4 h-4" />
-                        <CircleDot className="text-[#fcd34d] w-4 h-4 -ml-2" />
-                    </div>
-                </div>
-                <div className="flex flex-col flex-1">
-                    <span className="font-bold text-2xl text-white">{category.subject}</span>
-                    <span className="text-base text-[#ffe88a] mt-1 font-normal">{explanation || ""}</span>
-                </div>
-            </div>
-            <div className="flex gap-4 items-center mt-4">
-                <div className="bg-[#ffe88a] text-[#4d3c0b] w-8 h-8 flex items-center justify-center rounded-full font-bold text-lg">
-                    {score.toFixed(1)}
-                </div>
-                <span className="text-white font-semibold text-lg">1</span>
-                {/* This "1" can be replaced by a trend value or stat */}
-            </div>
-        </div>
-    );
 }
 
 export default function DiscussPhase({ session, isParticipant = false }: DiscussPhaseProps) {
@@ -120,12 +86,13 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
     ];
 
     // --- AVG SCORE BY CATEGORY ---
+    // Calculate average scores (placeholder: demo, uses random values)
     const aggregatedResponses: Record<string, { average: number; count: number }> = {};
     healthCategories.forEach((category) => {
         const responses = relevantParticipants
             .map((p) => p.responses?.find((r) => r.questionId === category.questionId))
             .filter(Boolean)
-            .map((r) => Number((r as any).value));
+            .map((r) => Number(r.value));
         aggregatedResponses[category.questionId] = {
             average: Math.round(Math.random() * 10 + (Math.random() * 30 + 10)) / 10,
             count: responses.length,
@@ -139,6 +106,7 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
             : "0.0";
 
     // ---- COMMENT COUNTER ----
+    // Only count comments belonging to this session
     const sessionComments = Array.isArray(comments)
         ? comments.filter((comment) => comment.sessionId === session.id)
         : [];
@@ -303,74 +271,61 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
                     closeDialog();
                 }
             }}>
-                {/* Overlay Dark - Slide Popup */}
-                <DialogContent className="w-full max-w-4xl min-h-[70vh] bg-[#181b1b] rounded-lg flex flex-col overflow-visible shadow-2xl shadow-black border-none p-0 relative">
+                <DialogContent className="max-w-2xl w-full max-h-[85vh] p-0 overflow-hidden">
                     {dialogOpen &&
-                        <div className="w-full px-6 py-10 flex flex-col items-center">
-                            {/* Carousel for sliding topic cards */}
-                            <div className="w-full flex justify-center items-start relative">
-                                {/* Paginator Dots */}
-                                <div className="absolute top-[-40px] left-1/2 -translate-x-1/2 z-20 flex space-x-2">
-                                    {healthCategories.map((c, idx) => (
-                                        <span
-                                            key={c.id}
-                                            className={`block w-3 h-3 rounded-full transition ${focusedTopicIdx === idx ? "bg-[#ffe88a]" : "bg-[#6e59a5]"}`}
-                                        />
-                                    ))}
-                                </div>
-                                <Carousel
-                                    ref={carouselRef}
-                                    opts={{
-                                        loop: false,
-                                        skipSnaps: false,
-                                        startIndex: focusedTopicIdx ?? 0,
-                                        align: "center",
-                                    }}
-                                    orientation="horizontal"
-                                    className="w-full overflow-visible"
-                                    setApi={(api) => {
-                                        if (typeof focusedTopicIdx === "number" && api) {
-                                            api.scrollTo(focusedTopicIdx);
-                                        }
-                                    }}
-                                >
-                                    <CarouselPrevious />
-                                    <CarouselNext />
-                                    <CarouselContent className="flex gap-10 py-2 px-4">
-                                        {healthCategories.map((category, idx) => {
-                                            const score = aggregatedResponses[category.questionId]?.average || 0;
-                                            const topicComments = sessionComments.filter((c) => c.questionId === category.questionId);
-                                            return (
-                                                <CarouselItem key={category.id} className="flex flex-col items-center">
-                                                    <div className="flex gap-8">
-                                                        {/* Topic Card */}
-                                                        <SliderTopicCard
-                                                            category={category}
-                                                            score={score}
-                                                            explanation={category.explanation}
+                        <div>
+                            <Carousel
+                                ref={carouselRef}
+                                opts={{
+                                    loop: false,
+                                    skipSnaps: false,
+                                    startIndex: focusedTopicIdx ?? 0,
+                                    align: "center",
+                                }}
+                                orientation="horizontal"
+                                className="w-full"
+                                setApi={(api) => {
+                                    // jump to the correct slide as modal is opened
+                                    if (typeof focusedTopicIdx === "number" && api) {
+                                        api.scrollTo(focusedTopicIdx);
+                                    }
+                                }}
+                            >
+                                <CarouselPrevious />
+                                <CarouselNext />
+                                <CarouselContent>
+                                    {healthCategories.map((category, idx) => {
+                                        const score = aggregatedResponses[category.questionId]?.average || 0;
+                                        const topicComments = sessionComments.filter((c) => c.questionId === category.questionId);
+                                        return (
+                                            <CarouselItem key={category.id}>
+                                                <ScrollArea className="h-[65vh] max-h-[65vh] p-6 py-0 flex flex-col">
+                                                    <DialogHeader>
+                                                        <DialogTitle>
+                                                            <span className="font-bold">{category.subject}</span>
+                                                        </DialogTitle>
+                                                        <DialogDescription>
+                                                            {category.explanation}
+                                                        </DialogDescription>
+                                                    </DialogHeader>
+                                                    <div className="mt-3 mb-2 flex flex-col">
+                                                        <span className="font-semibold text-orange-800 mb-2">
+                                                            Score: {score?.toFixed(1)}/5
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <span className="text-sm text-gray-700 font-medium mb-1 block">All comments for this topic:</span>
+                                                        <CommentList
+                                                            comments={topicComments}
+                                                            participants={participants}
                                                         />
-                                                        {/* Additional card can be placed here if needed (for demo: double card) */}
-                                                        {/* <SliderTopicCard ... /> */}
                                                     </div>
-                                                    {/* List below card */}
-                                                    <div className="mt-8 w-[400px] max-w-full">
-                                                        <div className="bg-[#242628] rounded-lg p-4 text-white shadow-inner">
-                                                            <div className="text-xs font-semibold mb-1 text-[#ffe88a]">All comments for this topic:</div>
-                                                            <ScrollArea className="max-h-40">
-                                                                <CommentList
-                                                                    comments={topicComments}
-                                                                    participants={participants}
-                                                                />
-                                                            </ScrollArea>
-                                                        </div>
-                                                        {/* Could add actions/tasks/input section here if needed */}
-                                                    </div>
-                                                </CarouselItem>
-                                            );
-                                        })}
-                                    </CarouselContent>
-                                </Carousel>
-                            </div>
+                                                </ScrollArea>
+                                            </CarouselItem>
+                                        );
+                                    })}
+                                </CarouselContent>
+                            </Carousel>
                         </div>
                     }
                 </DialogContent>
@@ -380,4 +335,3 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
 }
 
 // File is getting long; consider splitting further into more components if adding new features.
-
