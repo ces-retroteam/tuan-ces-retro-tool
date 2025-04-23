@@ -20,7 +20,7 @@ interface SessionHeaderProps {
 export function SessionHeader({ activePhase, onPhaseChange, isParticipant, sessionCurrentPhase }: SessionHeaderProps) {
     return (
         <header className="w-full flex justify-center border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
-            <div className="w-full md:w-[90%] flex items-center justify-between py-3 px-4 md:px-8">
+            <div className="w-full max-w-screen-3xl flex items-center justify-between py-3 px-4 md:px-8">
                 {/* Logo & name */}
                 <Link to="/" className="flex items-center space-x-2 shrink-0">
                     <div className="h-8 w-8 bg-primary rounded-full flex items-center justify-center text-white font-bold">
