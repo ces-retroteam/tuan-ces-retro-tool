@@ -33,14 +33,11 @@ export default function DeliverySectionStep({
   setName,
 }: DeliverySectionStepProps) {
   return (
-    <div className="bg-white rounded-2xl px-6 py-6 shadow-sm border border-gray-100 mb-4">
+    <div className="bg-white rounded-2xl px-6 py-6 mb-4">
       <h2 className="font-bold text-[1.35rem] text-[#222] mb-2"
         style={{ fontFamily: "Clarendon, serif" }}>
         Delivery & Execution
       </h2>
-      <div className="mb-4 text-[#555]">
-        Please rate how well the team delivers and executes on its goals.
-      </div>
       {!sessionIsAnonymous && !isSubmitted && (
         <div className="mb-6">
           <Label htmlFor="name" className="text-[#222] font-semibold mb-1 block"

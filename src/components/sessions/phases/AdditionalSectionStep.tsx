@@ -21,7 +21,7 @@ export default function AdditionalSectionStep({
   isSubmitted,
 }: AdditionalSectionStepProps) {
   return (
-    <div className="bg-white rounded-2xl px-6 py-6 shadow-sm border border-gray-100 mb-4">
+    <div className="bg-white rounded-2xl px-6 py-6 mb-4">
       <h2
         className="font-bold text-[1.35rem] text-[#222] mb-2"
         style={{ fontFamily: "Clarendon, serif" }}

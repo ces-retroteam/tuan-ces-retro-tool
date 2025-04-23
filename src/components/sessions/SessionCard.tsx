@@ -34,8 +34,6 @@ export default function SessionCard({ session }: SessionCardProps) {
   
   const getPhaseLabel = (phase: string) => {
     switch (phase) {
-      case 'welcome':
-        return 'Welcome';
       case 'survey':
         return 'Survey';
       case 'discuss':
