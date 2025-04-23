@@ -20,7 +20,7 @@ const SessionPage = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
   const navigate = useNavigate();
   const { sessions, setCurrentSession } = useSession();
-  const [welcomeOpen, setWelcomeOpen] = useState(false);
+  const [welcomeOpen, setWelcomeOpen] = useState(true);
 
   const session = sessions.find((s) => s.id === sessionId);
   const isParticipant = detectIsParticipant();
@@ -79,7 +79,7 @@ const SessionPage = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-100 dark:bg-gray-900">
+    <div className="flex flex-col w-full min-h-screen bg-gray-100 dark:bg-gray-900">
       {/* Session Header */}
       <SessionHeader
         activePhase={activePhase}
@@ -88,7 +88,7 @@ const SessionPage = () => {
         sessionCurrentPhase={session.currentPhase as "welcome" | "survey" | "discuss" | "review" | "close"}
       />
       {/* Main content */}
-      <main className="flex-grow container mx-auto px-4 py-8">
+      <main className="flex-grow container mx-auto px-4 py-8 max-w-screen-2xl">
         <div className="flex flex-col md:flex-row gap-6">
           {/* Main content */}
           <div className="flex-1 min-w-0">
