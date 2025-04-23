@@ -105,7 +105,7 @@ export default function SurveyQuestionRow({
 
       {/* COMMENT INPUT WITH OVERLAPPING AVATAR */}
       <div className="relative w-full">
-        <Avatar className="absolute -left-10 top-2 z-10 h-8 w-8 shrink-0">
+        <Avatar className="absolute -left-3 -top-0 z-10 h-8 w-8 shrink-0 border">
           {currentUser.avatarUrl ? (
             <AvatarImage src={currentUser.avatarUrl} alt={currentUser.name} />
           ) : (
