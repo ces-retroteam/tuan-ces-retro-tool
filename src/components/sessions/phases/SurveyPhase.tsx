@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { useSession } from "@/context/SessionContext";
-import { Session, Response, Participant } from "@/types";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { useSession } from "@/context/SessionContext";
+import { Participant, Response, Session } from "@/types";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import DeliverySectionStep from "./DeliverySectionStep";
-import CollaborationSectionStep from "./CollaborationSectionStep";
 import AdditionalSectionStep from "./AdditionalSectionStep";
+import CollaborationSectionStep from "./CollaborationSectionStep";
+import DeliverySectionStep from "./DeliverySectionStep";
 
 interface SurveyPhaseProps {
     session: Session;
@@ -67,7 +67,7 @@ export default function SurveyPhase({ session, isParticipant = false, participan
     };
 
     const addAdditionalItem = () => {
-        setAdditionalItems([...additionalItems, ""]);
+        setAdditionalItems(["", ...additionalItems]);
     };
 
     const handleSubmit = () => {

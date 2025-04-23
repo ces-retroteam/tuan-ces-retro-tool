@@ -1,11 +1,10 @@
 
-import React from "react";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Plus } from "lucide-react";
 
-interface AdditionalSectionStepProps {
+type AdditionalSectionStepProps = {
   prompt: string;
   items: string[];
   onItemChange: (index: number, value: string) => void;
@@ -49,7 +48,7 @@ export default function AdditionalSectionStep({
           <Input
             key={index}
             type="text"
-            placeholder={`Challenge ${index + 1}`}
+            placeholder={`Challenge ${items.length}`}
             value={item}
             onChange={(e) => onItemChange(index, e.target.value)}
             disabled={isSubmitted}
