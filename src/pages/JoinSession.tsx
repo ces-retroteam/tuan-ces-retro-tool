@@ -144,6 +144,7 @@ const JoinSession = () => {
               session={session} 
               isParticipant={true}
               participantId={participantId}
+              activePhase={session.currentPhase as "welcome" | "survey" | "discuss" | "review" | "close"}
             />
           </CardContent>
         </Card>

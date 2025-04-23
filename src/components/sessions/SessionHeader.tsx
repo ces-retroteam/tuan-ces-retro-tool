@@ -1,7 +1,7 @@
 
 import { Link } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"; // Import Tabs component
 import React from "react";
 
 // Dummy current user data (replace with actual user info in a real app)
@@ -12,10 +12,10 @@ const currentUser = {
 };
 
 interface SessionHeaderProps {
-  activePhase: "survey" | "discuss" | "review" | "close";
-  onPhaseChange: (phase: "survey" | "discuss" | "review" | "close") => void;
+  activePhase: "welcome" | "survey" | "discuss" | "review" | "close";
+  onPhaseChange: (phase: "welcome" | "survey" | "discuss" | "review" | "close") => void;
   isParticipant: boolean;
-  sessionCurrentPhase: "survey" | "discuss" | "review" | "close";
+  sessionCurrentPhase: "welcome" | "survey" | "discuss" | "review" | "close";
 }
 
 export function SessionHeader({
@@ -36,56 +36,46 @@ export function SessionHeader({
         </Link>
         {/* TABS (centered) */}
         <nav className="flex-1 flex justify-center">
-          <TabsList className="grid grid-cols-4 w-[320px] bg-transparent shadow-none p-0 gap-2">
-            <TabsTrigger
-              value="survey"
-              onClick={() => !isParticipant && onPhaseChange("survey")}
-              disabled={isParticipant && sessionCurrentPhase !== "survey"}
-              className={
-                "data-[state=active]:bg-[#E15D2F] data-[state=active]:text-white text-base" +
-                (activePhase === "survey" ? " data-[state=active]" : "")
-              }
-              tabIndex={0}
-            >
-              Survey
-            </TabsTrigger>
-            <TabsTrigger
-              value="discuss"
-              onClick={() => !isParticipant && onPhaseChange("discuss")}
-              disabled={isParticipant && sessionCurrentPhase !== "discuss"}
-              className={
-                "data-[state=active]:bg-[#E15D2F] data-[state=active]:text-white text-base" +
-                (activePhase === "discuss" ? " data-[state=active]" : "")
-              }
-              tabIndex={0}
-            >
-              Discuss
-            </TabsTrigger>
-            <TabsTrigger
-              value="review"
-              onClick={() => !isParticipant && onPhaseChange("review")}
-              disabled={isParticipant && sessionCurrentPhase !== "review"}
-              className={
-                "data-[state=active]:bg-[#E15D2F] data-[state=active]:text-white text-base" +
-                (activePhase === "review" ? " data-[state=active]" : "")
-              }
-              tabIndex={0}
-            >
-              Review
-            </TabsTrigger>
-            <TabsTrigger
-              value="close"
-              onClick={() => !isParticipant && onPhaseChange("close")}
-              disabled={isParticipant && sessionCurrentPhase !== "close"}
-              className={
-                "data-[state=active]:bg-[#E15D2F] data-[state=active]:text-white text-base" +
-                (activePhase === "close" ? " data-[state=active]" : "")
-              }
-              tabIndex={0}
-            >
-              Close
-            </TabsTrigger>
-          </TabsList>
+          <Tabs value={activePhase} className="w-[320px]">
+            <TabsList className="grid grid-cols-4 w-full bg-transparent shadow-none p-0 gap-2">
+              <TabsTrigger
+                value="survey"
+                onClick={() => !isParticipant && onPhaseChange("survey")}
+                disabled={isParticipant && sessionCurrentPhase !== "survey"}
+                className="data-[state=active]:bg-[#E15D2F] data-[state=active]:text-white text-base"
+                tabIndex={0}
+              >
+                Survey
+              </TabsTrigger>
+              <TabsTrigger
+                value="discuss"
+                onClick={() => !isParticipant && onPhaseChange("discuss")}
+                disabled={isParticipant && sessionCurrentPhase !== "discuss"}
+                className="data-[state=active]:bg-[#E15D2F] data-[state=active]:text-white text-base"
+                tabIndex={0}
+              >
+                Discuss
+              </TabsTrigger>
+              <TabsTrigger
+                value="review"
+                onClick={() => !isParticipant && onPhaseChange("review")}
+                disabled={isParticipant && sessionCurrentPhase !== "review"}
+                className="data-[state=active]:bg-[#E15D2F] data-[state=active]:text-white text-base"
+                tabIndex={0}
+              >
+                Review
+              </TabsTrigger>
+              <TabsTrigger
+                value="close"
+                onClick={() => !isParticipant && onPhaseChange("close")}
+                disabled={isParticipant && sessionCurrentPhase !== "close"}
+                className="data-[state=active]:bg-[#E15D2F] data-[state=active]:text-white text-base"
+                tabIndex={0}
+              >
+                Close
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
         </nav>
         {/* User info */}
         <div className="flex items-center gap-3 shrink-0">

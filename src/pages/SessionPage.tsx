@@ -26,7 +26,7 @@ const SessionPage = () => {
   const isParticipant = detectIsParticipant();
 
   // Tab state: for facilitator, allow phase navigation.
-  const [activePhase, setActivePhase] = useState<"survey" | "discuss" | "review" | "close">("survey");
+  const [activePhase, setActivePhase] = useState<"welcome" | "survey" | "discuss" | "review" | "close">("survey");
 
   useEffect(() => {
     if (session && isParticipant) {
@@ -38,7 +38,7 @@ const SessionPage = () => {
     if (session) {
       setCurrentSession(session);
       if (isParticipant) {
-        setActivePhase(session.currentPhase);
+        setActivePhase(session.currentPhase as "welcome" | "survey" | "discuss" | "review" | "close");
       }
     }
   }, [session, setCurrentSession, isParticipant]);
@@ -46,7 +46,7 @@ const SessionPage = () => {
   // If participant, listen to session's currentPhase changes
   useEffect(() => {
     if (session && isParticipant && activePhase !== session.currentPhase) {
-      setActivePhase(session.currentPhase);
+      setActivePhase(session.currentPhase as "welcome" | "survey" | "discuss" | "review" | "close");
     }
   }, [session, isParticipant, activePhase]);
 
@@ -67,7 +67,7 @@ const SessionPage = () => {
     );
   }
 
-  const handlePhaseChange = (phase: "survey" | "discuss" | "review" | "close") => {
+  const handlePhaseChange = (phase: "welcome" | "survey" | "discuss" | "review" | "close") => {
     if (!isParticipant) {
       setActivePhase(phase);
       // (Facilitator-only logic assumed)
@@ -85,7 +85,7 @@ const SessionPage = () => {
         activePhase={activePhase}
         onPhaseChange={handlePhaseChange}
         isParticipant={isParticipant}
-        sessionCurrentPhase={session.currentPhase}
+        sessionCurrentPhase={session.currentPhase as "welcome" | "survey" | "discuss" | "review" | "close"}
       />
       {/* Main content */}
       <main className="flex-grow container mx-auto px-4 py-8">
@@ -94,7 +94,12 @@ const SessionPage = () => {
           <div className="flex-1 min-w-0">
             <Card>
               <CardContent className="p-6">
-                <SessionPhases session={session} isParticipant={isParticipant} participantId={undefined} activePhase={activePhase} />
+                <SessionPhases 
+                  session={session} 
+                  isParticipant={isParticipant} 
+                  participantId={undefined} 
+                  activePhase={activePhase}
+                />
               </CardContent>
             </Card>
           </div>
