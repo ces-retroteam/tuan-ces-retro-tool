@@ -1,8 +1,5 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useSession } from "@/context/SessionContext";
+
 import { Session } from "@/types";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import ClosePhase from "./phases/ClosePhase";
 import DiscussPhase from "./phases/DiscussPhase";
 import ReviewPhase from "./phases/ReviewPhase";
@@ -12,80 +9,25 @@ interface SessionPhasesProps {
     session: Session;
     isParticipant?: boolean;
     participantId?: string;
+    activePhase: "survey" | "discuss" | "review" | "close";
 }
 
-export default function SessionPhases({ session, isParticipant = false, participantId }: SessionPhasesProps) {
-    const navigate = useNavigate();
-    const { updateSession } = useSession();
-    const [activeTab, setActiveTab] = useState("survey");
-
-    const handlePhaseChange = (phase: "survey" | "discuss" | "review" | "close") => {
-        if (!isParticipant) {
-            const updatedSession = {
-                ...session,
-                currentPhase: phase,
-            };
-            updateSession(updatedSession);
-            setActiveTab(phase);
-        }
-    };
-
+// This version now just renders the active panel (tabs now in header)
+export default function SessionPhases({ session, isParticipant = false, participantId, activePhase }: SessionPhasesProps) {
     return (
         <div className="w-full">
-            <Tabs
-                value={isParticipant ? session.currentPhase : activeTab}
-                onValueChange={(value) => handlePhaseChange(value as any)}
-                className="w-full"
-            >
-                <div className="mb-4">
-                    <TabsList className="grid grid-cols-4">
-                        <TabsTrigger
-                            value="survey"
-                            disabled={isParticipant && session.currentPhase !== "survey"}
-                            className="data-[state=active]:bg-[#E15D2F] data-[state=active]:text-white"
-                        >
-                            Survey
-                        </TabsTrigger>
-                        <TabsTrigger
-                            value="discuss"
-                            disabled={isParticipant && session.currentPhase !== "discuss"}
-                            className="data-[state=active]:bg-[#E15D2F] data-[state=active]:text-white"
-                        >
-                            Discuss
-                        </TabsTrigger>
-                        <TabsTrigger
-                            value="review"
-                            disabled={isParticipant && session.currentPhase !== "review"}
-                            className="data-[state=active]:bg-[#E15D2F] data-[state=active]:text-white"
-                        >
-                            Review
-                        </TabsTrigger>
-                        <TabsTrigger
-                            value="close"
-                            disabled={isParticipant && session.currentPhase !== "close"}
-                            className="data-[state=active]:bg-[#E15D2F] data-[state=active]:text-white"
-                        >
-                            Close
-                        </TabsTrigger>
-                    </TabsList>
-                </div>
-
-                <TabsContent value="survey">
-                    <SurveyPhase session={session} isParticipant={isParticipant} participantId={participantId} />
-                </TabsContent>
-
-                <TabsContent value="discuss">
-                    <DiscussPhase session={session} isParticipant={isParticipant} />
-                </TabsContent>
-
-                <TabsContent value="review">
-                    <ReviewPhase session={session} isParticipant={isParticipant} />
-                </TabsContent>
-
-                <TabsContent value="close">
-                    <ClosePhase session={session} isParticipant={isParticipant} />
-                </TabsContent>
-            </Tabs>
+            {activePhase === "survey" && (
+                <SurveyPhase session={session} isParticipant={isParticipant} participantId={participantId} />
+            )}
+            {activePhase === "discuss" && (
+                <DiscussPhase session={session} isParticipant={isParticipant} />
+            )}
+            {activePhase === "review" && (
+                <ReviewPhase session={session} isParticipant={isParticipant} />
+            )}
+            {activePhase === "close" && (
+                <ClosePhase session={session} isParticipant={isParticipant} />
+            )}
         </div>
     );
 }
