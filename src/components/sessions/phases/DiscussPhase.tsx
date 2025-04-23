@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useSession } from "@/context/SessionContext";
 import { Session } from "@/types";
@@ -162,11 +161,7 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
                     </Button>
                 </div>
 
-                <Accordion
-                    type="multiple"
-                    value={openAccordionItems}
-                    className="space-y-2 animate-fade-in"
-                >
+                <Accordion type="multiple" value={openAccordionItems} className="space-y-2 animate-fade-in">
                     {healthCategories.map((category) => {
                         const score = aggregatedResponses[category.questionId]?.average || 0;
                         const bgColor = getBgColorByScore(score);
@@ -178,7 +173,7 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
                             >
                                 <div className="flex items-center justify-between w-full py-4">
                                     <span className="font-medium text-gray-900">{category.subject}</span>
-                                    <span className="text-sm font-semibold bg-orange-100 text-orange-800 px-2 py-0.5 rounded">
+                                    <span className="text-sm font-semibold text-orange-800 px-2 py-0.5 rounded">
                                         {score.toFixed(1)}/5
                                     </span>
                                 </div>
@@ -211,8 +206,6 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
                                         <TagDropdown
                                             value={challengeTags[idx] || "TBD"}
                                             onChange={(tag) => handleTagChange(idx, tag)}
-                                            // Truncate any tag display using Tailwind in dropdown
-                                            className="block truncate max-w-[100px]"
                                         />
                                     </span>
                                 </li>

@@ -32,7 +32,7 @@ export default function TagDropdown({ value, onChange }: TagDropdownProps) {
     <Select value={value} onValueChange={onChange}>
       <SelectTrigger className="w-[170px] h-8 px-2 focus:ring-2 focus:ring-violet-400 bg-white shadow border">
         <SelectValue>
-          <Badge className={tagObj.color + " px-2 py-1 max-w-full truncate"}>
+          <Badge className={tagObj.color + " px-2 py-1 block truncate max-w-[100px]"}>
             {truncateText(tagObj.label)}
           </Badge>
         </SelectValue>
