@@ -1,13 +1,20 @@
+
 import React from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { MessageSquare } from "lucide-react";
 
-// Colors for scores 1-5 (matches palette: red, orange, gold, light green, green)
+// Dummy current user data (replace with actual user info in a real app)
+const currentUser = {
+  name: "Alex Johnson",
+  avatarUrl: "",
+};
+
 const COLORS = [
   "bg-[#ea384c] text-white", // 1 - Red
-  "bg-[#E15D2F] text-white", // 2 - Warm Orange (branding primary accent)
-  "bg-[#aa9231] text-white", // 3 - Yellow/Gold
+  "bg-[#E15D2F] text-white", // 2 - Warm Orange
+  "bg-[#aa9231] text-white", // 3 - Gold
   "bg-[#6ca543] text-white", // 4 - Light Green
   "bg-[#55bb6a] text-white", // 5 - Green
 ];
@@ -97,8 +104,22 @@ export default function SurveyQuestionRow({
         </div>
       </div>
 
-      {/* COMMENT INPUT */}
-      <div className="flex flex-row items-start gap-3 mt-2">
+      {/* COMMENT INPUT WITH USER AVATAR */}
+      <div className="flex flex-row items-start gap-3 mt-2 w-full">
+        <Avatar className="h-8 w-8 mt-1 shrink-0">
+          {currentUser.avatarUrl ? (
+            <AvatarImage src={currentUser.avatarUrl} alt={currentUser.name} />
+          ) : (
+            <AvatarFallback>
+              {currentUser.name
+                .split(" ")
+                .map((n) => n[0])
+                .join("")
+                .toUpperCase()
+                .slice(0, 2)}
+            </AvatarFallback>
+          )}
+        </Avatar>
         <Textarea
           placeholder="   Add a comment (optional)..."
           className="bg-[#F7F7F7] border border-gray-200 text-[#222] min-h-[42px] px-3 py-2 text-base flex-1 resize-none shadow-sm rounded-lg focus-visible:border-orange-500"
