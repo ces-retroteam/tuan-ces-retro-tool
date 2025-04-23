@@ -2,6 +2,7 @@ import { useSession } from "@/context/SessionContext";
 import { Session } from "@/types";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import TeamHealthChart from "./TeamHealthChart";
+import TagDropdown, { ChallengeTag } from "./TagDropdown";
 
 interface DiscussPhaseProps {
     session: Session;
@@ -101,6 +102,16 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
     // Top challenges
     const topChallenges: string[] = extractTopChallenges(relevantParticipants);
 
+    // State to track tags per challenge (for demo, stateful, not persisted)
+    const [challengeTags, setChallengeTags] = React.useState<Record<number, ChallengeTag>>({});
+
+    const handleTagChange = (idx: number, newTag: ChallengeTag) => {
+        setChallengeTags((prev) => ({
+            ...prev,
+            [idx]: newTag,
+        }));
+    };
+
     return (
         <div className="w-full space-y-6">
             <TeamHealthChart session={session} />
@@ -142,14 +153,23 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
                     })}
                 </Accordion>
 
-                {/* NEW: Top Challenges Section */}
+                {/* Top Challenges Section */}
                 <div className="mt-8">
                     <h3 className="text-2xl font-bold mb-2">Top challenges</h3>
                     {topChallenges.length > 0 ? (
                         <ul className="list-disc list-inside flex flex-col gap-2 animate-fade-in">
                             {topChallenges.map((item, idx) => (
-                                <li key={idx} className="text-gray-700 bg-orange-50 px-3 py-2 rounded">
-                                    {item}
+                                <li
+                                    key={idx}
+                                    className="text-gray-700 flex items-center justify-between bg-orange-50 px-3 py-2 rounded"
+                                >
+                                    <span>{item}</span>
+                                    <span className="ml-4">
+                                        <TagDropdown
+                                            value={challengeTags[idx] || "TBD"}
+                                            onChange={(tag) => handleTagChange(idx, tag)}
+                                        />
+                                    </span>
                                 </li>
                             ))}
                         </ul>
