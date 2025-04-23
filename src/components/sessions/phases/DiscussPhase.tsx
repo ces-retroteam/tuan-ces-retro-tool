@@ -1,4 +1,3 @@
-
 import { useSession } from '@/context/SessionContext';
 import { Session } from '@/types';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -23,6 +22,15 @@ const extractTopChallenges = (participants: any[]) => {
   });
   return challengeItems;
 };
+
+// Helper to dynamically get background color className by score
+function getBgColorByScore(score: number): string {
+  if (score >= 4.5) return "bg-orange-500/70";
+  if (score >= 3.5) return "bg-orange-300/60";
+  if (score >= 2.5) return "bg-orange-200/60";
+  if (score >= 1.5) return "bg-orange-100/60";
+  return "bg-gray-100/70";
+}
 
 export default function DiscussPhase({ session, isParticipant = false }: DiscussPhaseProps) {
   const { participants } = useSession();
@@ -98,11 +106,12 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
         <Accordion type="single" collapsible className="space-y-2 animate-fade-in">
           {healthCategories.map((category) => {
             const score = aggregatedResponses[category.questionId]?.average || 0;
+            const bgColor = getBgColorByScore(score);
             return (
               <AccordionItem
                 key={category.id}
                 value={category.id}
-                className="border rounded-lg px-4"
+                className={`border rounded-lg px-4 transition-colors duration-500 ${bgColor}`}
               >
                 <AccordionTrigger className="hover:no-underline">
                   <div className="flex items-center justify-between w-full">
