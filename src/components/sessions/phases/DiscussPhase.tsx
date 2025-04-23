@@ -6,7 +6,9 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import TeamHealthChart from "./TeamHealthChart";
 import TagDropdown, { ChallengeTag } from "./TagDropdown";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import CommentList from "./CommentList";
 
 interface DiscussPhaseProps {
     session: Session;
@@ -75,6 +77,7 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
         },
     ];
 
+    // --- AVG SCORE BY CATEGORY ---
     // Calculate average scores (placeholder: demo, uses random values)
     const aggregatedResponses: Record<string, { average: number; count: number }> = {};
     healthCategories.forEach((category) => {
@@ -87,9 +90,7 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
             count: responses.length,
         };
     });
-
     // ---- AVG SCORE OF ALL TOPICS ----
-    // Calculate the arithmetic mean of available categories
     const actualAverages = Object.values(aggregatedResponses).map((r) => r.average);
     const avgScoreAllTopics =
         actualAverages.length > 0
@@ -98,9 +99,11 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
 
     // ---- COMMENT COUNTER ----
     // Only count comments belonging to this session
-    const totalComments = Array.isArray(comments)
-        ? comments.filter((comment) => comment.sessionId === session.id).length
-        : 0;
+    const sessionComments = Array.isArray(comments)
+        ? comments.filter((comment) => comment.sessionId === session.id)
+        : [];
+
+    const totalComments = sessionComments.length;
 
     // Top challenges
     const topChallenges: string[] = extractTopChallenges(relevantParticipants);
@@ -118,12 +121,31 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
     // State for expanding/collapsing all topics
     const [allOpen, setAllOpen] = useState(false);
 
-    // Get array of open ids or []
+    // State for focused topic sheet
+    const [focusedTopic, setFocusedTopic] = useState<null | typeof healthCategories[0]>(null);
+
+    // For accordion open/close
     const openAccordionItems = allOpen ? healthCategories.map((c) => c.id) : [];
+
+    // Focused card on main list (null = none)
+    const [cardFocusId, setCardFocusId] = useState<string | null>(null);
 
     return (
         <div className="w-full space-y-6">
-            <TeamHealthChart session={session} avgScoreAllTopics={avgScoreAllTopics} totalComments={totalComments} />
+            {/* TeamHealthChart + stats */}
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+                <TeamHealthChart session={session} avgScoreAllTopics={avgScoreAllTopics} totalComments={totalComments} />
+                <div className="flex flex-row items-center gap-8 mt-2 self-end">
+                    <div>
+                        <div className="text-xs text-gray-400">Average score</div>
+                        <div className="text-lg font-bold text-orange-700">{avgScoreAllTopics}/5</div>
+                    </div>
+                    <div>
+                        <div className="text-xs text-gray-400">Comments</div>
+                        <div className="text-lg font-bold text-blue-700">{totalComments}</div>
+                    </div>
+                </div>
+            </div>
             <div className="bg-white rounded-lg p-6">
                 <div className="flex justify-between items-center flex-wrap mb-6">
                     {/* Stats at top-left */}
@@ -131,7 +153,7 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
                         <h2 className="text-2xl font-bold text-gray-900 mt-2">Discussion Topics</h2>
                         <p className="text-gray-500">Review feedback and comments from the team</p>
                     </div>
-                    {/* Expand/collapse all button */}
+                    {/* Expand/collapse all button - now top right */}
                     <Button
                         variant="outline"
                         className="h-10 px-4 flex items-center gap-2 self-start mt-4"
@@ -150,38 +172,58 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
                         )}
                     </Button>
                 </div>
-
-                <Accordion
-                    type="multiple"
-                    value={openAccordionItems}
-                    className="space-y-2 animate-fade-in"
-                >
+                {/* List of clickable topic cards */}
+                <div className="space-y-2 animate-fade-in">
                     {healthCategories.map((category) => {
                         const score = aggregatedResponses[category.questionId]?.average || 0;
                         const bgColor = getBgColorByScore(score);
+                        const isFocused = cardFocusId === category.id;
+                        // comments for this topic/question
+                        const topicComments = sessionComments.filter((c) => c.questionId === category.questionId);
                         return (
-                            <AccordionItem
+                            <div
                                 key={category.id}
-                                value={category.id}
-                                className={`border rounded-lg px-4 transition-colors duration-500 ${bgColor}`}
+                                tabIndex={0}
+                                className={`border rounded-lg px-4 py-4 transition-colors duration-500 cursor-pointer focus:ring-2 ring-orange-300 mb-0.5
+                                    ${bgColor} ${isFocused ? "ring-2 ring-violet-500 z-10" : ""}`}
+                                onClick={() => {
+                                    setFocusedTopic(category);
+                                    setCardFocusId(category.id);
+                                }}
+                                onBlur={() => setCardFocusId(null)}
                             >
-                                <div className="flex items-center justify-between w-full py-4">
-                                    <span className="font-medium text-gray-900">{category.subject}</span>
-                                    <span className="text-sm font-semibold text-orange-800 px-2 py-0.5 rounded">
-                                        {score.toFixed(1)}/5
-                                    </span>
-                                </div>
-                                <AccordionContent>
-                                    <div className="space-y-2 pt-2">
-                                        <p className="text-sm text-gray-600">{category.explanation}</p>
-                                        <p className="text-gray-600">No comments yet.</p>
+                                <div className="flex items-center justify-between w-full">
+                                    <div>
+                                        <span className="font-medium text-gray-900 mr-2">{category.subject}</span>
+                                        <span className="text-xs text-gray-500">{category.id}</span>
                                     </div>
-                                </AccordionContent>
-                            </AccordionItem>
+                                    <div className="flex items-center gap-3">
+                                        <span className="text-sm font-semibold text-orange-800 px-2 py-0.5 rounded">
+                                            {score.toFixed(1)}/5
+                                        </span>
+                                        <Button variant="ghost" size="icon" aria-label="Open details" onClick={(e) => {
+                                            // Prevent onClick for parent, just open overlay
+                                            e.stopPropagation();
+                                            setFocusedTopic(category);
+                                            setCardFocusId(category.id);
+                                        }}>
+                                            <ExternalLink className="w-5 h-5 text-gray-800" />
+                                        </Button>
+                                    </div>
+                                </div>
+                                <div className="ml-1 mt-2 text-[14px] text-gray-600">
+                                    {category.explanation}
+                                </div>
+                                {isFocused && (
+                                  <div className="mt-3">
+                                    <div className="text-xs font-medium text-gray-500 mb-1">Comments for this topic:</div>
+                                    <CommentList comments={topicComments} participants={participants} />
+                                  </div>
+                                )}
+                            </div>
                         );
                     })}
-                </Accordion>
-
+                </div>
                 {/* Top Challenges Section */}
                 <div className="mt-8">
                     <h3 className="text-2xl font-bold mb-2">Top challenges</h3>
@@ -196,10 +238,10 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
                                     <span className="truncate max-w-[320px]" title={item}>
                                         {item}
                                     </span>
-                                        <TagDropdown
-                                            value={challengeTags[idx] || "TBD"}
-                                            onChange={(tag) => handleTagChange(idx, tag)}
-                                        />
+                                    <TagDropdown
+                                        value={challengeTags[idx] || "TBD"}
+                                        onChange={(tag) => handleTagChange(idx, tag)}
+                                    />
                                 </li>
                             ))}
                         </ul>
@@ -208,6 +250,40 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
                     )}
                 </div>
             </div>
+            {/* Overlay for focused topic */}
+            <Sheet open={!!focusedTopic} onOpenChange={(open) => {
+                if (!open) {
+                    setFocusedTopic(null);
+                }
+            }}>
+                <SheetContent side="right" className="max-w-lg w-full">
+                    {focusedTopic && (
+                        <>
+                            <SheetHeader>
+                                <SheetTitle>
+                                    <span className="font-bold">{focusedTopic.subject}</span>
+                                </SheetTitle>
+                                <SheetDescription>
+                                    {focusedTopic.explanation}
+                                </SheetDescription>
+                            </SheetHeader>
+                            <div className="mt-2 mb-4">
+                                <span className="font-semibold text-orange-800">
+                                    Score: {aggregatedResponses[focusedTopic.questionId]?.average?.toFixed(1)}/5
+                                </span>
+                            </div>
+                            <div className="mb-3 mt-1">
+                                <span className="text-sm text-gray-700 font-medium mb-2 block">All comments for this topic:</span>
+                                <CommentList
+                                    comments={sessionComments.filter((c) => c.questionId === focusedTopic.questionId)}
+                                    participants={participants}
+                                />
+                            </div>
+                        </>
+                    )}
+                </SheetContent>
+            </Sheet>
         </div>
     );
 }
+// File is getting long; consider splitting further into more components if adding new features.
