@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useSession } from "@/context/SessionContext";
 import { Session } from "@/types";
@@ -20,20 +21,6 @@ const extractTopChallenges = (participants: any[]) => {
         "Cross-team dependencies are causing delays",
         "Knowledge sharing between team members could be improved",
     ];
-
-    // Original implementation commented out for reference
-    /*
-    const challengeItems: string[] = [];
-    participants.forEach((p) => {
-        if (!p.responses) return;
-        p.responses.forEach((r: any) => {
-            if (r.questionId.startsWith("additional_") && typeof r.value === "string") {
-                challengeItems.push(r.value);
-            }
-        });
-    });
-    return challengeItems;
-    */
 };
 
 // Helper to dynamically get background color className by score
@@ -46,13 +33,12 @@ function getBgColorByScore(score: number): string {
 }
 
 export default function DiscussPhase({ session, isParticipant = false }: DiscussPhaseProps) {
-    const { participants } = useSession();
-    // Only show participants with responses for questions of interest
+    const { participants, comments } = useSession();
+
     const relevantParticipants = participants.filter(
         (p) => p.responses && p.responses.some((r) => r.questionId === session.template.questions[0].id),
     );
 
-    // Calculate aggregated score per main dimension as in the chart
     const healthCategories = [
         {
             id: "collab_1",
@@ -87,7 +73,7 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
         },
     ];
 
-    // Calculate average scores
+    // Calculate average scores (placeholder: demo, uses random values)
     const aggregatedResponses: Record<string, { average: number; count: number }> = {};
     healthCategories.forEach((category) => {
         const responses = relevantParticipants
@@ -99,6 +85,21 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
             count: responses.length,
         };
     });
+
+    // ---- AVG SCORE OF ALL TOPICS ----
+    // Calculate the arithmetic mean of available categories
+    const actualAverages = Object.values(aggregatedResponses).map(r => r.average);
+    const avgScoreAllTopics =
+        actualAverages.length > 0
+            ? (actualAverages.reduce((sum, val) => sum + val, 0) / actualAverages.length).toFixed(1)
+            : "0.0";
+
+    // ---- COMMENT COUNTER ----
+    // Only count comments belonging to this session
+    const totalComments =
+        Array.isArray(comments)
+            ? comments.filter(comment => comment.sessionId === session.id).length
+            : 0;
 
     // Top challenges
     const topChallenges: string[] = extractTopChallenges(relevantParticipants);
@@ -115,6 +116,19 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
 
     return (
         <div className="w-full space-y-6">
+            {/* TOP LEFT INFO: Overall Avg Score + Comment Count */}
+            <div className="flex gap-4 mb-2">
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#FAFAFB] border">
+                    <span className="text-[15px] text-[#8E9196] font-medium">Avg. Score</span>
+                    <span className="font-bold text-[20px] text-[#F97316]">{avgScoreAllTopics}</span>
+                    <span className="ml-1 text-[#8E9196]">/5</span>
+                </div>
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#FAFAFB] border">
+                    <span className="text-[15px] text-[#8E9196] font-medium">Comments</span>
+                    <span className="font-bold text-[20px] text-[#9b87f5]">{totalComments}</span>
+                </div>
+            </div>
+
             <TeamHealthChart session={session} />
 
             <div className="bg-white rounded-lg p-6">
@@ -182,3 +196,4 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
         </div>
     );
 }
+
