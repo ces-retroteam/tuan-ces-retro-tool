@@ -1,6 +1,7 @@
+
 import { Link } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"; // Import Tabs component
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import React from "react";
 
 // Dummy current user data (replace with actual user info in a real app)
@@ -18,6 +19,9 @@ interface SessionHeaderProps {
 }
 
 export function SessionHeader({ activePhase, onPhaseChange, isParticipant, sessionCurrentPhase }: SessionHeaderProps) {
+    // Add a transition utility to the TabsTrigger for background and text color change
+    const animatedTabClass =
+        "transition-colors duration-300 data-[state=active]:bg-[#E15D2F] data-[state=active]:text-white text-base";
     return (
         <header className="w-full flex justify-center border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
             <div className="w-full max-w-screen-3xl flex items-center justify-between py-3 px-4 md:px-8">
@@ -36,7 +40,7 @@ export function SessionHeader({ activePhase, onPhaseChange, isParticipant, sessi
                                 value="survey"
                                 onClick={() => !isParticipant && onPhaseChange("survey")}
                                 disabled={isParticipant && sessionCurrentPhase !== "survey"}
-                                className="data-[state=active]:bg-[#E15D2F] data-[state=active]:text-white text-base"
+                                className={animatedTabClass}
                                 tabIndex={0}
                             >
                                 Survey
@@ -45,7 +49,7 @@ export function SessionHeader({ activePhase, onPhaseChange, isParticipant, sessi
                                 value="discuss"
                                 onClick={() => !isParticipant && onPhaseChange("discuss")}
                                 disabled={isParticipant && sessionCurrentPhase !== "discuss"}
-                                className="data-[state=active]:bg-[#E15D2F] data-[state=active]:text-white text-base"
+                                className={animatedTabClass}
                                 tabIndex={0}
                             >
                                 Discuss
@@ -54,7 +58,7 @@ export function SessionHeader({ activePhase, onPhaseChange, isParticipant, sessi
                                 value="review"
                                 onClick={() => !isParticipant && onPhaseChange("review")}
                                 disabled={isParticipant && sessionCurrentPhase !== "review"}
-                                className="data-[state=active]:bg-[#E15D2F] data-[state=active]:text-white text-base"
+                                className={animatedTabClass}
                                 tabIndex={0}
                             >
                                 Review
@@ -63,7 +67,7 @@ export function SessionHeader({ activePhase, onPhaseChange, isParticipant, sessi
                                 value="close"
                                 onClick={() => !isParticipant && onPhaseChange("close")}
                                 disabled={isParticipant && sessionCurrentPhase !== "close"}
-                                className="data-[state=active]:bg-[#E15D2F] data-[state=active]:text-white text-base"
+                                className={animatedTabClass}
                                 tabIndex={0}
                             >
                                 Close
@@ -98,3 +102,4 @@ export function SessionHeader({ activePhase, onPhaseChange, isParticipant, sessi
         </header>
     );
 }
+
