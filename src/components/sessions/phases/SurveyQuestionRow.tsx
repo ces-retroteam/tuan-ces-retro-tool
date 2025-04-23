@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -44,7 +43,7 @@ export default function SurveyQuestionRow({
   const anySelected = typeof value === "number" && [1,2,3,4,5].includes(value);
 
   return (
-    <div className="bg-white rounded-2xl px-6 py-6 my-6 flex flex-col gap-4 ">
+    <div className="bg-white rounded-2xl px-6 py-6 my-6 flex flex-col gap-4 relative">
       {/* QUESTION TEXT */}
       <div className="flex flex-col gap-1">
         <Label
@@ -104,9 +103,9 @@ export default function SurveyQuestionRow({
         </div>
       </div>
 
-      {/* COMMENT INPUT WITH USER AVATAR */}
-      <div className="flex flex-row items-start gap-3 mt-2 w-full">
-        <Avatar className="h-8 w-8 mt-1 shrink-0">
+      {/* COMMENT INPUT WITH OVERLAPPING AVATAR */}
+      <div className="relative w-full">
+        <Avatar className="absolute -left-10 top-2 z-10 h-8 w-8 shrink-0">
           {currentUser.avatarUrl ? (
             <AvatarImage src={currentUser.avatarUrl} alt={currentUser.name} />
           ) : (
@@ -121,8 +120,8 @@ export default function SurveyQuestionRow({
           )}
         </Avatar>
         <Textarea
-          placeholder="   Add a comment (optional)..."
-          className="bg-[#F7F7F7] border border-gray-200 text-[#222] min-h-[42px] px-3 py-2 text-base flex-1 resize-none shadow-sm rounded-lg focus-visible:border-orange-500"
+          placeholder="Add a comment (optional)..."
+          className="bg-[#F7F7F7] border border-gray-200 text-[#222] min-h-[42px] pl-12 py-2 text-base flex-1 resize-none shadow-sm rounded-lg focus-visible:border-orange-500"
           value={comment}
           onChange={e => onCommentChange(e.target.value)}
           disabled={disabled}
