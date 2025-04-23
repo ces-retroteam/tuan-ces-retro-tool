@@ -98,7 +98,7 @@ export default function SurveyQuestionRow({
         <div className="flex flex-row items-center gap-2">
           <div className="flex flex-col items-start">
             <span className="text-xs text-gray-600 font-medium">1: Never / Poor performance</span>
-            <span className="text-xs text-gray-400">5: Always / Excellent performance</span>
+            <span className="text-xs text-gray-600">5: Always / Excellent performance</span>
           </div>
         </div>
       </div>
