@@ -1,9 +1,12 @@
+
 import React, { useState } from "react";
 import { useSession } from "@/context/SessionContext";
 import { Session } from "@/types";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import TeamHealthChart from "./TeamHealthChart";
 import TagDropdown, { ChallengeTag } from "./TagDropdown";
+import { Button } from "@/components/ui/button";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 interface DiscussPhaseProps {
     session: Session;
@@ -24,11 +27,11 @@ const extractTopChallenges = (participants: any[]) => {
 
 // Helper to dynamically get background color className by score
 function getBgColorByScore(score: number): string {
-    if (score >= 4) return "bg-orange-100/100"; // Dark green
-    if (score >= 3) return "bg-orange-200/100"; // Light green
-    if (score >= 2) return "bg-orange-300/100"; // Yellow
-    if (score >= 1) return "bg-orange-400/100"; // Light red
-    return "bg-orange-500/70"; // Dark red
+    if (score >= 4) return "bg-orange-100/100";
+    if (score >= 3) return "bg-orange-200/100";
+    if (score >= 2) return "bg-orange-300/100";
+    if (score >= 1) return "bg-orange-400/100";
+    return "bg-orange-500/70";
 }
 
 export default function DiscussPhase({ session, isParticipant = false }: DiscussPhaseProps) {
@@ -112,19 +115,58 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
         }));
     };
 
+    // State for expanding/collapsing all topics
+    const [allOpen, setAllOpen] = useState(false);
+
+    // Get array of open ids or []
+    const openAccordionItems = allOpen ? healthCategories.map((c) => c.id) : [];
+
     return (
         <div className="w-full space-y-6">
             <TeamHealthChart session={session} avgScoreAllTopics={avgScoreAllTopics} totalComments={totalComments} />
-
             <div className="bg-white rounded-lg p-6">
-                <div className="flex justify-between items-center mb-6">
-                    <div>
-                        <h2 className="text-2xl font-bold text-gray-900">Discussion Topics</h2>
+                <div className="flex justify-between items-center flex-wrap mb-6">
+                    {/* Stats at top-left */}
+                    <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#FAFAFB] border">
+                                <span className="text-[15px] text-[#8E9196] font-medium">Avg. Score</span>
+                                <span className="font-bold text-[20px] text-[#F97316]">{avgScoreAllTopics}</span>
+                                <span className="ml-1 text-[#8E9196]">/5</span>
+                            </div>
+                            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#FAFAFB] border">
+                                <span className="text-[15px] text-[#8E9196] font-medium">Comments</span>
+                                <span className="font-bold text-[20px] text-[#9b87f5]">{totalComments}</span>
+                            </div>
+                        </div>
+                        <h2 className="text-2xl font-bold text-gray-900 mt-2">Discussion Topics</h2>
                         <p className="text-gray-500">Review feedback and comments from the team</p>
                     </div>
+                    {/* Expand/collapse all button */}
+                    <Button
+                        variant="outline"
+                        className="h-10 px-4 flex items-center gap-2 self-start mt-4 md:mt-0"
+                        onClick={() => setAllOpen((open) => !open)}
+                    >
+                        {allOpen ? (
+                            <>
+                                <ChevronUp className="w-4 h-4" />
+                                Collapse all
+                            </>
+                        ) : (
+                            <>
+                                <ChevronDown className="w-4 h-4" />
+                                Expand all
+                            </>
+                        )}
+                    </Button>
                 </div>
 
-                <Accordion type="single" collapsible className="space-y-2 animate-fade-in">
+                <Accordion
+                    type="multiple"
+                    value={openAccordionItems}
+                    className="space-y-2 animate-fade-in"
+                >
                     {healthCategories.map((category) => {
                         const score = aggregatedResponses[category.questionId]?.average || 0;
                         const bgColor = getBgColorByScore(score);
@@ -134,14 +176,12 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
                                 value={category.id}
                                 className={`border rounded-lg px-4 transition-colors duration-500 ${bgColor}`}
                             >
-                                <AccordionTrigger className="hover:no-underline">
-                                    <div className="flex items-center justify-between w-full">
-                                        <span className="font-medium text-gray-900">{category.subject}</span>
-                                        <span className="text-sm font-semibold bg-orange-100 text-orange-800 px-2 py-0.5 rounded">
-                                            {score.toFixed(1)}/5
-                                        </span>
-                                    </div>
-                                </AccordionTrigger>
+                                <div className="flex items-center justify-between w-full py-4">
+                                    <span className="font-medium text-gray-900">{category.subject}</span>
+                                    <span className="text-sm font-semibold bg-orange-100 text-orange-800 px-2 py-0.5 rounded">
+                                        {score.toFixed(1)}/5
+                                    </span>
+                                </div>
                                 <AccordionContent>
                                     <div className="space-y-2 pt-2">
                                         <p className="text-sm text-gray-600">{category.explanation}</p>
@@ -163,11 +203,16 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
                                     key={idx}
                                     className="text-gray-700 flex items-center justify-between bg-orange-50 px-3 py-2 rounded"
                                 >
-                                    <span>{item}</span>
-                                    <span className="ml-4">
+                                    {/* Span for challenge, truncated if too long */}
+                                    <span className="truncate max-w-[320px]" title={item}>
+                                        {item}
+                                    </span>
+                                    <span className="ml-4 min-w-[120px] max-w-[140px]">
                                         <TagDropdown
                                             value={challengeTags[idx] || "TBD"}
                                             onChange={(tag) => handleTagChange(idx, tag)}
+                                            // Truncate any tag display using Tailwind in dropdown
+                                            className="block truncate max-w-[100px]"
                                         />
                                     </span>
                                 </li>
