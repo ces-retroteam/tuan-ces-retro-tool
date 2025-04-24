@@ -6,7 +6,6 @@ import TeamHealthChart from "./TeamHealthChart";
 import TagDropdown, { ChallengeTag } from "./TagDropdown";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import TopicCarousel from "./TopicCarousel";
 
 interface DiscussPhaseProps {
     session: Session;
@@ -121,27 +120,6 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
     // Get array of open ids or []
     const openAccordionItems = allOpen ? healthCategories.map((c) => c.id) : [];
 
-    // Example slides data for each category
-    const generateSlidesForCategory = (category: any) => [
-        {
-            title: category.subject,
-            score: aggregatedResponses[category.questionId]?.average || 0,
-            content: category.explanation,
-            trend: "Improving"
-        },
-        {
-            title: "Historical Data",
-            score: aggregatedResponses[category.questionId]?.average || 0,
-            content: "Trend analysis and historical performance data for this metric.",
-            trend: "Stable"
-        },
-        {
-            title: "Action Items",
-            score: aggregatedResponses[category.questionId]?.average || 0,
-            content: "Suggested improvements and action items based on the current score.",
-        }
-    ];
-
     return (
         <div className="w-full space-y-6">
             <TeamHealthChart session={session} avgScoreAllTopics={avgScoreAllTopics} totalComments={totalComments} />
@@ -189,8 +167,9 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
                                     </span>
                                 </div>
                                 <AccordionContent>
-                                    <div className="space-y-4 pt-2">
-                                        <TopicCarousel slides={generateSlidesForCategory(category)} />
+                                    <div className="space-y-2 pt-2">
+                                        <p className="text-sm text-gray-600">{category.explanation}</p>
+                                        <p className="text-gray-600">No comments yet.</p>
                                     </div>
                                 </AccordionContent>
                             </AccordionItem>
