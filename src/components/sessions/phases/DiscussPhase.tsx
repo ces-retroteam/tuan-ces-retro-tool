@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useSession } from "@/context/SessionContext";
 import { Question, Session } from "@/types";
@@ -33,6 +34,13 @@ export default function DiscussPhase({ session, isParticipant = false }: { sessi
     const { participants, comments } = useSession();
     const [allOpen, setAllOpen] = useState(false);
     const [selectedQuestionId, setSelectedQuestionId] = useState<string | null>(null);
+    const [challengeTags, setChallengeTags] = useState<ChallengeTag[]>(Array(5).fill("TBD"));
+
+    const handleTagChange = (index: number, tag: ChallengeTag) => {
+        const newTags = [...challengeTags];
+        newTags[index] = tag;
+        setChallengeTags(newTags);
+    };
 
     const relevantParticipants = participants.filter(
         (p) => p.responses && p.responses.some((r) => r.questionId === session.template.questions[0].id),

@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -18,17 +19,17 @@ const App = () => (
     <QueryClientProvider client={queryClient}>
         <SessionProvider>
             <TooltipProvider>
+                <BrowserRouter>
+                    <Routes>
+                        <Route path="/" element={<Index />} />
+                        <Route path="/create-session" element={<CreateSession />} />
+                        <Route path="/session/:sessionId" element={<SessionPage />} />
+                        <Route path="/join/:sessionId" element={<JoinSession />} />
+                        <Route path="*" element={<NotFound />} />
+                    </Routes>
                     <Toaster />
                     <Sonner />
-                    <BrowserRouter>
-                        <Routes>
-                            <Route path="/" element={<Index />} />
-                            <Route path="/create-session" element={<CreateSession />} />
-                            <Route path="/session/:sessionId" element={<SessionPage />} />
-                            <Route path="/join/:sessionId" element={<JoinSession />} />
-                            <Route path="*" element={<NotFound />} />
-                        </Routes>
-                    </BrowserRouter>
+                </BrowserRouter>
             </TooltipProvider>
         </SessionProvider>
     </QueryClientProvider>

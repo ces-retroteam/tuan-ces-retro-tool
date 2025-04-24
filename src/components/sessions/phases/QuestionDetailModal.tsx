@@ -64,7 +64,7 @@ function QuestionSlide({ question }: QuestionSlideProps) {
         <div className="space-y-6">
           {/* Header */}
           <div className="flex items-center justify-between">
-            <h3 className="text-xl font-semibold">{question.title}</h3>
+            <h3 className="text-xl font-semibold">{question.text}</h3>
             <div className="flex items-center gap-3">
               <span className="text-2xl font-bold">{question.score.toFixed(1)}</span>
               <TrendIndicator trend={question.trend} />
@@ -105,7 +105,7 @@ function TrendIndicator({ trend }: { trend: Question["trend"] }) {
 function CommentList({ comments }: { comments: Question["comments"] }) {
   return (
     <div className="space-y-2 max-h-[200px] overflow-y-auto">
-      {comments.map((comment) => (
+      {comments && comments.map((comment) => (
         <div key={comment.id} className="bg-muted/50 rounded-lg p-3">
           <p className="text-sm font-medium">{comment.author}</p>
           <p className="text-sm text-muted-foreground">{comment.content}</p>
@@ -118,7 +118,7 @@ function CommentList({ comments }: { comments: Question["comments"] }) {
 function ActionList({ actions }: { actions: Question["actions"] }) {
   return (
     <div className="space-y-2">
-      {actions.map((action) => (
+      {actions && actions.map((action) => (
         <div key={action.id} className="flex items-start gap-2">
           <input 
             type="checkbox" 
