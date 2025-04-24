@@ -1,4 +1,3 @@
-
 export interface Template {
   id: string;
   name: string;
@@ -12,7 +11,19 @@ export interface Question {
   type: 'scale' | 'text' | 'multiple-choice';
   options?: string[];
   required: boolean;
-  description?: string; // Added this optional property
+  description?: string;
+  score?: number;
+  trend?: 'up' | 'down' | 'steady';
+  comments?: {
+    id: string;
+    author: string;
+    content: string;
+  }[];
+  actions?: {
+    id: string;
+    description: string;
+    completed: boolean;
+  }[];
 }
 
 export interface Session {

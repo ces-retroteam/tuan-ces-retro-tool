@@ -1,16 +1,12 @@
 import React, { useState } from "react";
 import { useSession } from "@/context/SessionContext";
-import { Session } from "@/types";
+import { Question, Session } from "@/types";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import TeamHealthChart from "./TeamHealthChart";
 import TagDropdown, { ChallengeTag } from "./TagDropdown";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp } from "lucide-react";
-
-interface DiscussPhaseProps {
-    session: Session;
-    isParticipant?: boolean;
-}
+import { QuestionDetailModal } from "./QuestionDetailModal";
 
 // Helpers for extracting challenges
 const extractTopChallenges = (participants: any[]) => {
@@ -33,8 +29,10 @@ function getBgColorByScore(score: number): string {
     return "bg-orange-500/70";
 }
 
-export default function DiscussPhase({ session, isParticipant = false }: DiscussPhaseProps) {
+export default function DiscussPhase({ session, isParticipant = false }: { session: Session; isParticipant?: boolean }) {
     const { participants, comments } = useSession();
+    const [allOpen, setAllOpen] = useState(false);
+    const [selectedQuestionId, setSelectedQuestionId] = useState<string | null>(null);
 
     const relevantParticipants = participants.filter(
         (p) => p.responses && p.responses.some((r) => r.questionId === session.template.questions[0].id),
@@ -104,18 +102,18 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
     // Top challenges
     const topChallenges: string[] = extractTopChallenges(relevantParticipants);
 
-    // State to track tags per challenge (for demo, stateful, not persisted)
-    const [challengeTags, setChallengeTags] = useState<Record<number, ChallengeTag>>({});
-
-    const handleTagChange = (idx: number, newTag: ChallengeTag) => {
-        setChallengeTags((prev) => ({
-            ...prev,
-            [idx]: newTag,
-        }));
-    };
-
-    // State for expanding/collapsing all topics
-    const [allOpen, setAllOpen] = useState(false);
+    // Transform health categories to include question data
+    const questions: Question[] = healthCategories.map(category => ({
+        id: category.id,
+        text: category.subject,
+        type: "scale",
+        required: true,
+        description: category.explanation,
+        score: aggregatedResponses[category.questionId]?.average || 0,
+        trend: "steady", // This would come from your data
+        comments: [], // This would come from your data
+        actions: [], // This would come from your data
+    }));
 
     // Get array of open ids or []
     const openAccordionItems = allOpen ? healthCategories.map((c) => c.id) : [];
@@ -150,7 +148,16 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
                     </Button>
                 </div>
 
-                <Accordion type="multiple" value={openAccordionItems} className="space-y-2 animate-fade-in">
+                <Accordion 
+                    type="multiple" 
+                    value={openAccordionItems} 
+                    className="space-y-2 animate-fade-in"
+                    onValueChange={(value) => {
+                        if (value.length === 1) {
+                            setSelectedQuestionId(value[0]);
+                        }
+                    }}
+                >
                     {healthCategories.map((category) => {
                         const score = aggregatedResponses[category.questionId]?.average || 0;
                         const bgColor = getBgColorByScore(score);
@@ -176,6 +183,14 @@ export default function DiscussPhase({ session, isParticipant = false }: Discuss
                         );
                     })}
                 </Accordion>
+
+                {/* QuestionDetailModal */}
+                <QuestionDetailModal
+                    isOpen={!!selectedQuestionId}
+                    onClose={() => setSelectedQuestionId(null)}
+                    questions={questions}
+                    initialQuestionId={selectedQuestionId ?? undefined}
+                />
 
                 {/* Top Challenges Section */}
                 <div className="mt-8">
