@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Response, Session } from "@/types";
 import { toast } from "sonner";
@@ -5,7 +6,7 @@ import { useSession } from "@/context/SessionContext";
 import { SurveyPage } from "@/types/survey";
 import { useNavigate } from "react-router-dom";
 
-export const useSurvey = (isParticipant: boolean, session: { isAnonymous: boolean; id: string }) => {
+export const useSurvey = (isParticipant: boolean, session: Session) => {
   const { addParticipant, updateSession } = useSession();
   const navigate = useNavigate();
   
@@ -70,6 +71,7 @@ export const useSurvey = (isParticipant: boolean, session: { isAnonymous: boolea
 
         addParticipant(participantData);
 
+        // Update the session with the complete Session object
         updateSession({
           ...session,
           currentPhase: 'discuss'

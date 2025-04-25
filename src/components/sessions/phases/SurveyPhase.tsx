@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { useSession } from "@/context/SessionContext";
 import { Session } from "@/types";
@@ -65,14 +64,12 @@ export default function SurveyPhase({
     }
   }, [isParticipant, participantId, participants]);
 
-  // Updated to check for values in the 1-10 range
   const isDeliveryValid =
     deliveryQuestions
       .filter((q) => q.required)
       .every((q) => responses[q.id] >= 1 && responses[q.id] <= 10) &&
     (session.isAnonymous || name.trim().length > 0);
 
-  // Updated to check for values in the 1-10 range
   const isCollabValid = collaborationQuestions
     .filter((q) => q.required)
     .every((q) => responses[q.id] >= 1 && responses[q.id] <= 10);
