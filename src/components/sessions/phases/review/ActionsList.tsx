@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useSession } from "@/context/SessionContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
-import { Calendar, Menu, User, Plus, Check, X } from "lucide-react";
+import { Calendar, Menu, User, Plus, Check } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -48,21 +48,24 @@ export function ActionsList() {
   };
 
   return (
-    <Card className="bg-white shadow-sm border border-gray-100">
-      <CardHeader className="pb-3 space-y-1.5">
-        <CardTitle className="text-2xl font-semibold text-gray-900">
+    <Card className="bg-gradient-to-br from-white to-gray-50/50 shadow-lg border-0 relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none" />
+      <CardHeader className="pb-2 relative">
+        <CardTitle className="text-2xl font-semibold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
           Team actions
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-8 relative">
         {/* Actions from health check section */}
         <div className="space-y-4">
-          <h3 className="text-base font-medium text-gray-600">Actions from this health check</h3>
+          <h3 className="text-base font-medium text-gray-600 flex items-center gap-2">
+            Actions from this health check
+          </h3>
           
           {/* Add action input area */}
           <div 
-            className={`bg-yellow-50/50 p-4 rounded-lg border border-yellow-100 transition-all ${
-              showInput ? 'ring-2 ring-primary/10' : ''
+            className={`bg-gradient-to-br from-accent to-accent/50 p-4 rounded-xl transition-all ${
+              showInput ? 'ring-2 ring-primary/20 shadow-lg' : 'hover:shadow-md cursor-pointer'
             }`}
             onClick={() => !showInput && setShowInput(true)}
           >
@@ -74,12 +77,12 @@ export function ActionsList() {
                   value={newActionText}
                   onChange={(e) => setNewActionText(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  className="flex-1 border-0 bg-transparent focus-visible:ring-0 px-0 h-8 text-gray-700"
+                  className="flex-1 border-0 bg-white/50 backdrop-blur-sm focus-visible:ring-1 focus-visible:ring-primary/30 h-9 rounded-lg text-gray-700"
                   autoFocus
                 />
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button variant="ghost" size="icon" className="w-8 h-8">
+                    <Button variant="ghost" size="icon" className="h-9 w-9 hover:bg-white/50">
                       <Calendar className="w-4 h-4 text-gray-500" />
                     </Button>
                   </PopoverTrigger>
@@ -88,20 +91,21 @@ export function ActionsList() {
                       mode="single"
                       selected={selectedDueDate}
                       onSelect={setSelectedDueDate}
-                      className="p-3"
+                      className="p-3 pointer-events-auto"
                     />
                   </PopoverContent>
                 </Popover>
-                <button
+                <Button 
                   onClick={handleAddAction}
-                  className="p-1.5 rounded-full bg-primary/10 hover:bg-primary/20 transition-colors"
+                  size="icon"
+                  className="h-9 w-9 bg-primary/10 hover:bg-primary/20 text-primary"
                 >
-                  <Plus className="w-4 h-4 text-primary" />
-                </button>
+                  <Plus className="w-4 h-4" />
+                </Button>
               </div>
             ) : (
-              <div className="flex items-center gap-2 text-gray-600 cursor-pointer">
-                <span className="w-5 h-5 rounded-full border-2 border-gray-300 flex items-center justify-center">
+              <div className="flex items-center gap-2 text-gray-600">
+                <span className="w-5 h-5 rounded-full border-2 border-gray-400/50 flex items-center justify-center text-gray-400/70">
                   +
                 </span>
                 Add action...
@@ -110,7 +114,7 @@ export function ActionsList() {
           </div>
 
           {actions.length === 0 && (
-            <div className="text-gray-500 text-sm py-4 text-center">
+            <div className="text-gray-500 text-sm py-8 text-center italic">
               No actions yet
             </div>
           )}
@@ -121,8 +125,8 @@ export function ActionsList() {
           <div className="flex items-center justify-between">
             <h3 className="text-base font-medium text-gray-600">Other open actions</h3>
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-500">SHOW PUBLISHED</span>
-              <Switch />
+              <span className="text-xs font-medium text-gray-500">SHOW PUBLISHED</span>
+              <Switch className="data-[state=checked]:bg-primary" />
             </div>
           </div>
 
@@ -131,32 +135,45 @@ export function ActionsList() {
             {actions.map((action) => (
               <div 
                 key={action.id} 
-                className="flex items-center justify-between p-3.5 hover:bg-gray-50 rounded-lg group border border-transparent hover:border-gray-100 transition-all"
+                className="group relative flex items-center justify-between p-4 hover:bg-accent/50 rounded-xl border border-transparent hover:border-primary/10 transition-all hover:shadow-sm"
               >
                 <div className="flex items-center gap-3">
-                  <div 
-                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors 
-                      ${action.status === 'completed' ? 'border-green-500' : 'border-gray-300'}`}
+                  <button
                     onClick={() => handleUpdateActionStatus(action.id, action.status === 'completed' ? 'open' : 'completed')}
+                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors cursor-pointer
+                      ${action.status === 'completed' 
+                        ? 'border-primary bg-primary text-white' 
+                        : 'border-gray-300 hover:border-primary/50'
+                      }`}
                   >
-                    {action.status === 'completed' && <Check className="w-3 h-3 text-green-500" />}
-                  </div>
-                  <span className={`text-gray-700 font-medium ${action.status === 'completed' ? 'line-through text-gray-400' : ''}`}>
+                    {action.status === 'completed' && <Check className="w-3 h-3" />}
+                  </button>
+                  <span className={`font-medium transition-all ${
+                    action.status === 'completed' 
+                      ? 'line-through text-gray-400' 
+                      : 'text-gray-700'
+                  }`}>
                     {action.text}
                   </span>
-                  <span className="text-gray-400 text-xs font-medium">
-                    {action.dueDate ? format(new Date(action.dueDate), 'dd MMM') : ''}
-                  </span>
+                  {action.dueDate && (
+                    <span className={`text-xs font-medium px-2 py-1 rounded-full ${
+                      action.status === 'completed'
+                        ? 'bg-gray-100 text-gray-400'
+                        : 'bg-primary/10 text-primary'
+                    }`}>
+                      {format(new Date(action.dueDate), 'dd MMM')}
+                    </span>
+                  )}
                 </div>
                 <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button className="p-1.5 hover:bg-gray-100 rounded-md transition-colors">
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
                     <Menu className="w-4 h-4 text-gray-400" />
-                  </button>
+                  </Button>
                   <Popover>
                     <PopoverTrigger asChild>
-                      <button className="p-1.5 hover:bg-gray-100 rounded-md transition-colors">
+                      <Button variant="ghost" size="icon" className="h-8 w-8">
                         <Calendar className="w-4 h-4 text-gray-400" />
-                      </button>
+                      </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
                       <DatePicker
@@ -167,13 +184,13 @@ export function ActionsList() {
                             handleUpdateActionStatus(action.id, action.status);
                           }
                         }}
-                        className="p-3"
+                        className="p-3 pointer-events-auto"
                       />
                     </PopoverContent>
                   </Popover>
-                  <button className="p-1.5 hover:bg-gray-100 rounded-md transition-colors">
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
                     <User className="w-4 h-4 text-gray-400" />
-                  </button>
+                  </Button>
                 </div>
               </div>
             ))}
@@ -183,4 +200,3 @@ export function ActionsList() {
     </Card>
   );
 }
-
