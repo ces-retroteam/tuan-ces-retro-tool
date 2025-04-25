@@ -31,26 +31,26 @@ export function QuestionDetailModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[90vw] md:max-w-[800px] bg-gray-50/95 backdrop-blur supports-[backdrop-filter]:bg-gray-50/95">
+      <DialogContent className="sm:max-w-[95vw] md:max-w-[850px] min-h-[600px] p-8 bg-gray-50/95 backdrop-blur supports-[backdrop-filter]:bg-gray-50/95">
         <Carousel 
-          className="w-full relative" 
+          className="w-full mx-auto relative" 
           opts={{ 
             startIndex: initialSlide,
-            align: "start",
+            align: "center",
             loop: true,
           }}
         >
-          <CarouselContent>
+          <CarouselContent className="-ml-2 md:-ml-4">
             {questions.map((question) => (
-              <CarouselItem key={question.id} className="transition-opacity duration-300">
+              <CarouselItem key={question.id} className="pl-2 md:pl-4 transition-opacity duration-300 flex items-center justify-center">
                 <QuestionSlide question={question} />
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious className="absolute -left-12 border-none bg-white hover:bg-gray-50 shadow-md">
+          <CarouselPrevious className="absolute -left-12 border-none bg-white/80 hover:bg-white shadow-md">
             <ChevronLeft className="h-4 w-4 text-orange-500" />
           </CarouselPrevious>
-          <CarouselNext className="absolute -right-12 border-none bg-white hover:bg-gray-50 shadow-md">
+          <CarouselNext className="absolute -right-12 border-none bg-white/80 hover:bg-white shadow-md">
             <ChevronRight className="h-4 w-4 text-orange-500" />
           </CarouselNext>
         </Carousel>

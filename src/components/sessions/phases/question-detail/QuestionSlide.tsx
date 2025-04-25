@@ -26,28 +26,28 @@ export function QuestionSlide({ question }: QuestionSlideProps) {
   };
 
   return (
-    <Card className="border-0 bg-white shadow-sm">
-      <CardContent className="p-6">
+    <Card className="border-0 bg-white shadow-sm w-full max-w-[800px] mx-auto">
+      <CardContent className="p-8">
         <div className="space-y-8 animate-fade-in">
           {/* Score and Title Section */}
           <div className="flex items-start gap-6">
             <div className="flex-shrink-0">
-              <div className="w-20 h-20 rounded-full bg-orange-500 flex items-center justify-center">
-                <span className="text-4xl font-bold text-white">{question.score?.toFixed(1)}</span>
+              <div className="w-24 h-24 rounded-full bg-orange-500 flex items-center justify-center shadow-md">
+                <span className="text-5xl font-bold text-white">{question.score?.toFixed(1)}</span>
               </div>
             </div>
-            <div className="space-y-2">
-              <h3 className="text-2xl font-semibold">{question.text}</h3>
+            <div className="space-y-3 flex-1">
+              <h3 className="text-2xl font-semibold text-gray-900">{question.text}</h3>
               <p className="text-lg text-gray-600">{question.description}</p>
             </div>
           </div>
 
           {/* Trend Section */}
-          <div className="space-y-2">
+          <div className="space-y-3">
             <h4 className="text-sm font-medium uppercase text-gray-500">Trend</h4>
-            <div className="h-2 bg-orange-100 rounded-full w-48">
+            <div className="h-3 bg-orange-100 rounded-full w-64">
               <div 
-                className="h-2 bg-orange-500 rounded-full transition-all duration-500" 
+                className="h-3 bg-orange-500 rounded-full transition-all duration-500" 
                 style={{ width: `${(question.score || 0) * 10}%` }}
               />
             </div>
