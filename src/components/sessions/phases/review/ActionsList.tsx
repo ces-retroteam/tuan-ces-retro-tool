@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useSession } from "@/context/SessionContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -122,7 +121,7 @@ export function ActionsList() {
                 key={action.id} 
                 className={`group relative flex items-center justify-between p-4 rounded-xl border border-transparent hover:border-primary/10 transition-all hover:shadow-sm ${
                   action.status === 'completed' 
-                    ? 'bg-green-50/50 hover:bg-green-50/70' 
+                    ? 'bg-[#FEC6A1]/30 hover:bg-[#FEC6A1]/40' 
                     : 'hover:bg-accent/50'
                 }`}
               >
@@ -139,7 +138,7 @@ export function ActionsList() {
                   </button>
                   <span className={`font-medium transition-all ${
                     action.status === 'completed' 
-                      ? 'text-gray-400' 
+                      ? 'text-gray-700' 
                       : 'text-gray-700'
                   }`}>
                     {action.text}
@@ -147,7 +146,7 @@ export function ActionsList() {
                   {action.dueDate && (
                     <span className={`text-xs font-medium px-2 py-1 rounded-full ${
                       action.status === 'completed'
-                        ? 'bg-gray-100 text-gray-400'
+                        ? 'bg-[#FEC6A1]/20 text-primary' 
                         : 'bg-primary/10 text-primary'
                     }`}>
                       {format(new Date(action.dueDate), 'dd MMM')}
