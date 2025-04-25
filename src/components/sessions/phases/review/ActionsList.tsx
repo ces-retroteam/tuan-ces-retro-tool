@@ -136,13 +136,20 @@ export function ActionsList() {
                   >
                     {action.status === 'completed' && <Check className="w-3 h-3" />}
                   </button>
-                  <span className={`font-medium transition-all ${
-                    action.status === 'completed' 
-                      ? 'text-gray-700' 
-                      : 'text-gray-700'
-                  }`}>
-                    {action.text}
-                  </span>
+                  <div className="flex flex-col gap-1">
+                    <span className={`font-medium transition-all ${
+                      action.status === 'completed' 
+                        ? 'text-gray-700' 
+                        : 'text-gray-700'
+                    }`}>
+                      {action.text}
+                    </span>
+                    {action.questionId && (
+                      <span className="text-xs text-gray-500">
+                        From question: {action.questionId}
+                      </span>
+                    )}
+                  </div>
                   {action.dueDate && (
                     <span className={`text-xs font-medium px-2 py-1 rounded-full ${
                       action.status === 'completed'

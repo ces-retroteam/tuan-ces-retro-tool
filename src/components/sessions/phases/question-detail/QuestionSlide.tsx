@@ -7,19 +7,26 @@ import { ActionList } from "./ActionList";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Plus, Check } from "lucide-react";
+import { useSession } from "@/context/SessionContext";
 
 interface QuestionSlideProps {
   question: Question;
 }
 
 export function QuestionSlide({ question }: QuestionSlideProps) {
+  const { addAction } = useSession();
   const [showActionInput, setShowActionInput] = useState(false);
   const [newAction, setNewAction] = useState("");
 
   const handleAddAction = () => {
     if (newAction.trim()) {
-      // Here you would typically call a function to save the action
-      console.log("New action:", newAction);
+      addAction({
+        text: newAction,
+        sessionId: "current-session",
+        priority: "medium",
+        status: "open",
+        questionId: question.id
+      });
       setNewAction("");
       setShowActionInput(false);
     }

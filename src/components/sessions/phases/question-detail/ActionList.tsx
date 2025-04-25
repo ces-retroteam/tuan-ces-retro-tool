@@ -5,7 +5,7 @@ export function ActionList({ actions }: { actions: Question["actions"] }) {
   return (
     <div className="space-y-2">
       {actions && actions.map((action) => (
-        <div key={action.id} className="flex items-start gap-2">
+        <div key={action.id} className="flex items-start gap-2 p-2 rounded-lg bg-accent/30">
           <input 
             type="checkbox" 
             checked={action.completed} 
