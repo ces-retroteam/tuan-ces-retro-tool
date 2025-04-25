@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useSession } from "@/context/SessionContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
-import { Calendar, UserPlus, Flag, Plus, Check } from "lucide-react";
+import { Calendar, UserPlus, Flag, Plus, Check, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -10,7 +9,7 @@ import { Calendar as DatePicker } from "@/components/ui/calendar";
 import { format } from "date-fns";
 
 export function ActionsList() {
-  const { actions, addAction, updateAction } = useSession();
+  const { actions, addAction, updateAction, deleteAction } = useSession();
   const [newActionText, setNewActionText] = useState("");
   const [showInput, setShowInput] = useState(false);
   const [selectedDueDate, setSelectedDueDate] = useState<Date | undefined>(undefined);
@@ -55,13 +54,11 @@ export function ActionsList() {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-8 relative">
-        {/* Actions from health check section */}
         <div className="space-y-4">
           <h3 className="text-base font-medium text-gray-600 flex items-center gap-2">
             Actions from this health check
           </h3>
           
-          {/* Add action input area */}
           <div 
             className={`bg-gradient-to-br from-accent to-accent/50 p-4 rounded-xl transition-all ${
               showInput ? 'ring-2 ring-primary/20 shadow-lg' : 'hover:shadow-md cursor-pointer'
@@ -118,7 +115,6 @@ export function ActionsList() {
             </div>
           )}
 
-          {/* Action items with visible icons */}
           <div className="space-y-2">
             {actions.map((action) => (
               <div 
@@ -178,6 +174,14 @@ export function ActionsList() {
                   </Button>
                   <Button variant="ghost" size="icon" className="h-8 w-8">
                     <Flag className="w-4 h-4 text-gray-600" />
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-8 w-8 hover:text-destructive" 
+                    onClick={() => deleteAction(action.id)}
+                  >
+                    <Trash2 className="w-4 h-4 text-gray-600" />
                   </Button>
                 </div>
               </div>

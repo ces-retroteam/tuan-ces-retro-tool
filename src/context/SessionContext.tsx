@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useContext, ReactNode } from 'react';
 import { Session, Participant, Comment, Action } from '../types';
 import { sessions as mockSessions, participants as mockParticipants, comments as mockComments, actions as mockActions } from '../data/mockData';
@@ -16,6 +15,7 @@ interface SessionContextType {
   addComment: (comment: Omit<Comment, 'id' | 'createdAt'>) => void;
   addAction: (action: Omit<Action, 'id' | 'createdAt'>) => void;
   updateAction: (action: Action) => void;
+  deleteAction: (actionId: string) => void;
 }
 
 const SessionContext = createContext<SessionContextType | undefined>(undefined);
@@ -89,6 +89,10 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
     ));
   };
 
+  const deleteAction = (actionId: string) => {
+    setActions(actions.filter(action => action.id !== actionId));
+  };
+
   return (
     <SessionContext.Provider 
       value={{ 
@@ -103,7 +107,8 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
         addParticipant,
         addComment,
         addAction,
-        updateAction
+        updateAction,
+        deleteAction
       }}
     >
       {children}
