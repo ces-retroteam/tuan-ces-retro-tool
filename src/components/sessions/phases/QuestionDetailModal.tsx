@@ -32,10 +32,20 @@ export function QuestionDetailModal({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[90vw] md:max-w-[800px] bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <Carousel className="w-full" opts={{ startIndex: initialSlide }}>
+        <Carousel 
+          className="w-full" 
+          opts={{ 
+            startIndex: initialSlide,
+            align: "start",
+            loop: true,
+            duration: 20,
+            skipSnaps: false,
+            dragFree: false
+          }}
+        >
           <CarouselContent>
             {questions.map((question) => (
-              <CarouselItem key={question.id}>
+              <CarouselItem key={question.id} className="transition-opacity duration-300">
                 <QuestionSlide question={question} />
               </CarouselItem>
             ))}

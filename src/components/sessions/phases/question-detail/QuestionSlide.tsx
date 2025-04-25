@@ -13,7 +13,7 @@ export function QuestionSlide({ question }: QuestionSlideProps) {
   return (
     <Card className="border-0 bg-transparent">
       <CardContent className="p-6">
-        <div className="space-y-6">
+        <div className="space-y-6 animate-fade-in">
           {/* Header */}
           <div className="flex items-center justify-between">
             <h3 className="text-xl font-semibold">{question.text}</h3>
