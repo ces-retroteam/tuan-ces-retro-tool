@@ -1,9 +1,8 @@
-
 import { useState } from "react";
 import { useSession } from "@/context/SessionContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
-import { Calendar, Menu, User, Plus, Check } from "lucide-react";
+import { Calendar, UserPlus, Flag, Plus, Check } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -118,19 +117,8 @@ export function ActionsList() {
               No actions yet
             </div>
           )}
-        </div>
 
-        {/* Other open actions section */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-base font-medium text-gray-600">Other open actions</h3>
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-medium text-gray-500">SHOW PUBLISHED</span>
-              <Switch className="data-[state=checked]:bg-primary" />
-            </div>
-          </div>
-
-          {/* Action items with status toggle */}
+          {/* Action items with visible icons */}
           <div className="space-y-2">
             {actions.map((action) => (
               <div 
@@ -165,14 +153,11 @@ export function ActionsList() {
                     </span>
                   )}
                 </div>
-                <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                    <Menu className="w-4 h-4 text-gray-400" />
-                  </Button>
+                <div className="flex items-center gap-1.5">
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <Calendar className="w-4 h-4 text-gray-400" />
+                        <Calendar className="w-4 h-4 text-gray-600" />
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
@@ -189,7 +174,10 @@ export function ActionsList() {
                     </PopoverContent>
                   </Popover>
                   <Button variant="ghost" size="icon" className="h-8 w-8">
-                    <User className="w-4 h-4 text-gray-400" />
+                    <UserPlus className="w-4 h-4 text-gray-600" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <Flag className="w-4 h-4 text-gray-600" />
                   </Button>
                 </div>
               </div>
