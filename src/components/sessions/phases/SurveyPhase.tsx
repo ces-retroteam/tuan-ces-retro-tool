@@ -1,332 +1,225 @@
-
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { useSession } from "@/context/SessionContext";
-import { Participant, Response, Session } from "@/types";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
+import { Session } from "@/types";
+import { useEffect } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import AdditionalSectionStep from "./AdditionalSectionStep";
 import CollaborationSectionStep from "./CollaborationSectionStep";
 import DeliverySectionStep from "./DeliverySectionStep";
+import { useSurvey } from "@/hooks/useSurvey";
+import { collaborationQuestions, deliveryQuestions } from "@/data/surveyQuestions";
+import { SurveyNavigation } from "./survey/SurveyNavigation";
+
+const PAGE_ANIMATION = {
+  initial: { opacity: 0, y: 30 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -20, transition: { duration: 0.15 } },
+  transition: { duration: 0.26, ease: "easeOut" },
+};
 
 interface SurveyPhaseProps {
-    session: Session;
-    isParticipant?: boolean;
-    participantId?: string;
+  session: Session;
+  isParticipant?: boolean;
+  participantId?: string;
 }
 
-type SurveyPage = "delivery" | "collaboration" | "additional";
+export default function SurveyPhase({
+  session,
+  isParticipant = false,
+  participantId,
+}: SurveyPhaseProps) {
+  const { participants } = useSession();
+  const {
+    responses,
+    comments,
+    name,
+    setName,
+    isSubmitting,
+    isSubmitted,
+    additionalItems,
+    currentPage,
+    setCurrentPage,
+    handleResponseChange,
+    handleCommentChange,
+    handleAdditionalItemChange,
+    addAdditionalItem,
+    handleSubmit,
+  } = useSurvey(isParticipant, session);
 
-export default function SurveyPhase({ session, isParticipant = false, participantId }: SurveyPhaseProps) {
-    const { updateSession, participants, addParticipant } = useSession();
-    const [responses, setResponses] = useState<Record<string, any>>({});
-    const [comments, setComments] = useState<Record<string, string>>({});
-    const [name, setName] = useState("");
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [isSubmitted, setIsSubmitted] = useState(false);
-    const [additionalItems, setAdditionalItems] = useState<string[]>([""]);
-    const [currentPage, setCurrentPage] = useState<SurveyPage>("delivery");
+  useEffect(() => {
+    if (isParticipant && participantId) {
+      const participant = participants.find((p) => p.id === participantId);
+      if (participant?.responses) {
+        const responseObj: Record<string, any> = {};
+        const commentObj: Record<string, string> = {};
 
-    useEffect(() => {
-        if (isParticipant && participantId) {
-            const participant = participants.find((p) => p.id === participantId);
-            if (participant?.responses) {
-                const responseObj: Record<string, any> = {};
-                const commentObj: Record<string, string> = {};
+        participant.responses.forEach((response) => {
+          if (response.questionId.startsWith("comment_")) {
+            commentObj[response.questionId.replace("comment_", "")] = response.value as string;
+          } else {
+            responseObj[response.questionId] = response.value;
+          }
+        });
 
-                participant.responses.forEach((response) => {
-                    if (response.questionId.startsWith("comment_")) {
-                        commentObj[response.questionId.replace("comment_", "")] = response.value as string;
-                    } else {
-                        responseObj[response.questionId] = response.value;
-                    }
-                });
-
-                setResponses(responseObj);
-                setComments(commentObj);
-                setIsSubmitted(true);
-            }
-        }
-    }, [isParticipant, participantId, participants]);
-
-    const handleResponseChange = (questionId: string, value: any) => {
-        setResponses((prev) => ({
-            ...prev,
-            [questionId]: value,
-        }));
-    };
-
-    const handleCommentChange = (questionId: string, value: string) => {
-        setComments((prev) => ({
-            ...prev,
-            [questionId]: value,
-        }));
-    };
-
-    const handleAdditionalItemChange = (index: number, value: string) => {
-        const newItems = [...additionalItems];
-        newItems[index] = value;
-        setAdditionalItems(newItems);
-    };
-
-    const addAdditionalItem = () => {
-        setAdditionalItems(["", ...additionalItems]);
-    };
-
-    const handleSubmit = () => {
-        if (isParticipant) {
-            setIsSubmitting(true);
-
-            const participantResponses: Response[] = [
-                ...Object.entries(responses).map(([questionId, value]) => ({
-                    questionId,
-                    value,
-                })),
-                ...Object.entries(comments).map(([questionId, value]) => ({
-                    questionId: `comment_${questionId}`,
-                    value,
-                })),
-                ...additionalItems
-                    .filter((item) => item.trim())
-                    .map((item, index) => ({
-                        questionId: `additional_${index}`,
-                        value: item,
-                    })),
-            ];
-
-            try {
-                const participantData: Omit<Participant, "id" | "joinedAt"> = {
-                    name: session.isAnonymous ? "Anonymous User" : name,
-                    responses: participantResponses,
-                };
-
-                addParticipant(participantData);
-
-                setIsSubmitted(true);
-                setIsSubmitting(false);
-                toast.success("Survey submitted successfully!");
-            } catch (error) {
-                console.error("Error submitting survey:", error);
-                setIsSubmitting(false);
-                toast.error("Failed to submit survey. Please try again.");
-            }
-        }
-    };
-
-    const deliveryQuestions = [
-        {
-            id: "delivery_1",
-            text: "Commitments",
-            description: "How effectively does the team deliver on its commitments?",
-            type: "scale",
-            required: true,
-        },
-        {
-            id: "delivery_2",
-            text: "Quality of Deliverables",
-            description: "How would you rate the quality of our deliverables?",
-            type: "scale",
-            required: true,
-        },
-        {
-            id: "delivery_3",
-            text: "Managing Challenges",
-            description: "How well does the team handle unexpected obstacles?",
-            type: "scale",
-            required: true,
-        },
-    ];
-
-    const collaborationQuestions = [
-        {
-            id: "collab_1",
-            text: "Communicate",
-            description: "How well does the team communicate internally?",
-            type: "scale",
-            required: true,
-        },
-        {
-            id: "collab_2",
-            text: "We before me",
-            description: "How effectively do team members support each other?",
-            type: "scale",
-            required: true,
-        },
-        {
-            id: "collab_3",
-            text: "Conflicts.",
-            description: "Rate the team's ability to constructively resolve conflicts.",
-            type: "scale",
-            required: true,
-        },
-    ];
-
-    const additionalPrompt = "What are the top 3 challenges facing the team? (Add as many as you'd like)";
-
-    const isDeliveryValid =
-        deliveryQuestions.filter((q) => q.required).every((q) => [1, 2, 3, 4, 5].includes(responses[q.id])) &&
-        (session.isAnonymous || name.trim().length > 0);
-
-    const isCollabValid = collaborationQuestions
-        .filter((q) => q.required)
-        .every((q) => [1, 2, 3, 4, 5].includes(responses[q.id]));
-
-    const goToNextPage = () => {
-        if (currentPage === "delivery") setCurrentPage("collaboration");
-        else if (currentPage === "collaboration") setCurrentPage("additional");
-    };
-
-    const goToPrevPage = () => {
-        if (currentPage === "collaboration") setCurrentPage("delivery");
-        else if (currentPage === "additional") setCurrentPage("collaboration");
-    };
-
-    if (!isParticipant) {
-        return (
-            <>
-                <DeliverySectionStep
-                    questions={deliveryQuestions}
-                    responses={responses}
-                    comments={comments}
-                    onResponseChange={handleResponseChange}
-                    onCommentChange={handleCommentChange}
-                    isSubmitted={isSubmitted}
-                    sessionIsAnonymous={session.isAnonymous}
-                    name={name}
-                    setName={setName}
-                />
-                <CollaborationSectionStep
-                    questions={collaborationQuestions}
-                    responses={responses}
-                    comments={comments}
-                    onResponseChange={handleResponseChange}
-                    onCommentChange={handleCommentChange}
-                    isSubmitted={isSubmitted}
-                />
-                <AdditionalSectionStep
-                    prompt={additionalPrompt}
-                    items={additionalItems}
-                    onItemChange={handleAdditionalItemChange}
-                    addItem={addAdditionalItem}
-                    isSubmitted={isSubmitted}
-                />
-            </>
-        );
+        setResponses(responseObj);
+        setComments(commentObj);
+        setIsSubmitted(true);
+      }
     }
+  }, [isParticipant, participantId, participants]);
 
+  const isDeliveryValid =
+    deliveryQuestions
+      .filter((q) => q.required)
+      .every((q) => [1, 2, 3, 4, 5].includes(responses[q.id])) &&
+    (session.isAnonymous || name.trim().length > 0);
+
+  const isCollabValid = collaborationQuestions
+    .filter((q) => q.required)
+    .every((q) => [1, 2, 3, 4, 5].includes(responses[q.id]));
+
+  const goToNextPage = () => {
+    if (currentPage === "delivery") setCurrentPage("collaboration");
+    else if (currentPage === "collaboration") setCurrentPage("additional");
+    else if (currentPage === "additional") handleSubmit();
+  };
+
+  const goToPrevPage = () => {
+    if (currentPage === "collaboration") setCurrentPage("delivery");
+    else if (currentPage === "additional") setCurrentPage("collaboration");
+  };
+
+  if (!isParticipant) {
     return (
-        <Card>
-            <CardContent className="space-y-10 pt-6 pb-2">
-                <div>
-                    <div className="flex items-center justify-between mb-6">
-                        <div className="text-lg font-bold" style={{ fontFamily: "Clarendon, serif" }}>
-                            {currentPage === "delivery" && "Delivery & Execution"}
-                            {currentPage === "collaboration" && "Team Collaboration"}
-                            {currentPage === "additional" && "Additional Questions"}
-                        </div>
-                        <div className="flex gap-2">
-                            {["delivery", "collaboration", "additional"].map((page) => (
-                                <div
-                                    key={page}
-                                    className={`w-3 h-3 rounded-full ${
-                                        currentPage === page ? "bg-orange-500" : "bg-gray-200"
-                                    }`}
-                                ></div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {currentPage === "delivery" && (
-                        <DeliverySectionStep
-                            questions={deliveryQuestions}
-                            responses={responses}
-                            comments={comments}
-                            onResponseChange={handleResponseChange}
-                            onCommentChange={handleCommentChange}
-                            isSubmitted={isSubmitted}
-                            sessionIsAnonymous={session.isAnonymous}
-                            name={name}
-                            setName={setName}
-                        />
-                    )}
-
-                    {currentPage === "collaboration" && (
-                        <CollaborationSectionStep
-                            questions={collaborationQuestions}
-                            responses={responses}
-                            comments={comments}
-                            onResponseChange={handleResponseChange}
-                            onCommentChange={handleCommentChange}
-                            isSubmitted={isSubmitted}
-                        />
-                    )}
-
-                    {currentPage === "additional" && (
-                        <AdditionalSectionStep
-                            prompt={additionalPrompt}
-                            items={additionalItems}
-                            onItemChange={handleAdditionalItemChange}
-                            addItem={addAdditionalItem}
-                            isSubmitted={isSubmitted}
-                        />
-                    )}
-
-                    {isSubmitted && (
-                        <div className="bg-accent p-4 rounded-lg text-center mt-2">
-                            <h3 className="text-lg font-medium">Thank You!</h3>
-                            <p className="text-muted-foreground">Your responses have been recorded.</p>
-                        </div>
-                    )}
-                </div>
-            </CardContent>
-            
-            {!isSubmitted && (
-                <CardFooter className="flex flex-col gap-4 items-end">
-                    <div className="flex justify-between w-full">
-                        <Button
-                            variant="outline"
-                            style={{ color: "#222", borderColor: "#E15D2F" }}
-                            disabled={currentPage === "delivery"}
-                            onClick={goToPrevPage}
-                        >
-                            Previous
-                        </Button>
-                        {currentPage !== "additional" ? (
-                            <Button
-                                style={{
-                                    backgroundColor: "#E15D2F",
-                                    color: "#fff",
-                                    textTransform: "uppercase",
-                                    letterSpacing: "0.04em",
-                                    fontFamily: "Inter, Helvetica, Arial, sans-serif",
-                                }}
-                                onClick={goToNextPage}
-                                disabled={
-                                    (currentPage === "delivery" && !isDeliveryValid) ||
-                                    (currentPage === "collaboration" && !isCollabValid)
-                                }
-                            >
-                                Next
-                            </Button>
-                        ) : (
-                            <Button
-                                onClick={handleSubmit}
-                                disabled={isSubmitting || !isDeliveryValid || !isCollabValid}
-                                className="font-bold"
-                                style={{
-                                    backgroundColor: "#E15D2F",
-                                    color: "#fff",
-                                    textTransform: "uppercase",
-                                    letterSpacing: "0.04em",
-                                    fontFamily: "Inter, Helvetica, Arial, sans-serif",
-                                }}
-                            >
-                                {isSubmitting ? "Submitting..." : "Submit Survey"}
-                            </Button>
-                        )}
-                    </div>
-                </CardFooter>
-            )}
-        </Card>
+      <>
+        <DeliverySectionStep
+          questions={deliveryQuestions}
+          responses={responses}
+          comments={comments}
+          onResponseChange={handleResponseChange}
+          onCommentChange={handleCommentChange}
+          isSubmitted={isSubmitted}
+          sessionIsAnonymous={session.isAnonymous}
+          name={name}
+          setName={setName}
+        />
+        <CollaborationSectionStep
+          questions={collaborationQuestions}
+          responses={responses}
+          comments={comments}
+          onResponseChange={handleResponseChange}
+          onCommentChange={handleCommentChange}
+          isSubmitted={isSubmitted}
+        />
+        <AdditionalSectionStep
+          prompt={additionalPrompt}
+          items={additionalItems}
+          onItemChange={handleAdditionalItemChange}
+          addItem={addAdditionalItem}
+          isSubmitted={isSubmitted}
+        />
+      </>
     );
+  }
+
+  return (
+    <Card>
+      <CardContent className="space-y-10 pt-6 pb-2">
+        <div>
+          <div className="flex items-center justify-between mb-6">
+            <div
+              className="text-lg font-bold"
+              style={{ fontFamily: "Clarendon, serif" }}
+            >
+              {currentPage === "delivery" && "Delivery & Execution"}
+              {currentPage === "collaboration" && "Team Collaboration"}
+              {currentPage === "additional" && "Additional Questions"}
+            </div>
+            <div className="flex gap-2">
+              {["delivery", "collaboration", "additional"].map((page) => (
+                <div
+                  key={page}
+                  className={`w-3 h-3 rounded-full ${
+                    currentPage === page ? "bg-orange-500" : "bg-gray-200"
+                  }`}
+                ></div>
+              ))}
+            </div>
+          </div>
+
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={currentPage}
+              variants={PAGE_ANIMATION}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              transition={PAGE_ANIMATION.transition}
+            >
+              {currentPage === "delivery" && (
+                <DeliverySectionStep
+                  questions={deliveryQuestions}
+                  responses={responses}
+                  comments={comments}
+                  onResponseChange={handleResponseChange}
+                  onCommentChange={handleCommentChange}
+                  isSubmitted={isSubmitted}
+                  sessionIsAnonymous={session.isAnonymous}
+                  name={name}
+                  setName={setName}
+                />
+              )}
+
+              {currentPage === "collaboration" && (
+                <CollaborationSectionStep
+                  questions={collaborationQuestions}
+                  responses={responses}
+                  comments={comments}
+                  onResponseChange={handleResponseChange}
+                  onCommentChange={handleCommentChange}
+                  isSubmitted={isSubmitted}
+                />
+              )}
+
+              {currentPage === "additional" && (
+                <AdditionalSectionStep
+                  prompt={additionalPrompt}
+                  items={additionalItems}
+                  onItemChange={handleAdditionalItemChange}
+                  addItem={addAdditionalItem}
+                  isSubmitted={isSubmitted}
+                />
+              )}
+            </motion.div>
+          </AnimatePresence>
+
+          {isSubmitted && (
+            <div className="bg-accent p-4 rounded-lg text-center mt-2">
+              <h3 className="text-lg font-medium">Thank You!</h3>
+              <p className="text-muted-foreground">
+                Your responses have been recorded.
+              </p>
+            </div>
+          )}
+        </div>
+      </CardContent>
+
+      {!isSubmitted && (
+        <CardFooter className="flex flex-col gap-4 items-end">
+          <SurveyNavigation
+            currentPage={currentPage}
+            onPrevious={goToPrevPage}
+            onNext={goToNextPage}
+            isNextDisabled={
+              (currentPage === "delivery" && !isDeliveryValid) ||
+              (currentPage === "collaboration" && !isCollabValid)
+            }
+            isPreviousDisabled={currentPage === "delivery"}
+            isSubmitting={isSubmitting}
+            isLastPage={currentPage === "additional"}
+          />
+        </CardFooter>
+      )}
+    </Card>
+  );
 }
