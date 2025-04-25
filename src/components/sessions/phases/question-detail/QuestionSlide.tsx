@@ -4,14 +4,29 @@ import { Card, CardContent } from "@/components/ui/card";
 import { TrendIndicator } from "./TrendIndicator";
 import { CommentList } from "./CommentList";
 import { ActionList } from "./ActionList";
+import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Plus, Check } from "lucide-react";
 
 interface QuestionSlideProps {
   question: Question;
 }
 
 export function QuestionSlide({ question }: QuestionSlideProps) {
+  const [showActionInput, setShowActionInput] = useState(false);
+  const [newAction, setNewAction] = useState("");
+
+  const handleAddAction = () => {
+    if (newAction.trim()) {
+      // Here you would typically call a function to save the action
+      console.log("New action:", newAction);
+      setNewAction("");
+      setShowActionInput(false);
+    }
+  };
+
   return (
-    <Card className="border-0 bg-transparent">
+    <Card className="border-0 bg-white shadow-sm">
       <CardContent className="p-6">
         <div className="space-y-8 animate-fade-in">
           {/* Score and Title Section */}
@@ -40,22 +55,39 @@ export function QuestionSlide({ question }: QuestionSlideProps) {
 
           {/* Actions Section */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <button className="text-orange-600 hover:text-orange-700 flex items-center gap-2">
-                <svg 
-                  width="16" 
-                  height="16" 
-                  viewBox="0 0 16 16" 
-                  fill="none" 
-                  className="text-orange-500"
-                  stroke="currentColor"
+            {showActionInput ? (
+              <div className="flex items-center gap-2">
+                <Input
+                  type="text"
+                  placeholder="Type your action..."
+                  value={newAction}
+                  onChange={(e) => setNewAction(e.target.value)}
+                  className="flex-1"
+                  onKeyDown={(e) => e.key === 'Enter' && handleAddAction()}
+                  autoFocus
+                />
+                <button 
+                  onClick={handleAddAction}
+                  className="p-2 bg-orange-500 text-white rounded-full hover:bg-orange-600"
                 >
-                  <path d="M8 4v8M4 8h8" strokeWidth="2" strokeLinecap="round"/>
-                </svg>
+                  <Check className="h-4 w-4" />
+                </button>
+              </div>
+            ) : (
+              <button 
+                onClick={() => setShowActionInput(true)}
+                className="text-orange-600 hover:text-orange-700 flex items-center gap-2"
+              >
+                <Plus className="h-4 w-4" />
                 Add action...
               </button>
-            </div>
-            <p className="text-gray-500 text-sm">No actions yet</p>
+            )}
+            
+            {question.actions && question.actions.length > 0 ? (
+              <ActionList actions={question.actions} />
+            ) : (
+              <p className="text-gray-500 text-sm">No actions yet</p>
+            )}
           </div>
 
           {/* Navigation Dots */}

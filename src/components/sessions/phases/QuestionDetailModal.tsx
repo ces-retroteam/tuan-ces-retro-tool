@@ -31,7 +31,7 @@ export function QuestionDetailModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[90vw] md:max-w-[800px] bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <DialogContent className="sm:max-w-[90vw] md:max-w-[800px] bg-gray-50/95 backdrop-blur supports-[backdrop-filter]:bg-gray-50/95">
         <Carousel 
           className="w-full relative" 
           opts={{ 
