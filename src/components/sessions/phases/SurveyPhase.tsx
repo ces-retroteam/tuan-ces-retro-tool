@@ -65,15 +65,17 @@ export default function SurveyPhase({
     }
   }, [isParticipant, participantId, participants]);
 
+  // Updated to check for values in the 1-10 range
   const isDeliveryValid =
     deliveryQuestions
       .filter((q) => q.required)
-      .every((q) => [1, 2, 3, 4, 5].includes(responses[q.id])) &&
+      .every((q) => responses[q.id] >= 1 && responses[q.id] <= 10) &&
     (session.isAnonymous || name.trim().length > 0);
 
+  // Updated to check for values in the 1-10 range
   const isCollabValid = collaborationQuestions
     .filter((q) => q.required)
-    .every((q) => [1, 2, 3, 4, 5].includes(responses[q.id]));
+    .every((q) => responses[q.id] >= 1 && responses[q.id] <= 10);
 
   return (
     <Card>
