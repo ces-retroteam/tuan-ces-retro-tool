@@ -1,12 +1,14 @@
-
 import { useState } from "react";
 import { Response, Session } from "@/types";
 import { toast } from "sonner";
 import { useSession } from "@/context/SessionContext";
 import { SurveyPage } from "@/types/survey";
+import { useNavigate } from "react-router-dom";
 
-export const useSurvey = (isParticipant: boolean, session: { isAnonymous: boolean }) => {
-  const { addParticipant } = useSession();
+export const useSurvey = (isParticipant: boolean, session: { isAnonymous: boolean; id: string }) => {
+  const { addParticipant, updateSession } = useSession();
+  const navigate = useNavigate();
+  
   const [responses, setResponses] = useState<Record<string, any>>({});
   const [comments, setComments] = useState<Record<string, string>>({});
   const [name, setName] = useState("");
@@ -68,9 +70,16 @@ export const useSurvey = (isParticipant: boolean, session: { isAnonymous: boolea
 
         addParticipant(participantData);
 
+        updateSession({
+          ...session,
+          currentPhase: 'discuss'
+        });
+
         setIsSubmitted(true);
         setIsSubmitting(false);
         toast.success("Survey submitted successfully!");
+        
+        navigate(`/session/${session.id}`);
       } catch (error) {
         console.error("Error submitting survey:", error);
         setIsSubmitting(false);
