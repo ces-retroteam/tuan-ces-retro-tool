@@ -14,9 +14,12 @@ interface QuestionSlideProps {
 }
 
 export function QuestionSlide({ question }: QuestionSlideProps) {
-  const { addAction } = useSession();
+  const { addAction, actions } = useSession();
   const [showActionInput, setShowActionInput] = useState(false);
   const [newAction, setNewAction] = useState("");
+
+  // Filter actions for this specific question
+  const questionActions = actions.filter(action => action.questionId === question.id);
 
   const handleAddAction = () => {
     if (newAction.trim()) {
@@ -90,8 +93,27 @@ export function QuestionSlide({ question }: QuestionSlideProps) {
               </button>
             )}
             
-            {question.actions && question.actions.length > 0 ? (
-              <ActionList actions={question.actions} />
+            {questionActions.length > 0 ? (
+              <div className="space-y-2">
+                {questionActions.map((action) => (
+                  <div 
+                    key={action.id} 
+                    className={`flex items-start gap-2 p-2 rounded-lg ${
+                      action.status === 'completed' 
+                        ? 'bg-[#FEC6A1]/30 hover:bg-[#FEC6A1]/40' 
+                        : 'bg-accent/30'
+                    }`}
+                  >
+                    <input 
+                      type="checkbox" 
+                      checked={action.status === 'completed'} 
+                      readOnly 
+                      className="mt-1"
+                    />
+                    <span className="text-sm">{action.text}</span>
+                  </div>
+                ))}
+              </div>
             ) : (
               <p className="text-gray-500 text-sm">No actions yet</p>
             )}
