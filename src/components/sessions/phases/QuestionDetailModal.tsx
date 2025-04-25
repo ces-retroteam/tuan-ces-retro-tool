@@ -33,14 +33,11 @@ export function QuestionDetailModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[90vw] md:max-w-[800px] bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <Carousel 
-          className="w-full" 
+          className="w-full relative" 
           opts={{ 
             startIndex: initialSlide,
             align: "start",
             loop: true,
-            duration: 20,
-            skipSnaps: false,
-            dragFree: false
           }}
         >
           <CarouselContent>
@@ -50,11 +47,11 @@ export function QuestionDetailModal({
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious className="hidden sm:flex -left-12">
-            <ChevronLeft className="h-4 w-4" />
+          <CarouselPrevious className="absolute -left-12 border-none bg-white hover:bg-gray-50 shadow-md">
+            <ChevronLeft className="h-4 w-4 text-orange-500" />
           </CarouselPrevious>
-          <CarouselNext className="hidden sm:flex -right-12">
-            <ChevronRight className="h-4 w-4" />
+          <CarouselNext className="absolute -right-12 border-none bg-white hover:bg-gray-50 shadow-md">
+            <ChevronRight className="h-4 w-4 text-orange-500" />
           </CarouselNext>
         </Carousel>
       </DialogContent>
