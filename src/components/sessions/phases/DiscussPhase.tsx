@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useSession } from "@/context/SessionContext";
 import { Question, Session } from "@/types";
@@ -34,6 +35,7 @@ export default function DiscussPhase({ session, isParticipant = false }: { sessi
     const [allOpen, setAllOpen] = useState(false);
     const [selectedQuestionId, setSelectedQuestionId] = useState<string | null>(null);
     const [challengeTags, setChallengeTags] = useState<ChallengeTag[]>(Array(5).fill("TBD"));
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const handleTagChange = (index: number, tag: ChallengeTag) => {
         const newTags = [...challengeTags];
@@ -125,6 +127,11 @@ export default function DiscussPhase({ session, isParticipant = false }: { sessi
     // Get array of open ids or []
     const openAccordionItems = allOpen ? healthCategories.map((c) => c.id) : [];
 
+    const handleCategoryClick = (categoryId: string) => {
+        setSelectedQuestionId(categoryId);
+        setIsModalOpen(true);
+    };
+
     return (
         <div className="w-full space-y-6">
             <TeamHealthChart session={session} avgScoreAllTopics={avgScoreAllTopics} totalComments={totalComments} />
@@ -159,11 +166,6 @@ export default function DiscussPhase({ session, isParticipant = false }: { sessi
                     type="multiple" 
                     value={openAccordionItems} 
                     className="space-y-2 animate-fade-in"
-                    onValueChange={(value) => {
-                        if (value.length === 1) {
-                            setSelectedQuestionId(value[0]);
-                        }
-                    }}
                 >
                     {healthCategories.map((category) => {
                         const score = aggregatedResponses[category.questionId]?.average || 0;
@@ -172,7 +174,8 @@ export default function DiscussPhase({ session, isParticipant = false }: { sessi
                             <AccordionItem
                                 key={category.id}
                                 value={category.id}
-                                className={`border rounded-lg px-4 transition-colors duration-500 ${bgColor}`}
+                                className={`border rounded-lg px-4 transition-colors duration-500 ${bgColor} cursor-pointer`}
+                                onClick={() => handleCategoryClick(category.id)}
                             >
                                 <div className="flex items-center justify-between w-full py-4">
                                     <span className="font-medium text-gray-900">{category.subject}</span>
@@ -193,8 +196,8 @@ export default function DiscussPhase({ session, isParticipant = false }: { sessi
 
                 {/* QuestionDetailModal */}
                 <QuestionDetailModal
-                    isOpen={!!selectedQuestionId}
-                    onClose={() => setSelectedQuestionId(null)}
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
                     questions={questions}
                     initialQuestionId={selectedQuestionId ?? undefined}
                 />
