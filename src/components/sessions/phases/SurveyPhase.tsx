@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { useSession } from "@/context/SessionContext";
 import { Session } from "@/types";
@@ -7,7 +8,7 @@ import AdditionalSectionStep from "./AdditionalSectionStep";
 import CollaborationSectionStep from "./CollaborationSectionStep";
 import DeliverySectionStep from "./DeliverySectionStep";
 import { useSurvey } from "@/hooks/useSurvey";
-import { collaborationQuestions, deliveryQuestions } from "@/data/surveyQuestions";
+import { collaborationQuestions, deliveryQuestions, additionalPrompt } from "@/data/surveyQuestions";
 import { SurveyNavigation } from "./survey/SurveyNavigation";
 
 const PAGE_ANIMATION = {
@@ -38,12 +39,12 @@ export default function SurveyPhase({
     isSubmitted,
     additionalItems,
     currentPage,
-    setCurrentPage,
     handleResponseChange,
     handleCommentChange,
     handleAdditionalItemChange,
     addAdditionalItem,
-    handleSubmit,
+    goToNextPage,
+    goToPrevPage,
   } = useSurvey(isParticipant, session);
 
   useEffect(() => {
@@ -60,10 +61,6 @@ export default function SurveyPhase({
             responseObj[response.questionId] = response.value;
           }
         });
-
-        setResponses(responseObj);
-        setComments(commentObj);
-        setIsSubmitted(true);
       }
     }
   }, [isParticipant, participantId, participants]);
@@ -77,50 +74,6 @@ export default function SurveyPhase({
   const isCollabValid = collaborationQuestions
     .filter((q) => q.required)
     .every((q) => [1, 2, 3, 4, 5].includes(responses[q.id]));
-
-  const goToNextPage = () => {
-    if (currentPage === "delivery") setCurrentPage("collaboration");
-    else if (currentPage === "collaboration") setCurrentPage("additional");
-    else if (currentPage === "additional") handleSubmit();
-  };
-
-  const goToPrevPage = () => {
-    if (currentPage === "collaboration") setCurrentPage("delivery");
-    else if (currentPage === "additional") setCurrentPage("collaboration");
-  };
-
-  if (!isParticipant) {
-    return (
-      <>
-        <DeliverySectionStep
-          questions={deliveryQuestions}
-          responses={responses}
-          comments={comments}
-          onResponseChange={handleResponseChange}
-          onCommentChange={handleCommentChange}
-          isSubmitted={isSubmitted}
-          sessionIsAnonymous={session.isAnonymous}
-          name={name}
-          setName={setName}
-        />
-        <CollaborationSectionStep
-          questions={collaborationQuestions}
-          responses={responses}
-          comments={comments}
-          onResponseChange={handleResponseChange}
-          onCommentChange={handleCommentChange}
-          isSubmitted={isSubmitted}
-        />
-        <AdditionalSectionStep
-          prompt={additionalPrompt}
-          items={additionalItems}
-          onItemChange={handleAdditionalItemChange}
-          addItem={addAdditionalItem}
-          isSubmitted={isSubmitted}
-        />
-      </>
-    );
-  }
 
   return (
     <Card>

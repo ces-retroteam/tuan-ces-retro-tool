@@ -1,4 +1,3 @@
-
 export const deliveryQuestions = [
   {
     id: "delivery_1",
@@ -47,4 +46,5 @@ export const collaborationQuestions = [
   },
 ];
 
+// Export the prompt as a constant
 export const additionalPrompt = "What are the top 3 challenges facing the team? (Add as many as you'd like)";

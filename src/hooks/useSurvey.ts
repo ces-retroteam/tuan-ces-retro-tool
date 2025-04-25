@@ -1,10 +1,9 @@
 
 import { useState } from "react";
-import { Response } from "@/types";
+import { Response, Session } from "@/types";
 import { toast } from "sonner";
 import { useSession } from "@/context/SessionContext";
-
-export type SurveyPage = "delivery" | "collaboration" | "additional";
+import { SurveyPage } from "@/types/survey";
 
 export const useSurvey = (isParticipant: boolean, session: { isAnonymous: boolean }) => {
   const { addParticipant } = useSession();
@@ -37,7 +36,7 @@ export const useSurvey = (isParticipant: boolean, session: { isAnonymous: boolea
   };
 
   const addAdditionalItem = () => {
-    setAdditionalItems(["", ...additionalItems]);
+    setAdditionalItems((prev) => ["", ...prev]);
   };
 
   const handleSubmit = () => {
@@ -80,6 +79,31 @@ export const useSurvey = (isParticipant: boolean, session: { isAnonymous: boolea
     }
   };
 
+  const goToNextPage = () => {
+    switch (currentPage) {
+      case "delivery":
+        setCurrentPage("collaboration");
+        break;
+      case "collaboration":
+        setCurrentPage("additional");
+        break;
+      case "additional":
+        handleSubmit();
+        break;
+    }
+  };
+
+  const goToPrevPage = () => {
+    switch (currentPage) {
+      case "collaboration":
+        setCurrentPage("delivery");
+        break;
+      case "additional":
+        setCurrentPage("collaboration");
+        break;
+    }
+  };
+
   return {
     responses,
     comments,
@@ -95,5 +119,7 @@ export const useSurvey = (isParticipant: boolean, session: { isAnonymous: boolea
     handleAdditionalItemChange,
     addAdditionalItem,
     handleSubmit,
+    goToNextPage,
+    goToPrevPage,
   };
 };
