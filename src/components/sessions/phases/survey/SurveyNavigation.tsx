@@ -1,6 +1,5 @@
-
 import { Button } from "@/components/ui/button";
-import { SurveyPage } from "@/hooks/useSurvey";
+import { SurveyPage } from "@/types/survey";
 
 interface SurveyNavigationProps {
   currentPage: SurveyPage;
