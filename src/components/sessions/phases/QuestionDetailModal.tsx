@@ -66,7 +66,7 @@ function QuestionSlide({ question }: QuestionSlideProps) {
           <div className="flex items-center justify-between">
             <h3 className="text-xl font-semibold">{question.text}</h3>
             <div className="flex items-center gap-3">
-              <span className="text-2xl font-bold">{question.score.toFixed(1)}</span>
+              <span className="text-2xl font-bold">{question.score?.toFixed(1)}</span>
               <TrendIndicator trend={question.trend} />
             </div>
           </div>
