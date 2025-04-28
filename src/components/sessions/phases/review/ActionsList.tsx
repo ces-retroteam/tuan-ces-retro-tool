@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useSession } from "@/context/SessionContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, UserPlus, Flag, Plus, Check, Trash2, CircleParking, Handshake } from "lucide-react";
+import { Calendar, UserPlus, Flag, Plus, Check, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -15,10 +15,11 @@ export function ActionsList() {
   const [showInput, setShowInput] = useState(false);
   const [selectedDueDate, setSelectedDueDate] = useState<Date | undefined>(undefined);
 
-  // Filter actions by type
-  const regularActions = actions.filter(a => !a.questionId?.startsWith('parking_') && !a.questionId?.startsWith('agreement_'));
-  const parkingLotItems = actions.filter(a => a.questionId?.startsWith('parking_'));
-  const agreementItems = actions.filter(a => a.questionId?.startsWith('agreement_'));
+  // Filter actions to only show regular actions (not team agreements or parking lot items)
+  const regularActions = actions.filter(a => 
+    !a.questionId?.startsWith('parking_') && 
+    !a.questionId?.startsWith('agreement_')
+  );
 
   const handleAddAction = () => {
     if (newActionText.trim()) {
@@ -51,7 +52,7 @@ export function ActionsList() {
     }
   };
 
-  const renderActionItem = (action: any, showSource = false) => (
+  const renderActionItem = (action: any) => (
     <div 
       key={action.id} 
       className={`group relative flex items-center justify-between p-4 rounded-xl border border-transparent hover:border-primary/10 transition-all hover:shadow-sm ${
@@ -79,23 +80,6 @@ export function ActionsList() {
           }`}>
             {action.text}
           </span>
-          {showSource && action.questionId && (
-            <span className="text-xs flex items-center gap-1 text-gray-500">
-              {action.questionId.startsWith('parking_') ? (
-                <>
-                  <CircleParking className="w-3.5 h-3.5" />
-                  From Parking Lot
-                </>
-              ) : action.questionId.startsWith('agreement_') ? (
-                <>
-                  <Handshake className="w-3.5 h-3.5" />
-                  From Team Agreement
-                </>
-              ) : (
-                <>From question: {action.questionId}</>
-              )}
-            </span>
-          )}
         </div>
         {action.dueDate && (
           <span className={`text-xs font-medium px-2 py-1 rounded-full ${
@@ -210,42 +194,16 @@ export function ActionsList() {
             )}
           </div>
 
-          {regularActions.length === 0 && agreementItems.length === 0 && parkingLotItems.length === 0 && (
+          {regularActions.length === 0 ? (
             <div className="text-gray-500 text-sm py-8 text-center italic">
               No actions yet
             </div>
+          ) : (
+            <div className="space-y-2">
+              {regularActions.map(action => renderActionItem(action))}
+            </div>
           )}
-
-          <div className="space-y-2">
-            {regularActions.map(action => renderActionItem(action))}
-          </div>
         </div>
-
-        {/* Team Agreement Items */}
-        {agreementItems.length > 0 && (
-          <div className="space-y-4">
-            <h3 className="text-base font-medium text-gray-600 flex items-center gap-2">
-              <Handshake className="w-4 h-4" />
-              Team Agreements
-            </h3>
-            <div className="space-y-2">
-              {agreementItems.map(agreement => renderActionItem(agreement, true))}
-            </div>
-          </div>
-        )}
-
-        {/* Parking Lot Items */}
-        {parkingLotItems.length > 0 && (
-          <div className="space-y-4">
-            <h3 className="text-base font-medium text-gray-600 flex items-center gap-2">
-              <CircleParking className="w-4 h-4" />
-              Parking Lot Items
-            </h3>
-            <div className="space-y-2">
-              {parkingLotItems.map(item => renderActionItem(item, true))}
-            </div>
-          </div>
-        )}
       </CardContent>
     </Card>
   );
