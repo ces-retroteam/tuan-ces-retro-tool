@@ -1,7 +1,8 @@
+
 import { useState } from "react";
 import { useSession } from "@/context/SessionContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, UserPlus, Flag, Plus, Check, Trash2 } from "lucide-react";
+import { Calendar, UserPlus, Flag, Plus, Check, Trash2, CircleParking, Handshake } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -13,6 +14,11 @@ export function ActionsList() {
   const [newActionText, setNewActionText] = useState("");
   const [showInput, setShowInput] = useState(false);
   const [selectedDueDate, setSelectedDueDate] = useState<Date | undefined>(undefined);
+
+  // Filter actions by type
+  const regularActions = actions.filter(a => !a.questionId?.startsWith('parking_') && !a.questionId?.startsWith('agreement_'));
+  const parkingLotItems = actions.filter(a => a.questionId?.startsWith('parking_'));
+  const agreementItems = actions.filter(a => a.questionId?.startsWith('agreement_'));
 
   const handleAddAction = () => {
     if (newActionText.trim()) {
@@ -45,6 +51,100 @@ export function ActionsList() {
     }
   };
 
+  const renderActionItem = (action: any, showSource = false) => (
+    <div 
+      key={action.id} 
+      className={`group relative flex items-center justify-between p-4 rounded-xl border border-transparent hover:border-primary/10 transition-all hover:shadow-sm ${
+        action.status === 'completed' 
+          ? 'bg-[#FEC6A1]/30 hover:bg-[#FEC6A1]/40' 
+          : 'hover:bg-accent/50'
+      }`}
+    >
+      <div className="flex items-center gap-3">
+        <button
+          onClick={() => handleUpdateActionStatus(action.id, action.status === 'completed' ? 'open' : 'completed')}
+          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors cursor-pointer
+            ${action.status === 'completed' 
+              ? 'border-primary bg-primary text-white' 
+              : 'border-gray-300 hover:border-primary/50'
+            }`}
+        >
+          {action.status === 'completed' && <Check className="w-3 h-3" />}
+        </button>
+        <div className="flex flex-col gap-1">
+          <span className={`font-medium transition-all ${
+            action.status === 'completed' 
+              ? 'text-gray-700' 
+              : 'text-gray-700'
+          }`}>
+            {action.text}
+          </span>
+          {showSource && action.questionId && (
+            <span className="text-xs flex items-center gap-1 text-gray-500">
+              {action.questionId.startsWith('parking_') ? (
+                <>
+                  <CircleParking className="w-3.5 h-3.5" />
+                  From Parking Lot
+                </>
+              ) : action.questionId.startsWith('agreement_') ? (
+                <>
+                  <Handshake className="w-3.5 h-3.5" />
+                  From Team Agreement
+                </>
+              ) : (
+                <>From question: {action.questionId}</>
+              )}
+            </span>
+          )}
+        </div>
+        {action.dueDate && (
+          <span className={`text-xs font-medium px-2 py-1 rounded-full ${
+            action.status === 'completed'
+              ? 'bg-[#FEC6A1]/20 text-primary' 
+              : 'bg-primary/10 text-primary'
+          }`}>
+            {format(new Date(action.dueDate), 'dd MMM')}
+          </span>
+        )}
+      </div>
+      <div className="flex items-center gap-1.5">
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-8 w-8">
+              <Calendar className="w-4 h-4 text-gray-600" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <DatePicker
+              mode="single"
+              selected={action.dueDate ? new Date(action.dueDate) : undefined}
+              onSelect={(date) => {
+                if (date) {
+                  handleUpdateActionStatus(action.id, action.status);
+                }
+              }}
+              className="p-3 pointer-events-auto"
+            />
+          </PopoverContent>
+        </Popover>
+        <Button variant="ghost" size="icon" className="h-8 w-8">
+          <UserPlus className="w-4 h-4 text-gray-600" />
+        </Button>
+        <Button variant="ghost" size="icon" className="h-8 w-8">
+          <Flag className="w-4 h-4 text-gray-600" />
+        </Button>
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="h-8 w-8 hover:text-destructive" 
+          onClick={() => deleteAction(action.id)}
+        >
+          <Trash2 className="w-4 h-4 text-gray-600" />
+        </Button>
+      </div>
+    </div>
+  );
+
   return (
     <Card className="bg-gradient-to-br from-white to-gray-50/50 shadow-lg border-0 relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none" />
@@ -54,6 +154,7 @@ export function ActionsList() {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-8 relative">
+        {/* Regular actions */}
         <div className="space-y-4">
           <h3 className="text-base font-medium text-gray-600 flex items-center gap-2">
             Actions from this health check
@@ -109,96 +210,42 @@ export function ActionsList() {
             )}
           </div>
 
-          {actions.length === 0 && (
+          {regularActions.length === 0 && agreementItems.length === 0 && parkingLotItems.length === 0 && (
             <div className="text-gray-500 text-sm py-8 text-center italic">
               No actions yet
             </div>
           )}
 
           <div className="space-y-2">
-            {actions.map((action) => (
-              <div 
-                key={action.id} 
-                className={`group relative flex items-center justify-between p-4 rounded-xl border border-transparent hover:border-primary/10 transition-all hover:shadow-sm ${
-                  action.status === 'completed' 
-                    ? 'bg-[#FEC6A1]/30 hover:bg-[#FEC6A1]/40' 
-                    : 'hover:bg-accent/50'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => handleUpdateActionStatus(action.id, action.status === 'completed' ? 'open' : 'completed')}
-                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors cursor-pointer
-                      ${action.status === 'completed' 
-                        ? 'border-primary bg-primary text-white' 
-                        : 'border-gray-300 hover:border-primary/50'
-                      }`}
-                  >
-                    {action.status === 'completed' && <Check className="w-3 h-3" />}
-                  </button>
-                  <div className="flex flex-col gap-1">
-                    <span className={`font-medium transition-all ${
-                      action.status === 'completed' 
-                        ? 'text-gray-700' 
-                        : 'text-gray-700'
-                    }`}>
-                      {action.text}
-                    </span>
-                    {action.questionId && (
-                      <span className="text-xs text-gray-500">
-                        From question: {action.questionId}
-                      </span>
-                    )}
-                  </div>
-                  {action.dueDate && (
-                    <span className={`text-xs font-medium px-2 py-1 rounded-full ${
-                      action.status === 'completed'
-                        ? 'bg-[#FEC6A1]/20 text-primary' 
-                        : 'bg-primary/10 text-primary'
-                    }`}>
-                      {format(new Date(action.dueDate), 'dd MMM')}
-                    </span>
-                  )}
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <Calendar className="w-4 h-4 text-gray-600" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <DatePicker
-                        mode="single"
-                        selected={action.dueDate ? new Date(action.dueDate) : undefined}
-                        onSelect={(date) => {
-                          if (date) {
-                            handleUpdateActionStatus(action.id, action.status);
-                          }
-                        }}
-                        className="p-3 pointer-events-auto"
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                    <UserPlus className="w-4 h-4 text-gray-600" />
-                  </Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                    <Flag className="w-4 h-4 text-gray-600" />
-                  </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    className="h-8 w-8 hover:text-destructive" 
-                    onClick={() => deleteAction(action.id)}
-                  >
-                    <Trash2 className="w-4 h-4 text-gray-600" />
-                  </Button>
-                </div>
-              </div>
-            ))}
+            {regularActions.map(action => renderActionItem(action))}
           </div>
         </div>
+
+        {/* Team Agreement Items */}
+        {agreementItems.length > 0 && (
+          <div className="space-y-4">
+            <h3 className="text-base font-medium text-gray-600 flex items-center gap-2">
+              <Handshake className="w-4 h-4" />
+              Team Agreements
+            </h3>
+            <div className="space-y-2">
+              {agreementItems.map(agreement => renderActionItem(agreement, true))}
+            </div>
+          </div>
+        )}
+
+        {/* Parking Lot Items */}
+        {parkingLotItems.length > 0 && (
+          <div className="space-y-4">
+            <h3 className="text-base font-medium text-gray-600 flex items-center gap-2">
+              <CircleParking className="w-4 h-4" />
+              Parking Lot Items
+            </h3>
+            <div className="space-y-2">
+              {parkingLotItems.map(item => renderActionItem(item, true))}
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
