@@ -35,7 +35,7 @@ export function TeamAgreementList() {
 
   return (
     <Card className="bg-gradient-to-br from-white to-gray-50/50 shadow-lg border-0 relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-[#E5DEFF]/20 to-transparent pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none" />
       <CardHeader className="pb-2 relative">
         <CardTitle className="text-2xl font-semibold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent flex items-center gap-2">
           <Handshake className="w-6 h-6" />
