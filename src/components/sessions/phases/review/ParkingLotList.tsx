@@ -1,8 +1,7 @@
-
 import { useState } from "react";
 import { useSession } from "@/context/SessionContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Parking, Plus, Check, Trash2 } from "lucide-react";
+import { CircleParking, Plus, Check, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -38,7 +37,7 @@ export function ParkingLotList() {
       <div className="absolute inset-0 bg-gradient-to-br from-[#D3E4FD]/20 to-transparent pointer-events-none" />
       <CardHeader className="pb-2 relative">
         <CardTitle className="text-2xl font-semibold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent flex items-center gap-2">
-          <Parking className="w-6 h-6" />
+          <CircleParking className="w-6 h-6" />
           Parking lot
         </CardTitle>
       </CardHeader>
