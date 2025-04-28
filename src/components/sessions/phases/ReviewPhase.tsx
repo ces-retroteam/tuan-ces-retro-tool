@@ -1,12 +1,17 @@
+
 import { Session } from "@/types";
 import { ActionsList } from "./review/ActionsList";
+import { TeamAgreementList } from "./review/TeamAgreementList";
+import { ParkingLotList } from "./review/ParkingLotList";
 
 export default function ReviewPhase({ session, isParticipant = false }: { session: Session; isParticipant?: boolean }) {
   return (
     <div className="container mx-auto max-w-[1200px] py-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-2">
+        <div className="md:col-span-2 space-y-6">
           <ActionsList />
+          <TeamAgreementList />
+          <ParkingLotList />
         </div>
         <div>
           <div className="bg-white rounded-lg p-6 shadow-sm">
