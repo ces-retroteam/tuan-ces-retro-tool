@@ -35,16 +35,16 @@ export default function ReviewPhase({ session, isParticipant = false }: { sessio
         </div>
       </div>
 
-      {/* Review Sections */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
+      {/* Review Sections - Stacked vertically */}
+      <div className="space-y-6">
+        <div className="w-full">
           <ActionsList />
         </div>
-        <div className="lg:col-span-1">
-          <div className="space-y-6">
-            <TeamAgreementList />
-            <ParkingLotList />
-          </div>
+        <div className="w-full">
+          <TeamAgreementList />
+        </div>
+        <div className="w-full">
+          <ParkingLotList />
         </div>
       </div>
     </div>
