@@ -3,6 +3,7 @@ import { Session } from "@/types";
 import { ActionsList } from "./review/ActionsList";
 import { TeamAgreementList } from "./review/TeamAgreementList";
 import { ParkingLotList } from "./review/ParkingLotList";
+import { ParticipantsList } from "./review/ParticipantsList";
 
 export default function ReviewPhase({ session, isParticipant = false }: { session: Session; isParticipant?: boolean }) {
   return (

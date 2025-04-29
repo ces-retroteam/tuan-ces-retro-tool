@@ -1,3 +1,4 @@
+
 export interface Template {
   id: string;
   name: string;
@@ -48,6 +49,7 @@ export interface Participant {
   name: string;
   responses?: Response[];
   joinedAt: string;
+  sessionId?: string; // Added sessionId to link participants to sessions
 }
 
 export interface Comment {

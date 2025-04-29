@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSession } from '@/context/SessionContext';
@@ -8,6 +9,7 @@ import { Users } from "lucide-react";
 import { SessionHeader } from "@/components/sessions/SessionHeader";
 import SessionPhases from "@/components/sessions/SessionPhases";
 import { AnimatePresence, motion } from "framer-motion";
+import { ParticipantsList } from "@/components/sessions/phases/review/ParticipantsList";
 
 const detectIsParticipant = () => {
   return window.location.pathname.includes("/join/");
@@ -123,19 +125,25 @@ const SessionPage = () => {
             </Card>
           </div>
           <aside className="w-full md:w-72 flex-shrink-0 mt-6 md:mt-0">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 flex flex-col gap-6">
-              <h2 className="text-lg font-semibold flex items-center gap-2 mb-2">
-                <Users className="w-5 h-5" />
-                Invite teammates
-              </h2>
-              <Button
-                variant="default"
-                size="lg"
-                onClick={() => setWelcomeOpen(true)}
-                className="w-full"
-              >
-                Invite
-              </Button>
+            <div className="space-y-6">
+              {/* Participants List */}
+              <ParticipantsList session={session} />
+              
+              {/* Invite Card */}
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 flex flex-col gap-6">
+                <h2 className="text-lg font-semibold flex items-center gap-2 mb-2">
+                  <Users className="w-5 h-5" />
+                  Invite teammates
+                </h2>
+                <Button
+                  variant="default"
+                  size="lg"
+                  onClick={() => setWelcomeOpen(true)}
+                  className="w-full"
+                >
+                  Invite
+                </Button>
+              </div>
             </div>
           </aside>
         </div>

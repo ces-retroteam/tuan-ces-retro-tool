@@ -1,3 +1,4 @@
+
 import React, { createContext, useState, useContext, ReactNode } from 'react';
 import { Session, Participant, Comment, Action } from '../types';
 import { sessions as mockSessions, participants as mockParticipants, comments as mockComments, actions as mockActions } from '../data/mockData';
@@ -21,9 +22,15 @@ interface SessionContextType {
 const SessionContext = createContext<SessionContextType | undefined>(undefined);
 
 export const SessionProvider = ({ children }: { children: ReactNode }) => {
+  // Associate each participant with a session ID
+  const enhancedParticipants = mockParticipants.map((participant, index) => ({
+    ...participant,
+    sessionId: mockSessions[index % mockSessions.length].id
+  }));
+  
   const [sessions, setSessions] = useState<Session[]>(mockSessions);
   const [currentSession, setCurrentSession] = useState<Session | null>(null);
-  const [participants, setParticipants] = useState<Participant[]>(mockParticipants);
+  const [participants, setParticipants] = useState<Participant[]>(enhancedParticipants);
   const [comments, setComments] = useState<Comment[]>(mockComments);
   const [actions, setActions] = useState<Action[]>(mockActions);
 
