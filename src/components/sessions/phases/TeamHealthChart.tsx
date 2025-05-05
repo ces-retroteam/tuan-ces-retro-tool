@@ -25,7 +25,7 @@ export default function TeamHealthChart({ session, avgScoreAllTopics, totalComme
 
     const chartConfig = {
         line1: {
-            theme: { light: "#000000", dark: "#000000" },
+            theme: { light: "#E15D2F", dark: "#E15D2F" },
         },
     };
 
@@ -46,9 +46,9 @@ export default function TeamHealthChart({ session, avgScoreAllTopics, totalComme
     };
 
     return (
-        <Card className="mt-6">
+        <Card className="mt-6 border border-gray-200 shadow-sm">
             <CardHeader className="pb-2">
-                <CardTitle className="text-xl">Team Health Radar</CardTitle>
+                <CardTitle className="text-xl text-gray-900 dark:text-gray-100 font-bold">Team Health Radar</CardTitle>
             </CardHeader>
             <CardContent>
                 <div className="w-full h-[400px]">
@@ -65,9 +65,9 @@ export default function TeamHealthChart({ session, avgScoreAllTopics, totalComme
                             <Radar
                                 name="Team Health"
                                 dataKey="value"
-                                stroke="#000000"
+                                stroke="#E15D2F"
                                 strokeWidth={2}
-                                fill="#FEC6A1"
+                                fill="#E15D2F"
                                 fillOpacity={0.2}
                             />
                         </RadarChart>
@@ -76,15 +76,15 @@ export default function TeamHealthChart({ session, avgScoreAllTopics, totalComme
                 
                 <div className="mt-4 pt-4 border-t">
                     <div className="grid grid-cols-4 gap-2 mt-2">
-                        <div className="text-sm font-medium">Topic</div>
-                        <div className="text-sm font-medium text-center">Health check 1</div>
-                        <div className="text-sm font-medium text-center">Health check 2</div>
-                        <div className="text-sm font-medium text-center">Health check 3</div>
+                        <div className="text-sm font-medium text-gray-700 dark:text-gray-300">Topic</div>
+                        <div className="text-sm font-medium text-center text-gray-700 dark:text-gray-300">Health check 1</div>
+                        <div className="text-sm font-medium text-center text-gray-700 dark:text-gray-300">Health check 2</div>
+                        <div className="text-sm font-medium text-center text-gray-700 dark:text-gray-300">Health check 3</div>
                     </div>
                     
                     {chartData.map((item) => (
-                        <div key={item.subject} className="grid grid-cols-4 gap-2 py-2 border-b">
-                            <div className="text-sm">{item.subject}</div>
+                        <div key={item.subject} className="grid grid-cols-4 gap-2 py-2 border-b border-gray-200 dark:border-gray-700">
+                            <div className="text-sm text-gray-700 dark:text-gray-300">{item.subject}</div>
                             <div className="flex justify-center">
                                 {renderScoreBadge(Math.floor(Math.random() * 5) + 1)}
                             </div>
@@ -113,7 +113,7 @@ function renderScoreBadge(score: number) {
     
     return (
         <div className={`${colors[score as keyof typeof colors]} text-sm px-2 py-1 rounded-md min-w-8 text-center`}>
-            {score}a
+            {score}
         </div>
     );
 }
