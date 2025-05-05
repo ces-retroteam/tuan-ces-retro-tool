@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { useSession } from "@/context/SessionContext";
 import { Session } from "@/types";
@@ -12,6 +11,7 @@ import { collaborationQuestions, deliveryQuestions, additionalPrompt } from "@/d
 import { SurveyNavigation } from "./survey/SurveyNavigation";
 import { DisplayModeSelector } from "./survey/DisplayModeSelector";
 import SurveyQuestionRow from "./SurveyQuestionRow";
+import { Button } from "@/components/ui/button";
 
 const PAGE_ANIMATION = {
   initial: { opacity: 0, y: 30 },
@@ -140,6 +140,63 @@ export default function SurveyPhase({
     );
   };
 
+  // New function to render all questions across all sections
+  const renderAllQuestionsMode = () => {
+    return (
+      <div className="space-y-8">
+        {/* Delivery Section */}
+        <div>
+          <h3 className="text-lg font-semibold mb-4">Delivery & Execution</h3>
+          <div className="space-y-2">
+            {deliveryQuestions.map(question => (
+              <div key={question.id} className="bg-white rounded-2xl px-6 py-6 mb-4 shadow-sm border border-gray-100">
+                <SurveyQuestionRow
+                  question={question}
+                  value={responses[question.id]}
+                  comment={comments[question.id] || ""}
+                  onValueChange={val => handleResponseChange(question.id, val)}
+                  onCommentChange={val => handleCommentChange(question.id, val)}
+                  disabled={isSubmitted}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+        
+        {/* Collaboration Section */}
+        <div>
+          <h3 className="text-lg font-semibold mb-4">Team Collaboration</h3>
+          <div className="space-y-2">
+            {collaborationQuestions.map(question => (
+              <div key={question.id} className="bg-white rounded-2xl px-6 py-6 mb-4 shadow-sm border border-gray-100">
+                <SurveyQuestionRow
+                  question={question}
+                  value={responses[question.id]}
+                  comment={comments[question.id] || ""}
+                  onValueChange={val => handleResponseChange(question.id, val)}
+                  onCommentChange={val => handleCommentChange(question.id, val)}
+                  disabled={isSubmitted}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+        
+        {/* Additional Questions Section */}
+        <div>
+          <h3 className="text-lg font-semibold mb-4">Additional Questions</h3>
+          <AdditionalSectionStep
+            prompt={additionalPrompt}
+            items={additionalItems}
+            onItemChange={handleAdditionalItemChange}
+            addItem={addAdditionalItem}
+            isSubmitted={isSubmitted}
+          />
+        </div>
+      </div>
+    );
+  };
+
   return (
     <Card>
       <CardContent className="space-y-10 pt-6 pb-2">
@@ -149,9 +206,15 @@ export default function SurveyPhase({
               className="text-lg font-bold"
               style={{ fontFamily: "Clarendon, serif" }}
             >
-              {currentPage === "delivery" && "Delivery & Execution"}
-              {currentPage === "collaboration" && "Team Collaboration"}
-              {currentPage === "additional" && "Additional Questions"}
+              {displayMode === "all-questions" ? (
+                "All Questions"
+              ) : (
+                <>
+                  {currentPage === "delivery" && "Delivery & Execution"}
+                  {currentPage === "collaboration" && "Team Collaboration"}
+                  {currentPage === "additional" && "Additional Questions"}
+                </>
+              )}
             </div>
             
             <div className="flex items-center gap-4">
@@ -160,20 +223,25 @@ export default function SurveyPhase({
                 onChange={handleDisplayModeChange} 
               />
               
-              <div className="flex gap-2">
-                {["delivery", "collaboration", "additional"].map((page) => (
-                  <div
-                    key={page}
-                    className={`w-3 h-3 rounded-full ${
-                      currentPage === page ? "bg-orange-500" : "bg-gray-200"
-                    }`}
-                  ></div>
-                ))}
-              </div>
+              {displayMode !== "all-questions" && (
+                <div className="flex gap-2">
+                  {["delivery", "collaboration", "additional"].map((page) => (
+                    <div
+                      key={page}
+                      className={`w-3 h-3 rounded-full ${
+                        currentPage === page ? "bg-orange-500" : "bg-gray-200"
+                      }`}
+                    ></div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
-          {displayMode === "one-question" && currentPage !== "additional" ? (
+          {displayMode === "all-questions" ? (
+            // All questions mode - show everything at once
+            renderAllQuestionsMode()
+          ) : displayMode === "one-question" && currentPage !== "additional" ? (
             // One question per page mode
             renderOneQuestion()
           ) : (
@@ -246,15 +314,32 @@ export default function SurveyPhase({
             )}
           </div>
           
-          <SurveyNavigation
-            currentPage={currentPage}
-            onPrevious={goToPrevPage}
-            onNext={goToNextPage}
-            isNextDisabled={isNextDisabled()}
-            isPreviousDisabled={currentPage === "delivery" && (displayMode !== "one-question" || currentQuestionIndex === 0)}
-            isSubmitting={isSubmitting}
-            isLastPage={currentPage === "additional"}
-          />
+          {displayMode !== "all-questions" ? (
+            <SurveyNavigation
+              currentPage={currentPage}
+              onPrevious={goToPrevPage}
+              onNext={goToNextPage}
+              isNextDisabled={isNextDisabled()}
+              isPreviousDisabled={currentPage === "delivery" && (displayMode !== "one-question" || currentQuestionIndex === 0)}
+              isSubmitting={isSubmitting}
+              isLastPage={currentPage === "additional"}
+            />
+          ) : (
+            <Button
+              onClick={goToNextPage}
+              disabled={isSubmitting || !isDeliveryValid || !isCollabValid}
+              className="font-bold"
+              style={{
+                backgroundColor: "#E15D2F",
+                color: "#fff",
+                textTransform: "uppercase",
+                letterSpacing: "0.04em",
+                fontFamily: "Inter, Helvetica, Arial, sans-serif",
+              }}
+            >
+              {isSubmitting ? "Submitting..." : "Submit Survey"}
+            </Button>
+          )}
         </CardFooter>
       )}
     </Card>
