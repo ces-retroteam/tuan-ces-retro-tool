@@ -3,9 +3,12 @@ import { useState, useEffect } from "react";
 import { Response, Session } from "@/types";
 import { toast } from "sonner";
 import { useSession } from "@/context/SessionContext";
-import { SurveyDisplayMode, SurveyPage } from "@/types/survey";
+import { SurveyDisplayMode, SurveyPage, SurveyTimerConfig, TimerState } from "@/types/survey";
 import { useNavigate } from "react-router-dom";
 import { collaborationQuestions, deliveryQuestions } from "@/data/surveyQuestions";
+
+// Default timer duration (3 minutes)
+const DEFAULT_TIMER_DURATION = 3 * 60;
 
 export const useSurvey = (isParticipant: boolean, session: Session) => {
   const { addParticipant, updateSession } = useSession();
@@ -23,6 +26,14 @@ export const useSurvey = (isParticipant: boolean, session: Session) => {
   const [displayMode, setDisplayMode] = useState<SurveyDisplayMode>("grouped");
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   
+  // Timer functionality
+  const [timers, setTimers] = useState<TimerState>({
+    delivery: { enabled: false, duration: DEFAULT_TIMER_DURATION },
+    collaboration: { enabled: false, duration: DEFAULT_TIMER_DURATION },
+    additional: { enabled: false, duration: DEFAULT_TIMER_DURATION },
+    discussion: { enabled: false, duration: DEFAULT_TIMER_DURATION },
+  });
+
   // Calculate all questions based on the current section
   const getCurrentSectionQuestions = () => {
     switch (currentPage) {
@@ -82,6 +93,56 @@ export const useSurvey = (isParticipant: boolean, session: Session) => {
       return true;
     }
     return false;
+  };
+
+  // Timer functions
+  const setTimerEnabled = (page: SurveyPage | "discussion", enabled: boolean) => {
+    setTimers(prev => ({
+      ...prev,
+      [page]: {
+        ...prev[page as keyof TimerState],
+        enabled
+      }
+    }));
+  };
+
+  const setTimerDuration = (page: SurveyPage | "discussion", duration: number) => {
+    setTimers(prev => ({
+      ...prev,
+      [page]: {
+        ...prev[page as keyof TimerState],
+        duration
+      }
+    }));
+  };
+
+  const setTimerPaused = (page: SurveyPage | "discussion", paused: boolean) => {
+    setTimers(prev => ({
+      ...prev,
+      [page]: {
+        ...prev[page as keyof TimerState],
+        paused
+      }
+    }));
+  };
+
+  const handleTimerExpire = () => {
+    if (displayMode === "one-question") {
+      // For one question mode, auto advance to next question
+      const movedToNextQuestion = goToNextQuestion();
+      if (!movedToNextQuestion) {
+        goToNextPage();
+      }
+      toast.info("Time expired! Moving to next question.");
+    } else if (displayMode === "grouped") {
+      // For grouped mode, auto advance to next section
+      goToNextPage();
+      toast.info(`Time expired for ${currentPage} section! Moving to next section.`);
+    } else {
+      // For all questions mode, mark as submitted
+      handleSubmit();
+      toast.info("Survey time expired! Submitting current responses.");
+    }
   };
 
   const handleSubmit = () => {
@@ -193,10 +254,16 @@ export const useSurvey = (isParticipant: boolean, session: Session) => {
     handleSubmit,
     goToNextPage,
     goToPrevPage,
-    // New properties
+    // Display mode properties
     displayMode,
     handleDisplayModeChange,
     currentQuestionIndex,
     getCurrentSectionQuestions,
+    // Timer properties
+    timers,
+    setTimerEnabled,
+    setTimerDuration,
+    setTimerPaused,
+    handleTimerExpire,
   };
 };

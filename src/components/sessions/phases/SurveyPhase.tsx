@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { useSession } from "@/context/SessionContext";
 import { Session } from "@/types";
@@ -12,6 +13,9 @@ import { SurveyNavigation } from "./survey/SurveyNavigation";
 import { DisplayModeSelector } from "./survey/DisplayModeSelector";
 import SurveyQuestionRow from "./SurveyQuestionRow";
 import { Button } from "@/components/ui/button";
+import { Timer } from "@/components/ui/timer";
+import { TimerConfig } from "./TimerConfig";
+import { SurveyPage } from "@/types/survey";
 
 const PAGE_ANIMATION = {
   initial: { opacity: 0, y: 30 },
@@ -47,11 +51,17 @@ export default function SurveyPhase({
     addAdditionalItem,
     goToNextPage,
     goToPrevPage,
-    // New properties
+    // Display mode properties
     displayMode,
     handleDisplayModeChange,
     currentQuestionIndex,
     getCurrentSectionQuestions,
+    // Timer properties
+    timers,
+    setTimerEnabled,
+    setTimerDuration,
+    setTimerPaused,
+    handleTimerExpire,
   } = useSurvey(isParticipant, session);
 
   useEffect(() => {
@@ -156,7 +166,7 @@ export default function SurveyPhase({
                   comment={comments[question.id] || ""}
                   onValueChange={val => handleResponseChange(question.id, val)}
                   onCommentChange={val => handleCommentChange(question.id, val)}
-                  disabled={isSubmitted}
+                  disabled={isSubmitted || (timers.delivery.enabled && timers.delivery.paused)}
                 />
               </div>
             ))}
@@ -175,7 +185,7 @@ export default function SurveyPhase({
                   comment={comments[question.id] || ""}
                   onValueChange={val => handleResponseChange(question.id, val)}
                   onCommentChange={val => handleCommentChange(question.id, val)}
-                  disabled={isSubmitted}
+                  disabled={isSubmitted || (timers.collaboration.enabled && timers.collaboration.paused)}
                 />
               </div>
             ))}
@@ -190,11 +200,27 @@ export default function SurveyPhase({
             items={additionalItems}
             onItemChange={handleAdditionalItemChange}
             addItem={addAdditionalItem}
-            isSubmitted={isSubmitted}
+            isSubmitted={isSubmitted || (timers.additional.enabled && timers.additional.paused)}
           />
         </div>
       </div>
     );
+  };
+
+  // Get the current timer based on page
+  const getCurrentTimer = () => {
+    return timers[currentPage as keyof typeof timers];
+  };
+
+  // Handle timer events based on display mode
+  const onTimerExpire = () => {
+    if (isSubmitted) return;
+    
+    // Pause the timer
+    setTimerPaused(currentPage, true);
+    
+    // Handle expiration based on display mode
+    handleTimerExpire();
   };
 
   return (
@@ -223,6 +249,18 @@ export default function SurveyPhase({
                 onChange={handleDisplayModeChange} 
               />
               
+              {!isParticipant && (
+                <TimerConfig
+                  isEnabled={getCurrentTimer()?.enabled || false}
+                  onToggle={(enabled) => setTimerEnabled(currentPage, enabled)}
+                  duration={getCurrentTimer()?.duration || 0}
+                  onDurationChange={(duration) => setTimerDuration(currentPage, duration)}
+                  displayMode={displayMode}
+                  currentPage={currentPage}
+                  isPaused={getCurrentTimer()?.paused || false}
+                />
+              )}
+              
               {displayMode !== "all-questions" && (
                 <div className="flex gap-2">
                   {["delivery", "collaboration", "additional"].map((page) => (
@@ -237,6 +275,27 @@ export default function SurveyPhase({
               )}
             </div>
           </div>
+
+          {/* Timer display for participants */}
+          {isParticipant && getCurrentTimer()?.enabled && (
+            <div className="mb-4 bg-orange-50 border border-orange-100 p-3 rounded-md flex items-center justify-between">
+              <div className="text-sm text-orange-800">
+                {displayMode === "one-question" 
+                  ? "Time remaining for this question:" 
+                  : displayMode === "grouped" 
+                    ? `Time remaining for ${currentPage} section:` 
+                    : "Time remaining for the survey:"}
+              </div>
+              <Timer 
+                duration={getCurrentTimer().duration}
+                onExpire={onTimerExpire}
+                autoStart={true}
+                isPaused={getCurrentTimer().paused}
+                size="lg"
+                className="text-orange-800"
+              />
+            </div>
+          )}
 
           {displayMode === "all-questions" ? (
             // All questions mode - show everything at once
@@ -262,7 +321,7 @@ export default function SurveyPhase({
                     comments={comments}
                     onResponseChange={handleResponseChange}
                     onCommentChange={handleCommentChange}
-                    isSubmitted={isSubmitted}
+                    isSubmitted={isSubmitted || (timers.delivery.enabled && timers.delivery.paused)}
                     sessionIsAnonymous={session.isAnonymous}
                     name={name}
                     setName={setName}
@@ -276,7 +335,7 @@ export default function SurveyPhase({
                     comments={comments}
                     onResponseChange={handleResponseChange}
                     onCommentChange={handleCommentChange}
-                    isSubmitted={isSubmitted}
+                    isSubmitted={isSubmitted || (timers.collaboration.enabled && timers.collaboration.paused)}
                   />
                 )}
 
@@ -286,7 +345,7 @@ export default function SurveyPhase({
                     items={additionalItems}
                     onItemChange={handleAdditionalItemChange}
                     addItem={addAdditionalItem}
-                    isSubmitted={isSubmitted}
+                    isSubmitted={isSubmitted || (timers.additional.enabled && timers.additional.paused)}
                   />
                 )}
               </motion.div>
@@ -319,7 +378,7 @@ export default function SurveyPhase({
               currentPage={currentPage}
               onPrevious={goToPrevPage}
               onNext={goToNextPage}
-              isNextDisabled={isNextDisabled()}
+              isNextDisabled={isNextDisabled() || (getCurrentTimer()?.enabled && getCurrentTimer()?.paused)}
               isPreviousDisabled={currentPage === "delivery" && (displayMode !== "one-question" || currentQuestionIndex === 0)}
               isSubmitting={isSubmitting}
               isLastPage={currentPage === "additional"}
@@ -327,7 +386,7 @@ export default function SurveyPhase({
           ) : (
             <Button
               onClick={goToNextPage}
-              disabled={isSubmitting || !isDeliveryValid || !isCollabValid}
+              disabled={isSubmitting || !isDeliveryValid || !isCollabValid || (timers.delivery.enabled && timers.delivery.paused)}
               className="font-bold"
               style={{
                 backgroundColor: "#E15D2F",

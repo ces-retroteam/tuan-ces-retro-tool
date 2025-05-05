@@ -6,8 +6,11 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import TeamHealthChart from "./TeamHealthChart";
 import TagDropdown, { ChallengeTag } from "./TagDropdown";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, Timer as TimerIcon } from "lucide-react";
 import { QuestionDetailModal } from "./QuestionDetailModal";
+import { Timer } from "@/components/ui/timer";
+import { TimerConfig } from "./TimerConfig";
+import { toast } from "sonner";
 
 // Helpers for extracting challenges
 const extractTopChallenges = (participants: any[]) => {
@@ -37,10 +40,22 @@ export default function DiscussPhase({ session, isParticipant = false }: { sessi
     const [challengeTags, setChallengeTags] = useState<ChallengeTag[]>(Array(5).fill("TBD"));
     const [isModalOpen, setIsModalOpen] = useState(false);
 
+    // Timer state
+    const [timerEnabled, setTimerEnabled] = useState(false);
+    const [timerDuration, setTimerDuration] = useState(15 * 60); // 15 minutes by default
+    const [timerPaused, setTimerPaused] = useState(false);
+
     const handleTagChange = (index: number, tag: ChallengeTag) => {
         const newTags = [...challengeTags];
         newTags[index] = tag;
         setChallengeTags(newTags);
+    };
+
+    const handleTimerExpire = () => {
+        setTimerPaused(true);
+        toast.info("Discussion time has ended! Please wrap up your discussion.", {
+            duration: 5000,
+        });
     };
 
     const relevantParticipants = participants.filter(
@@ -134,7 +149,41 @@ export default function DiscussPhase({ session, isParticipant = false }: { sessi
 
     return (
         <div className="w-full space-y-6">
-            <TeamHealthChart session={session} avgScoreAllTopics={avgScoreAllTopics} totalComments={totalComments} />
+            <div className="flex justify-between items-center mb-4">
+                <TeamHealthChart session={session} avgScoreAllTopics={avgScoreAllTopics} totalComments={totalComments} />
+                
+                {!isParticipant && (
+                    <div className="flex-shrink-0 ml-4">
+                        <TimerConfig
+                            isEnabled={timerEnabled}
+                            onToggle={setTimerEnabled}
+                            duration={timerDuration}
+                            onDurationChange={setTimerDuration}
+                            displayMode="all-questions"
+                            isPaused={timerPaused}
+                        />
+                    </div>
+                )}
+            </div>
+            
+            {/* Timer display for discussion phase */}
+            {timerEnabled && (
+                <div className="bg-orange-50 border border-orange-100 p-3 rounded-md flex items-center justify-between">
+                    <div className="text-sm text-orange-800">
+                        <span className="font-medium">Discussion Time Remaining:</span>
+                    </div>
+                    <Timer 
+                        duration={timerDuration}
+                        onExpire={handleTimerExpire}
+                        autoStart={true}
+                        isPaused={timerPaused}
+                        size="lg"
+                        className="text-orange-800"
+                        showControls={!isParticipant}
+                    />
+                </div>
+            )}
+            
             <div className="bg-white rounded-lg p-6">
                 <div className="flex justify-between items-center flex-wrap mb-6">
                     {/* Stats at top-left */}
