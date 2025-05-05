@@ -37,6 +37,7 @@ export interface Session {
   status: 'draft' | 'active' | 'completed';
   currentPhase: 'welcome' | 'survey' | 'discuss' | 'review' | 'close';
   isAnonymous: boolean;
+  displayMode?: 'one-question' | 'grouped' | 'all-questions';
 }
 
 export interface Response {
@@ -50,6 +51,9 @@ export interface Participant {
   responses?: Response[];
   joinedAt: string;
   sessionId?: string; // Added sessionId to link participants to sessions
+  role?: string;
+  online?: boolean;
+  progress?: number; // Added progress field to track survey completion
 }
 
 export interface Comment {

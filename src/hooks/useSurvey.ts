@@ -1,10 +1,11 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Response, Session } from "@/types";
 import { toast } from "sonner";
 import { useSession } from "@/context/SessionContext";
-import { SurveyPage } from "@/types/survey";
+import { SurveyDisplayMode, SurveyPage } from "@/types/survey";
 import { useNavigate } from "react-router-dom";
+import { collaborationQuestions, deliveryQuestions } from "@/data/surveyQuestions";
 
 export const useSurvey = (isParticipant: boolean, session: Session) => {
   const { addParticipant, updateSession } = useSession();
@@ -17,6 +18,26 @@ export const useSurvey = (isParticipant: boolean, session: Session) => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [additionalItems, setAdditionalItems] = useState<string[]>([""]);
   const [currentPage, setCurrentPage] = useState<SurveyPage>("delivery");
+  
+  // Display mode functionality
+  const [displayMode, setDisplayMode] = useState<SurveyDisplayMode>("grouped");
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  
+  // Calculate all questions based on the current section
+  const getCurrentSectionQuestions = () => {
+    switch (currentPage) {
+      case "delivery":
+        return deliveryQuestions;
+      case "collaboration":
+        return collaborationQuestions;
+      case "additional":
+        return []; // Additional section has a different structure
+      default:
+        return [];
+    }
+  };
+  
+  const totalQuestionsInCurrentSection = getCurrentSectionQuestions().length;
 
   const handleResponseChange = (questionId: string, value: any) => {
     setResponses((prev) => ({
@@ -40,6 +61,27 @@ export const useSurvey = (isParticipant: boolean, session: Session) => {
 
   const addAdditionalItem = () => {
     setAdditionalItems((prev) => ["", ...prev]);
+  };
+  
+  const handleDisplayModeChange = (mode: SurveyDisplayMode) => {
+    setDisplayMode(mode);
+    setCurrentQuestionIndex(0); // Reset to first question when changing modes
+  };
+
+  const goToNextQuestion = () => {
+    if (currentQuestionIndex < totalQuestionsInCurrentSection - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+      return true;
+    }
+    return false;
+  };
+
+  const goToPreviousQuestion = () => {
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(currentQuestionIndex - 1);
+      return true;
+    }
+    return false;
   };
 
   const handleSubmit = () => {
@@ -91,12 +133,21 @@ export const useSurvey = (isParticipant: boolean, session: Session) => {
   };
 
   const goToNextPage = () => {
+    // In one question mode, try to go to next question first
+    if (displayMode === "one-question" && currentPage !== "additional") {
+      const movedToNextQuestion = goToNextQuestion();
+      if (movedToNextQuestion) return;
+    }
+    
+    // If can't move to next question or not in one-question mode, move to next page
     switch (currentPage) {
       case "delivery":
         setCurrentPage("collaboration");
+        setCurrentQuestionIndex(0); // Reset question index when changing sections
         break;
       case "collaboration":
         setCurrentPage("additional");
+        setCurrentQuestionIndex(0);
         break;
       case "additional":
         handleSubmit();
@@ -105,12 +156,22 @@ export const useSurvey = (isParticipant: boolean, session: Session) => {
   };
 
   const goToPrevPage = () => {
+    // In one question mode, try to go to previous question first
+    if (displayMode === "one-question" && currentPage !== "additional") {
+      const movedToPrevQuestion = goToPreviousQuestion();
+      if (movedToPrevQuestion) return;
+    }
+    
+    // If can't move to previous question or not in one-question mode, move to previous page
     switch (currentPage) {
       case "collaboration":
         setCurrentPage("delivery");
+        // Set to the last question index of the previous section
+        setCurrentQuestionIndex(displayMode === "one-question" ? deliveryQuestions.length - 1 : 0);
         break;
       case "additional":
         setCurrentPage("collaboration");
+        setCurrentQuestionIndex(displayMode === "one-question" ? collaborationQuestions.length - 1 : 0);
         break;
     }
   };
@@ -132,5 +193,10 @@ export const useSurvey = (isParticipant: boolean, session: Session) => {
     handleSubmit,
     goToNextPage,
     goToPrevPage,
+    // New properties
+    displayMode,
+    handleDisplayModeChange,
+    currentQuestionIndex,
+    getCurrentSectionQuestions,
   };
 };
