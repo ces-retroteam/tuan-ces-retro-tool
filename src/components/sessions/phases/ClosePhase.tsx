@@ -36,7 +36,7 @@ export default function ClosePhase({ session, isParticipant = false }: ClosePhas
   return (
     <div className="space-y-6">
       {/* Header Banner with Key Metrics */}
-      <div className="bg-gradient-to-r from-orange-500 to-orange-400 text-white p-6 rounded-lg shadow-md">
+      <div className="bg-gradient-to-r from-[#E15D2F] to-[#f17e56] text-white p-6 rounded-lg shadow-md">
         <div className="text-center mb-4">
           <h2 className="text-xl font-bold tracking-tight">This health check has ended</h2>
         </div>
@@ -45,7 +45,7 @@ export default function ClosePhase({ session, isParticipant = false }: ClosePhas
           <div className="flex flex-col items-center">
             <span className="text-3xl font-bold">{avgScoreAllTopics}/5</span>
             <span className="text-sm mt-1">Overall health</span>
-            <span className="text-xs mt-1">by {activeParticipants} participant{activeParticipants !== 1 ? 's' : ''}</span>
+            <span className="text-xs mt-1">by {activeParticipants} participant{activeParticipants !== 1 && 's'}</span>
           </div>
           
           <div className="flex flex-col items-center">
@@ -61,9 +61,9 @@ export default function ClosePhase({ session, isParticipant = false }: ClosePhas
       </div>
       
       {/* Confidence Question */}
-      <Card className="border border-gray-200 shadow-sm">
+      <Card className="border border-gray-200 shadow-sm dark:border-gray-700 dark:bg-gray-800">
         <CardContent className="p-6">
-          <h3 className="text-lg font-bold text-gray-900 text-center mb-4">How confident are you that we will deliver on time?</h3>
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white text-center mb-4">How confident are you that we will deliver on time?</h3>
           
           <div className="flex justify-between items-center my-4">
             <div className="w-full grid grid-cols-5 gap-2">
@@ -91,7 +91,7 @@ export default function ClosePhase({ session, isParticipant = false }: ClosePhas
             </div>
           </div>
           
-          <div className="text-center text-sm text-gray-500 mt-2">
+          <div className="text-center text-sm text-gray-500 dark:text-gray-400 mt-2">
             No participants responded
           </div>
         </CardContent>
@@ -109,16 +109,16 @@ export default function ClosePhase({ session, isParticipant = false }: ClosePhas
       </div>
       
       {/* Actions Section */}
-      <Card className="border border-gray-200 shadow-sm">
+      <Card className="border border-gray-200 shadow-sm dark:border-gray-700 dark:bg-gray-800">
         <CardHeader className="pb-2">
-          <CardTitle className="text-xl text-gray-900 font-bold">Health Check Summary</CardTitle>
+          <CardTitle className="text-xl text-gray-900 dark:text-white font-bold">Health Check Summary</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="bg-gray-100 dark:bg-gray-800 p-3 rounded-lg mb-6 text-center">
+          <div className="bg-gray-100 dark:bg-gray-700 p-3 rounded-lg mb-6 text-center">
             This health check used phases
           </div>
           
-          <h3 className="font-bold text-lg mb-4 text-gray-900 dark:text-gray-100">Team actions</h3>
+          <h3 className="font-bold text-lg mb-4 text-gray-900 dark:text-white">Team actions</h3>
           <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">Actions from this health check</p>
           
           <div className="space-y-3">
@@ -133,7 +133,7 @@ export default function ClosePhase({ session, isParticipant = false }: ClosePhas
             ))}
           </div>
           
-          <h3 className="font-bold text-lg mt-6 mb-4 text-gray-900 dark:text-gray-100">Other open actions</h3>
+          <h3 className="font-bold text-lg mt-6 mb-4 text-gray-900 dark:text-white">Other open actions</h3>
           
           <div className="space-y-3">
             {sessionActions.slice(2, 5).map((action, index) => (
