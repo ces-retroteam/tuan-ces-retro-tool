@@ -3,17 +3,12 @@ import { useState } from 'react';
 import { useSession } from '@/context/SessionContext';
 import { useNavigate } from 'react-router-dom';
 import { Session } from '@/types';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
 import { toast } from "sonner";
-import { Check } from "lucide-react";
 import TeamHealthMetricsSummary from './close/TeamHealthMetricsSummary';
 import TeamHealthChart from './TeamHealthChart';
 import ActionItemsList from './close/ActionItemsList';
+import ConfidenceQuestion from './close/ConfidenceQuestion';
+import ExitButton from './close/ExitButton';
 
 interface ClosePhaseProps {
   session: Session;
@@ -65,36 +60,7 @@ export default function ClosePhase({ session, isParticipant = false }: ClosePhas
       />
 
       {/* Health Check Results Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle>How confident are you that we will deliver on time?</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col space-y-6">
-            <div className="w-full bg-blue-50 rounded-lg p-4 flex justify-between">
-              <div className="flex space-x-6">
-                {[1, 2, 3, 4, 5].map((score) => (
-                  <div key={score} className="flex flex-col items-center">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                      score === 3 ? 'bg-orange-400 text-white' : 'bg-gray-100'
-                    }`}>
-                      {score}
-                    </div>
-                    <span className="text-xs mt-1">
-                      {score === 1 && "VERY UNCERTAIN"}
-                      {score === 2 && "UNCERTAIN"}
-                      {score === 3 && "SOMEWHAT UNCERTAIN"}
-                      {score === 4 && "CONFIDENT"}
-                      {score === 5 && "VERY CONFIDENT"}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <p className="text-center text-sm text-muted-foreground">No participants responded</p>
-          </div>
-        </CardContent>
-      </Card>
+      <ConfidenceQuestion />
 
       {/* Team Health Radar Chart */}
       <TeamHealthChart 
@@ -113,16 +79,8 @@ export default function ClosePhase({ session, isParticipant = false }: ClosePhas
         setNewAction={setNewAction}
       />
 
-      <Card>
-        <CardFooter className="flex justify-center pt-6">
-          <Button 
-            onClick={handleFinish}
-            className="bg-blue-400 hover:bg-blue-500 text-white px-10"
-          >
-            EXIT
-          </Button>
-        </CardFooter>
-      </Card>
+      {/* Exit Button */}
+      <ExitButton onExit={handleFinish} />
     </div>
   );
 }
