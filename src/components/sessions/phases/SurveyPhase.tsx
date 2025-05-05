@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { useSession } from "@/context/SessionContext";
 import { Session } from "@/types";
@@ -259,19 +258,6 @@ export default function SurveyPhase({
                   currentPage={currentPage}
                   isPaused={getCurrentTimer()?.paused || false}
                 />
-              )}
-              
-              {displayMode !== "all-questions" && (
-                <div className="flex gap-2">
-                  {["delivery", "collaboration", "additional"].map((page) => (
-                    <div
-                      key={page}
-                      className={`w-3 h-3 rounded-full ${
-                        currentPage === page ? "bg-orange-500" : "bg-gray-200"
-                      }`}
-                    ></div>
-                  ))}
-                </div>
               )}
             </div>
           </div>
