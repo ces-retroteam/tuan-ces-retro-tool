@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Timer } from "@/components/ui/timer";
 import { TimerConfig } from "./TimerConfig";
 import { SurveyPage } from "@/types/survey";
+import { ArrowRight } from "lucide-react";
 
 const PAGE_ANIMATION = {
   initial: { opacity: 0, y: 30 },
@@ -34,7 +35,7 @@ export default function SurveyPhase({
   isParticipant = false,
   participantId,
 }: SurveyPhaseProps) {
-  const { participants } = useSession();
+  const { participants, updateSession } = useSession();
   const {
     responses,
     comments,
@@ -120,33 +121,14 @@ export default function SurveyPhase({
     return false;
   };
 
-  const renderOneQuestion = () => {
-    if (!currentQuestion || currentPage === "additional") return null;
-
-    return (
-      <AnimatePresence mode="wait" initial={false}>
-        <motion.div
-          key={`question-${currentQuestionIndex}`}
-          variants={PAGE_ANIMATION}
-          initial="initial"
-          animate="animate"
-          exit="exit"
-          transition={PAGE_ANIMATION.transition}
-        >
-          <div className="bg-white rounded-2xl px-6 py-6 mb-4 shadow-sm border border-gray-100">
-            <SurveyQuestionRow
-              key={currentQuestion.id}
-              question={currentQuestion}
-              value={responses[currentQuestion.id]}
-              comment={comments[currentQuestion.id] || ""}
-              onValueChange={val => handleResponseChange(currentQuestion.id, val)}
-              onCommentChange={val => handleCommentChange(currentQuestion.id, val)}
-              disabled={isSubmitted}
-            />
-          </div>
-        </motion.div>
-      </AnimatePresence>
-    );
+  // Add function to move to the next phase
+  const moveToPhase = (phase: "welcome" | "survey" | "discuss" | "review" | "close") => {
+    if (!isParticipant) {
+      updateSession({
+        ...session,
+        currentPhase: phase,
+      });
+    }
   };
 
   // New function to render all questions across all sections
@@ -349,17 +331,17 @@ export default function SurveyPhase({
         </div>
       </CardContent>
 
-      {!isSubmitted && (
-        <CardFooter className="flex flex-col gap-4 items-end">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            {displayMode === "one-question" && currentPage !== "additional" && (
-              <span>
-                Question {currentQuestionIndex + 1} of {currentSectionQuestions.length}
-              </span>
-            )}
-          </div>
-          
-          {displayMode !== "all-questions" ? (
+      <CardFooter className="flex flex-col gap-4 items-end">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          {displayMode === "one-question" && currentPage !== "additional" && (
+            <span>
+              Question {currentQuestionIndex + 1} of {currentSectionQuestions.length}
+            </span>
+          )}
+        </div>
+        
+        {displayMode !== "all-questions" ? (
+          <div className="w-full">
             <SurveyNavigation
               currentPage={currentPage}
               onPrevious={goToPrevPage}
@@ -369,7 +351,43 @@ export default function SurveyPhase({
               isSubmitting={isSubmitting}
               isLastPage={currentPage === "additional"}
             />
-          ) : (
+            
+            {!isParticipant && (
+              <div className="mt-6 pt-6 border-t border-gray-200 w-full flex justify-between">
+                <div className="text-sm text-gray-500 italic">
+                  Facilitator controls:
+                </div>
+                <div className="flex gap-3">
+                  <Button
+                    variant="outline"
+                    onClick={() => moveToPhase("discuss")}
+                    className="bg-white border-[#E15D2F] text-[#E15D2F] hover:bg-[#FEF7CD] hover:text-[#E15D2F]"
+                  >
+                    Move to Discuss
+                    <ArrowRight className="ml-1 h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => moveToPhase("review")}
+                    className="bg-white border-[#E15D2F] text-[#E15D2F] hover:bg-[#FEF7CD] hover:text-[#E15D2F]"
+                  >
+                    Move to Review
+                    <ArrowRight className="ml-1 h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => moveToPhase("close")}
+                    className="bg-white border-[#E15D2F] text-[#E15D2F] hover:bg-[#FEF7CD] hover:text-[#E15D2F]"
+                  >
+                    Move to Close
+                    <ArrowRight className="ml-1 h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="w-full">
             <Button
               onClick={goToNextPage}
               disabled={isSubmitting || !isDeliveryValid || !isCollabValid || (timers.delivery.enabled && timers.delivery.paused)}
@@ -384,9 +402,43 @@ export default function SurveyPhase({
             >
               {isSubmitting ? "Submitting..." : "Submit Survey"}
             </Button>
-          )}
-        </CardFooter>
-      )}
+            
+            {!isParticipant && (
+              <div className="mt-6 pt-6 border-t border-gray-200 w-full flex justify-between">
+                <div className="text-sm text-gray-500 italic">
+                  Facilitator controls:
+                </div>
+                <div className="flex gap-3">
+                  <Button
+                    variant="outline"
+                    onClick={() => moveToPhase("discuss")}
+                    className="bg-white border-[#E15D2F] text-[#E15D2F] hover:bg-[#FEF7CD] hover:text-[#E15D2F]"
+                  >
+                    Move to Discuss
+                    <ArrowRight className="ml-1 h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => moveToPhase("review")}
+                    className="bg-white border-[#E15D2F] text-[#E15D2F] hover:bg-[#FEF7CD] hover:text-[#E15D2F]"
+                  >
+                    Move to Review
+                    <ArrowRight className="ml-1 h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => moveToPhase("close")}
+                    className="bg-white border-[#E15D2F] text-[#E15D2F] hover:bg-[#FEF7CD] hover:text-[#E15D2F]"
+                  >
+                    Move to Close
+                    <ArrowRight className="ml-1 h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </CardFooter>
     </Card>
   );
 }

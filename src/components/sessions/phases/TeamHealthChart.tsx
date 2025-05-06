@@ -1,3 +1,4 @@
+
 import { ChartContainer } from "@/components/ui/chart";
 import { Session } from "@/types";
 import { PolarAngleAxis, PolarGrid, Radar, RadarChart } from "recharts";
@@ -17,7 +18,7 @@ export default function TeamHealthChart({ session, avgScoreAllTopics, totalComme
 
     const chartConfig = {
         line1: {
-            theme: { light: "#FEC6A1", dark: "#FEC6A1" },
+            theme: { light: "#E15D2F", dark: "#E15D2F" },
         },
     };
 
@@ -45,7 +46,7 @@ export default function TeamHealthChart({ session, avgScoreAllTopics, totalComme
             <div className="flex gap-4 mb-2">
                 <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#FAFAFB] border">
                     <span className="text-[15px] text-[#8E9196] font-medium">Avg. Score</span>
-                    <span className="font-bold text-[20px] text-[#F97316]">{avgScoreAllTopics}</span>
+                    <span className="font-bold text-[20px] text-[#E15D2F]">{avgScoreAllTopics}</span>
                     <span className="ml-1 text-[#8E9196]">/5</span>
                 </div>
                 <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#FAFAFB] border">
@@ -57,7 +58,7 @@ export default function TeamHealthChart({ session, avgScoreAllTopics, totalComme
             <div className="w-full h-[400px]">
                 <ChartContainer config={chartConfig} className="w-full h-full">
                     <RadarChart cx="50%" cy="50%" outerRadius="80%" data={chartData}>
-                        <PolarGrid stroke="#f0cab6" strokeWidth={1} />
+                        <PolarGrid stroke="#f0d3c6" strokeWidth={1} />
                         <PolarAngleAxis
                             dataKey="subject"
                             tick={renderPolarAngleAxis}
@@ -68,9 +69,9 @@ export default function TeamHealthChart({ session, avgScoreAllTopics, totalComme
                         <Radar
                             name="Team Health"
                             dataKey="value"
-                            stroke="#FEC6A1"
+                            stroke="#E15D2F"
                             strokeWidth={1}
-                            fill="#FEC6A1"
+                            fill="#E15D2F"
                             fillOpacity={0.5}
                         />
                     </RadarChart>
