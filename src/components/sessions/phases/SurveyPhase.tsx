@@ -204,6 +204,33 @@ export default function SurveyPhase({
     handleTimerExpire();
   };
 
+  // Add the renderOneQuestion function implementation
+  const renderOneQuestion = () => {
+    const currentSectionQuestions = getCurrentSectionQuestions();
+    const currentQuestion = currentSectionQuestions[currentQuestionIndex];
+    
+    if (!currentQuestion) {
+      return (
+        <div className="text-center p-4">
+          <p>No questions available in this section.</p>
+        </div>
+      );
+    }
+    
+    return (
+      <div className="bg-white rounded-2xl px-6 py-6 mb-4 shadow-sm border border-gray-100">
+        <SurveyQuestionRow
+          question={currentQuestion}
+          value={responses[currentQuestion.id]}
+          comment={comments[currentQuestion.id] || ""}
+          onValueChange={val => handleResponseChange(currentQuestion.id, val)}
+          onCommentChange={val => handleCommentChange(currentQuestion.id, val)}
+          disabled={isSubmitted || (timers[currentPage].enabled && timers[currentPage].paused)}
+        />
+      </div>
+    );
+  };
+
   return (
     <Card>
       <CardContent className="space-y-10 pt-6 pb-2">
