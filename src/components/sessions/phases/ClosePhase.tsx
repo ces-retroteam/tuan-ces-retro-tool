@@ -45,7 +45,7 @@ export default function ClosePhase({ session, isParticipant = false }: ClosePhas
           <div className="flex flex-col items-center">
             <span className="text-3xl font-bold">{avgScoreAllTopics}/5</span>
             <span className="text-sm mt-1">Overall health</span>
-            <span className="text-xs mt-1">by {activeParticipants} participant{activeParticipants !== 1 && 's'}</span>
+            <span className="text-xs mt-1">by {activeParticipants} participant{activeParticipants === 1 ? '' : 's'}</span>
           </div>
           
           <div className="flex flex-col items-center">
