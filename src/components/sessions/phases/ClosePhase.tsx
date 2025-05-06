@@ -1,11 +1,15 @@
 
+import { useState } from 'react';
 import { useSession } from '@/context/SessionContext';
-import { Session } from '@/types';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Session, Comment, Action } from '@/types';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { toast } from "sonner";
 import { useNavigate } from 'react-router-dom';
-import { Home } from 'lucide-react';
-import TeamHealthChart from './TeamHealthChart';
 
 interface ClosePhaseProps {
   session: Session;
@@ -14,147 +18,208 @@ interface ClosePhaseProps {
 
 export default function ClosePhase({ session, isParticipant = false }: ClosePhaseProps) {
   const navigate = useNavigate();
-  const { comments, actions } = useSession();
+  const { comments, actions, addAction } = useSession();
+  const [newAction, setNewAction] = useState({ text: '', assignee: '', priority: 'medium', questionId: '' });
   
   const sessionComments = comments.filter(c => c.sessionId === session.id);
   const sessionActions = actions.filter(a => a.sessionId === session.id);
-  const openActions = sessionActions.filter(a => a.status === 'open');
-  const completedActions = sessionActions.filter(a => a.status === 'completed');
   
-  // Calculate average score
-  const avgScoreAllTopics = "3.5";
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'high':
+        return 'text-destructive border-destructive';
+      case 'medium':
+        return 'text-amber-600 border-amber-600';
+      default:
+        return 'text-green-600 border-green-600';
+    }
+  };
   
-  // Calculate participants count
-  const totalParticipants = 12;
-  const activeParticipants = 6;
-  const participationRate = Math.floor((activeParticipants / totalParticipants) * 100);
+  const handleAddAction = () => {
+    if (newAction.text) {
+      addAction({
+        sessionId: session.id,
+        questionId: newAction.questionId || undefined,
+        text: newAction.text,
+        assignee: newAction.assignee || undefined,
+        priority: newAction.priority as 'low' | 'medium' | 'high',
+        status: 'open',
+      });
+      
+      setNewAction({ text: '', assignee: '', priority: 'medium', questionId: '' });
+      toast.success("Action item added successfully!");
+    }
+  };
   
   const handleFinish = () => {
     navigate('/');
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header Banner with Key Metrics */}
-      <div className="bg-gradient-to-r from-[#E15D2F] to-[#f17e56] text-white p-6 rounded-lg shadow-md">
-        <div className="text-center mb-4">
-          <h2 className="text-xl font-bold tracking-tight">This health check has ended</h2>
+    <Card>
+      <CardHeader>
+        <CardTitle>Session Summary</CardTitle>
+        <CardDescription>
+          Review key insights and action items from this session.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div>
+          <h3 className="text-lg font-medium mb-4">Key Insights</h3>
+          <div className="space-y-4">
+            {sessionComments.length > 0 ? (
+              sessionComments.map((comment) => {
+                const question = session.template.questions.find(q => q.id === comment.questionId);
+                
+                return (
+                  <Card key={comment.id} className="border">
+                    <CardContent className="p-4">
+                      <div className="mb-2">
+                        <span className="text-xs text-muted-foreground">Regarding:</span>
+                        <p className="font-medium">{question?.text || 'General'}</p>
+                      </div>
+                      <p className="text-sm">{comment.text}</p>
+                      <div className="mt-2 flex justify-between items-center">
+                        <span className="text-xs text-muted-foreground">
+                          From: {comment.userName || 'Anonymous'}
+                        </span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })
+            ) : (
+              <p className="text-sm text-muted-foreground italic">No comments were added during this session.</p>
+            )}
+          </div>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-          <div className="flex flex-col items-center">
-            <span className="text-3xl font-bold">{avgScoreAllTopics}/5</span>
-            <span className="text-sm mt-1">Overall health</span>
-            <span className="text-xs mt-1">by {activeParticipants} participant{activeParticipants === 1 ? '' : 's'}</span>
+        <div>
+          <h3 className="text-lg font-medium mb-4">Action Items</h3>
+          <div className="space-y-4">
+            {sessionActions.length > 0 ? (
+              sessionActions.map((action) => {
+                const question = action.questionId ? 
+                  session.template.questions.find(q => q.id === action.questionId) : null;
+                
+                return (
+                  <Card key={action.id} className="border">
+                    <CardContent className="p-4">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="font-medium">{action.text}</p>
+                          {question && (
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Related to: {question.text}
+                            </p>
+                          )}
+                        </div>
+                        <Badge 
+                          variant="outline"
+                          className={getPriorityColor(action.priority)}
+                        >
+                          {action.priority}
+                        </Badge>
+                      </div>
+                      {action.assignee && (
+                        <div className="mt-2 text-sm">
+                          <span className="text-muted-foreground">Assignee:</span> {action.assignee}
+                        </div>
+                      )}
+                      {action.dueDate && (
+                        <div className="mt-1 text-sm">
+                          <span className="text-muted-foreground">Due:</span> {new Date(action.dueDate).toLocaleDateString()}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                );
+              })
+            ) : (
+              <p className="text-sm text-muted-foreground italic">No action items have been added yet.</p>
+            )}
           </div>
           
-          <div className="flex flex-col items-center">
-            <span className="text-3xl font-bold">{openActions.length} new actions</span>
-            <span className="text-xs mt-1">{completedActions.length} existing open actions</span>
-          </div>
-          
-          <div className="flex flex-col items-center">
-            <span className="text-3xl font-bold">{participationRate}% participation</span>
-            <span className="text-xs mt-1">{activeParticipants}/{totalParticipants} invited participants</span>
-          </div>
-        </div>
-      </div>
-      
-      {/* Confidence Question */}
-      <Card className="border border-gray-200 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-        <CardContent className="p-6">
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white text-center mb-4">How confident are you that we will deliver on time?</h3>
-          
-          <div className="flex justify-between items-center my-4">
-            <div className="w-full grid grid-cols-5 gap-2">
-              {[1, 2, 3, 4, 5].map((score) => (
-                <div 
-                  key={score}
-                  className={`p-3 rounded-lg text-center ${
-                    score === 1 ? 'bg-red-100 dark:bg-red-900/30' :
-                    score === 2 ? 'bg-orange-100 dark:bg-orange-900/30' :
-                    score === 3 ? 'bg-yellow-100 dark:bg-yellow-900/30' :
-                    score === 4 ? 'bg-blue-100 dark:bg-blue-900/30' :
-                    'bg-green-100 dark:bg-green-900/30'
-                  }`}
-                >
-                  <div className="text-xl font-bold text-gray-900 dark:text-gray-100">{score}</div>
-                  <div className="text-xs mt-1 text-gray-700 dark:text-gray-300">
-                    {score === 1 && 'VERY UNCERTAIN'}
-                    {score === 2 && 'UNCERTAIN'}
-                    {score === 3 && 'SOMEWHAT UNCERTAIN'}
-                    {score === 4 && 'CONFIDENT'}
-                    {score === 5 && 'VERY CONFIDENT'}
+          {!isParticipant && (
+            <Card className="border mt-4 bg-accent">
+              <CardContent className="p-4">
+                <h4 className="text-md font-medium mb-2">Add New Action Item</h4>
+                <div className="space-y-3">
+                  <div>
+                    <Label htmlFor="action-text">Action Description</Label>
+                    <Input
+                      id="action-text"
+                      placeholder="What needs to be done?"
+                      value={newAction.text}
+                      onChange={(e) => setNewAction({...newAction, text: e.target.value})}
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <Label htmlFor="assignee">Assignee (Optional)</Label>
+                      <Input
+                        id="assignee"
+                        placeholder="Who is responsible?"
+                        value={newAction.assignee}
+                        onChange={(e) => setNewAction({...newAction, assignee: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="priority">Priority</Label>
+                      <Select 
+                        value={newAction.priority} 
+                        onValueChange={(value) => setNewAction({...newAction, priority: value})}
+                      >
+                        <SelectTrigger id="priority">
+                          <SelectValue placeholder="Select Priority" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="low">Low</SelectItem>
+                          <SelectItem value="medium">Medium</SelectItem>
+                          <SelectItem value="high">High</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="related-question">Related Question (Optional)</Label>
+                      <Select 
+                        value={newAction.questionId} 
+                        onValueChange={(value) => setNewAction({...newAction, questionId: value})}
+                      >
+                        <SelectTrigger id="related-question">
+                          <SelectValue placeholder="Select Question" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">None</SelectItem>
+                          {session.template.questions.map((q) => (
+                            <SelectItem key={q.id} value={q.id}>
+                              {q.text.substring(0, 30)}...
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  
+                  <div className="flex justify-end mt-2">
+                    <Button onClick={handleAddAction} disabled={!newAction.text}>
+                      Add Action
+                    </Button>
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
-          
-          <div className="text-center text-sm text-gray-500 dark:text-gray-400 mt-2">
-            No participants responded
-          </div>
-        </CardContent>
-      </Card>
-      
-      {/* Exit Button */}
-      <div className="flex justify-center mt-4">
-        <Button 
-          onClick={handleFinish}
-          className="bg-[#E15D2F] hover:bg-[#d24e23] px-8 text-white font-medium shadow-md"
-        >
-          <Home className="mr-2 h-4 w-4" />
-          Exit
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </CardContent>
+      <CardFooter className="flex justify-end">
+        <Button onClick={handleFinish}>
+          {isParticipant ? "Return Home" : "Finish Session"}
         </Button>
-      </div>
-      
-      {/* Actions Section */}
-      <Card className="border border-gray-200 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-xl text-gray-900 dark:text-white font-bold">Health Check Summary</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="bg-gray-100 dark:bg-gray-700 p-3 rounded-lg mb-6 text-center">
-            This health check used phases
-          </div>
-          
-          <h3 className="font-bold text-lg mb-4 text-gray-900 dark:text-white">Team actions</h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">Actions from this health check</p>
-          
-          <div className="space-y-3">
-            {sessionActions.slice(0, 2).map((action, index) => (
-              <div key={index} className="flex items-center gap-2 p-3 border rounded-lg border-gray-200 dark:border-gray-700">
-                <div className="w-6 h-6 rounded-full border flex items-center justify-center">
-                  <input type="checkbox" className="h-4 w-4 accent-[#E15D2F]" checked={action.status === 'completed'} readOnly />
-                </div>
-                <span className="flex-grow text-gray-700 dark:text-gray-300">{action.text}</span>
-                <span className="text-[#E15D2F] font-bold">=</span>
-              </div>
-            ))}
-          </div>
-          
-          <h3 className="font-bold text-lg mt-6 mb-4 text-gray-900 dark:text-white">Other open actions</h3>
-          
-          <div className="space-y-3">
-            {sessionActions.slice(2, 5).map((action, index) => (
-              <div key={index} className="flex items-center gap-2 p-3 border rounded-lg border-gray-200 dark:border-gray-700">
-                <div className="w-6 h-6 rounded-full border flex items-center justify-center">
-                  <input type="checkbox" className="h-4 w-4 accent-[#E15D2F]" checked={action.status === 'completed'} readOnly />
-                </div>
-                <span className="flex-grow text-gray-700 dark:text-gray-300">{action.text}</span>
-                <span className="text-[#E15D2F] font-bold">=</span>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-      
-      {/* Team Health Radar Chart */}
-      <TeamHealthChart 
-        session={session}
-        avgScoreAllTopics={avgScoreAllTopics}
-        totalComments={sessionComments.length}
-      />
-    </div>
+      </CardFooter>
+    </Card>
   );
 }
