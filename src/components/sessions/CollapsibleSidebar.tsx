@@ -7,6 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { useSidebar } from "@/components/ui/sidebar";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Session } from "@/types";
+import { useSession } from "@/context/SessionContext";
 
 interface CollapsibleSidebarProps {
   session: Session;
@@ -47,12 +48,16 @@ const UserListItem = ({ name, progress }: UserListItemProps) => {
 
 const CollapsibleSidebar = ({ session, onInvite }: CollapsibleSidebarProps) => {
   const { isMobile, state, toggleSidebar } = useSidebar();
+  const { participants } = useSession();
   const isCollapsed = state === "collapsed";
   
-  // Extract facilitators and participants
-  const facilitators = session.participants.filter(p => p.role === "facilitator");
-  const participants = session.participants.filter(p => p.role === "participant");
-  const totalMembers = facilitators.length + participants.length;
+  // Filter participants by the current session ID
+  const sessionParticipants = participants.filter(p => p.sessionId === session.id);
+  
+  // Separate facilitators and participants
+  const facilitators = sessionParticipants.filter(p => p.role === "facilitator");
+  const participantsList = sessionParticipants.filter(p => p.role === "participant");
+  const totalMembers = facilitators.length + participantsList.length;
 
   return (
     <div className={`bg-white dark:bg-gray-800 rounded-lg shadow p-4 relative ${isCollapsed ? 'w-16' : 'w-full'}`}>
@@ -133,7 +138,7 @@ const CollapsibleSidebar = ({ session, onInvite }: CollapsibleSidebarProps) => {
             </div>
             <CollapsibleContent>
               <div className="space-y-1">
-                {participants.map(participant => (
+                {participantsList.map(participant => (
                   <UserListItem
                     key={participant.id}
                     name={participant.name}
