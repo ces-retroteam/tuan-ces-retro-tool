@@ -4,12 +4,12 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useSession } from '@/context/SessionContext';
 import { Card, CardContent } from '@/components/ui/card';
 import WelcomeDialog from '@/components/sessions/phases/WelcomeDialog';
+import { Button } from '@/components/ui/button';
 import { Users } from "lucide-react";
 import { SessionHeader } from "@/components/sessions/SessionHeader";
 import SessionPhases from "@/components/sessions/SessionPhases";
 import { AnimatePresence, motion } from "framer-motion";
-import { SidebarProvider } from "@/components/ui/sidebar";
-import CollapsibleSidebar from "@/components/sessions/CollapsibleSidebar";
+import { ParticipantsList } from "@/components/sessions/phases/review/ParticipantsList";
 
 const detectIsParticipant = () => {
   return window.location.pathname.includes("/join/");
@@ -92,55 +92,69 @@ const SessionPage = () => {
   };
 
   return (
-    <SidebarProvider defaultOpen={true}>
-      <div className="flex flex-col w-full min-h-screen bg-gray-100 dark:bg-gray-900">
-        <SessionHeader
-          activePhase={activePhase}
-          onPhaseChange={handlePhaseChange}
-          isParticipant={isParticipant}
-          sessionCurrentPhase={session.currentPhase as "welcome" | "survey" | "discuss" | "review" | "close"}
-        />
-        <main className="flex-grow container mx-auto px-4 py-8 max-w-screen-2xl">
-          <div className="flex flex-col md:flex-row gap-6">
-            <div className="flex-1 min-w-0 relative">
-              <Card>
-                <CardContent className="p-6">
-                  <AnimatePresence mode="wait" initial={false}>
-                    <motion.div
-                      key={activePhase}
-                      variants={PAGE_ANIMATION}
-                      initial="initial"
-                      animate="animate"
-                      exit="exit"
-                      transition={PAGE_ANIMATION.transition}
-                    >
-                      <SessionPhases
-                        session={session}
-                        isParticipant={isParticipant}
-                        participantId={undefined}
-                        activePhase={activePhase}
-                      />
-                    </motion.div>
-                  </AnimatePresence>
-                </CardContent>
-              </Card>
-            </div>
-            <aside className="w-full md:w-72 flex-shrink-0 mt-6 md:mt-0">
-              <CollapsibleSidebar 
-                session={session} 
-                onInvite={() => setWelcomeOpen(true)} 
-              />
-            </aside>
+    <div className="flex flex-col w-full min-h-screen bg-gray-100 dark:bg-gray-900">
+      <SessionHeader
+        activePhase={activePhase}
+        onPhaseChange={handlePhaseChange}
+        isParticipant={isParticipant}
+        sessionCurrentPhase={session.currentPhase as "welcome" | "survey" | "discuss" | "review" | "close"}
+      />
+      <main className="flex-grow container mx-auto px-4 py-8 max-w-screen-2xl">
+        <div className="flex flex-col md:flex-row gap-6">
+          <div className="flex-1 min-w-0 relative">
+            <Card>
+              <CardContent className="p-6">
+                <AnimatePresence mode="wait" initial={false}>
+                  <motion.div
+                    key={activePhase}
+                    variants={PAGE_ANIMATION}
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
+                    transition={PAGE_ANIMATION.transition}
+                  >
+                    <SessionPhases
+                      session={session}
+                      isParticipant={isParticipant}
+                      participantId={undefined}
+                      activePhase={activePhase}
+                    />
+                  </motion.div>
+                </AnimatePresence>
+              </CardContent>
+            </Card>
           </div>
-        </main>
-        <WelcomeDialog
-          session={session}
-          open={welcomeOpen}
-          onOpenChange={setWelcomeOpen}
-          isParticipant={isParticipant}
-        />
-      </div>
-    </SidebarProvider>
+          <aside className="w-full md:w-72 flex-shrink-0 mt-6 md:mt-0">
+            <div className="space-y-6">
+              {/* Participants List */}
+              <ParticipantsList session={session} />
+              
+              {/* Invite Card */}
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 flex flex-col gap-6">
+                <h2 className="text-lg font-semibold flex items-center gap-2 mb-2">
+                  <Users className="w-5 h-5" />
+                  Invite teammates
+                </h2>
+                <Button
+                  variant="default"
+                  size="lg"
+                  onClick={() => setWelcomeOpen(true)}
+                  className="w-full"
+                >
+                  Invite
+                </Button>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </main>
+      <WelcomeDialog
+        session={session}
+        open={welcomeOpen}
+        onOpenChange={setWelcomeOpen}
+        isParticipant={isParticipant}
+      />
+    </div>
   );
 };
 
