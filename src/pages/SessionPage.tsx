@@ -10,6 +10,7 @@ import { SessionHeader } from "@/components/sessions/SessionHeader";
 import SessionPhases from "@/components/sessions/SessionPhases";
 import { AnimatePresence, motion } from "framer-motion";
 import { ParticipantsList } from "@/components/sessions/phases/review/ParticipantsList";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const detectIsParticipant = () => {
   return window.location.pathname.includes("/join/");
@@ -37,6 +38,7 @@ const SessionPage = () => {
   const navigate = useNavigate();
   const { sessions, setCurrentSession } = useSession();
   const [welcomeOpen, setWelcomeOpen] = useState(true);
+  const isMobile = useIsMobile();
 
   const session = sessions.find((s) => s.id === sessionId);
   const isParticipant = detectIsParticipant();
@@ -99,11 +101,11 @@ const SessionPage = () => {
         isParticipant={isParticipant}
         sessionCurrentPhase={session.currentPhase as "welcome" | "survey" | "discuss" | "review" | "close"}
       />
-      <main className="flex-grow container mx-auto px-4 py-8 max-w-screen-2xl">
-        <div className="flex flex-col md:flex-row gap-6">
-          <div className="flex-1 min-w-0 relative">
+      <main className="flex-grow container mx-auto px-4 py-4 md:px-4 md:py-8 max-w-screen-2xl">
+        <div className="flex flex-col md:flex-row gap-4 md:gap-6">
+          <div className="flex-1 min-w-0 relative order-2 md:order-1">
             <Card>
-              <CardContent className="p-6">
+              <CardContent className="p-3 md:p-6">
                 <AnimatePresence mode="wait" initial={false}>
                   <motion.div
                     key={activePhase}
@@ -124,20 +126,20 @@ const SessionPage = () => {
               </CardContent>
             </Card>
           </div>
-          <aside className="w-full md:w-72 flex-shrink-0 mt-6 md:mt-0">
-            <div className="space-y-6">
+          <aside className="w-full md:w-72 flex-shrink-0 order-1 md:order-2">
+            <div className="space-y-4 md:space-y-6">
               {/* Participants List */}
               <ParticipantsList session={session} />
               
               {/* Invite Card */}
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 flex flex-col gap-6">
-                <h2 className="text-lg font-semibold flex items-center gap-2 mb-2">
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 flex flex-col gap-4 md:gap-6">
+                <h2 className="text-lg font-semibold flex items-center gap-2 mb-0 md:mb-2">
                   <Users className="w-5 h-5" />
                   Invite teammates
                 </h2>
                 <Button
                   variant="default"
-                  size="lg"
+                  size={isMobile ? "default" : "lg"}
                   onClick={() => setWelcomeOpen(true)}
                   className="w-full"
                 >
