@@ -26,8 +26,8 @@ export default {
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
 				primary: {
-					DEFAULT: 'hsl(var(--primary))',
-					foreground: 'hsl(var(--primary-foreground))'
+					DEFAULT: '#2F3B63',
+					foreground: '#FFFFFF'
 				},
 				secondary: {
 					DEFAULT: 'hsl(var(--secondary))',
@@ -54,7 +54,7 @@ export default {
 					foreground: 'hsl(var(--card-foreground))'
 				},
 				sidebar: {
-					DEFAULT: 'hsl(var(--sidebar-background))',
+					DEFAULT: '#1F2D52',
 					foreground: 'hsl(var(--sidebar-foreground))',
 					primary: 'hsl(var(--sidebar-primary))',
 					'primary-foreground': 'hsl(var(--sidebar-primary-foreground))',
@@ -63,20 +63,34 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Custom colors as per PRD
-				orange: {
-					500: '#E15D2F', // Primary accent color
-				},
-				gray: {
-					900: '#1E1E1E', // Primary text
-					700: '#555555', // Secondary text
-					100: '#F7F7F7', // Background
-				}
+				// Design system colors
+				navy: '#1F2D52',
+				darkBlue: '#2F3B63',
+				purple: '#7D4AEA',
+				textPrimary: '#333333',
+				textSecondary: '#666666',
+				textLink: '#3366CC',
+				gradientStart: '#FDF0EC',
+				gradientEnd: '#FBE4EB',
 			},
 			borderRadius: {
-				lg: 'var(--radius)',
-				md: 'calc(var(--radius) - 2px)',
-				sm: 'calc(var(--radius) - 4px)'
+				lg: '8px',
+				md: '6px',
+				sm: '4px'
+			},
+			fontFamily: {
+				sans: ['Inter', 'Segoe UI', 'Roboto', 'system-ui', 'sans-serif'],
+			},
+			fontSize: {
+				'greeting': ['28px', { lineHeight: '1.2', fontWeight: '700' }],
+				'section-title': ['20px', { lineHeight: '1.3', fontWeight: '600' }],
+				'body': ['16px', { lineHeight: '1.5', fontWeight: '400' }],
+				'button': ['14px', { lineHeight: '1.4', fontWeight: '600' }],
+				'caption': ['12px', { lineHeight: '1.4', fontWeight: '400' }],
+			},
+			spacing: {
+				'card': '20px',
+				'section': '28px',
 			},
 			keyframes: {
 				'accordion-down': {

@@ -69,13 +69,13 @@ const SessionPage = () => {
   if (!session) {
     return (
       <div className="flex flex-col items-center justify-center h-64">
-        <h2 className="text-2xl font-bold mb-4">Session Not Found</h2>
-        <p className="text-muted-foreground mb-6">
+        <h2 className="text-2xl font-bold mb-4 text-textPrimary">Session Not Found</h2>
+        <p className="text-textSecondary mb-6">
           The session you're looking for doesn't exist or has been deleted.
         </p>
         <button
           onClick={() => navigate("/")}
-          className="bg-primary text-primary-foreground px-4 py-2 rounded hover:bg-primary/90"
+          className="btn-primary"
         >
           Return to Dashboard
         </button>
@@ -94,18 +94,18 @@ const SessionPage = () => {
   };
 
   return (
-    <div className="flex flex-col w-full min-h-screen bg-gray-100 dark:bg-gray-900">
+    <div className="flex flex-col w-full min-h-screen bg-white">
       <SessionHeader
         activePhase={activePhase}
         onPhaseChange={handlePhaseChange}
         isParticipant={isParticipant}
         sessionCurrentPhase={session.currentPhase as "welcome" | "survey" | "discuss" | "review" | "close"}
       />
-      <main className="flex-grow container mx-auto px-4 py-4 md:px-4 md:py-8 max-w-screen-2xl">
-        <div className="flex flex-col md:flex-row gap-4 md:gap-6">
+      <main className="flex-grow container mx-auto px-6 py-section max-w-screen-2xl">
+        <div className="flex flex-col md:flex-row gap-6">
           <div className="flex-1 min-w-0 relative order-2 md:order-1">
-            <Card>
-              <CardContent className="p-3 md:p-6">
+            <Card className="card-hover bg-white border border-gray-200">
+              <CardContent className="p-card">
                 <AnimatePresence mode="wait" initial={false}>
                   <motion.div
                     key={activePhase}
@@ -127,21 +127,21 @@ const SessionPage = () => {
             </Card>
           </div>
           <aside className="w-full md:w-72 flex-shrink-0 order-1 md:order-2">
-            <div className="space-y-4 md:space-y-6">
+            <div className="space-y-6">
               {/* Participants List */}
               <ParticipantsList session={session} />
               
               {/* Invite Card */}
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 flex flex-col gap-4 md:gap-6">
-                <h2 className="text-lg font-semibold flex items-center gap-2 mb-0 md:mb-2">
-                  <Users className="w-5 h-5" />
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-card">
+                <h2 className="text-section-title font-semibold text-textPrimary flex items-center gap-2 mb-4">
+                  <Users className="w-5 h-5 text-purple" />
                   Invite teammates
                 </h2>
                 <Button
                   variant="default"
                   size={isMobile ? "default" : "lg"}
                   onClick={() => setWelcomeOpen(true)}
-                  className="w-full"
+                  className="w-full btn-primary"
                 >
                   Invite
                 </Button>

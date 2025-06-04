@@ -34,30 +34,30 @@ export function SessionHeader({ activePhase, onPhaseChange, isParticipant, sessi
     };
 
     return (
-        <header className="w-full flex justify-center border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
-            <div className="w-full max-w-screen-3xl flex flex-col py-3 px-4 md:px-8">
-                <div className="flex items-center justify-between mb-4">
+        <header className="w-full flex justify-center border-b border-gray-200 gradient-header">
+            <div className="w-full max-w-screen-3xl flex flex-col py-4 px-6">
+                <div className="flex items-center justify-between mb-6">
                     {/* Logo & name */}
-                    <Link to="/" className="flex items-center space-x-2 shrink-0">
-                        <div className="h-8 w-8 bg-primary rounded-full flex items-center justify-center text-white font-bold">
+                    <Link to="/" className="flex items-center space-x-3 shrink-0">
+                        <div className="h-8 w-8 bg-darkBlue rounded-lg flex items-center justify-center text-white font-bold text-sm">
                             TP
                         </div>
-                        <span className="text-xl font-bold hidden md:block">Team Pulse</span>
+                        <span className="text-xl font-bold text-textPrimary hidden md:block">Team Pulse</span>
                     </Link>
                     
                     {/* User info */}
                     <div className="flex items-center gap-3 shrink-0">
                         <div className="flex flex-col text-right max-w-[160px]">
-                            <span className="font-semibold text-sm text-gray-900 dark:text-gray-100 truncate">
+                            <span className="font-semibold text-sm text-textPrimary truncate">
                                 {currentUser.name}
                             </span>
-                            <span className="text-xs text-gray-500 dark:text-gray-400 truncate">{currentUser.email}</span>
+                            <span className="text-xs text-textSecondary truncate">{currentUser.email}</span>
                         </div>
                         <Avatar className="h-9 w-9 ml-2">
                             {currentUser.avatarUrl ? (
                                 <AvatarImage src={currentUser.avatarUrl} alt={currentUser.name} />
                             ) : (
-                                <AvatarFallback>
+                                <AvatarFallback className="bg-darkBlue text-white font-medium">
                                     {currentUser.name
                                         .split(" ")
                                         .map((n) => n[0])
@@ -77,10 +77,6 @@ export function SessionHeader({ activePhase, onPhaseChange, isParticipant, sessi
                         <Progress 
                             value={progressPercentage} 
                             className="h-2 bg-gray-200"
-                            style={{ 
-                                "--primary": "#E15D2F", 
-                                "--secondary": "#e9e9e9" 
-                            } as React.CSSProperties} 
                         />
                     </div>
                     
@@ -101,23 +97,23 @@ export function SessionHeader({ activePhase, onPhaseChange, isParticipant, sessi
                                     <div 
                                         className={`w-6 h-6 rounded-full flex items-center justify-center border-2 ${
                                             status === 'complete' 
-                                                ? 'bg-[#E15D2F] border-[#E15D2F] text-white' 
+                                                ? 'bg-darkBlue border-darkBlue text-white' 
                                                 : status === 'active'
-                                                ? 'bg-white border-[#E15D2F] text-[#E15D2F]'
+                                                ? 'bg-white border-darkBlue text-darkBlue'
                                                 : 'bg-white border-gray-300 text-gray-300'
                                         }`}
                                     >
                                         {status === 'complete' ? (
                                             <Check className="w-3 h-3" />
                                         ) : (
-                                            <span className="text-xs">{index + 1}</span>
+                                            <span className="text-xs font-medium">{index + 1}</span>
                                         )}
                                     </div>
                                     <span 
-                                        className={`text-xs mt-1 whitespace-nowrap ${
+                                        className={`text-xs mt-2 whitespace-nowrap font-medium ${
                                             status === 'complete' || status === 'active' 
-                                                ? 'text-gray-800 font-medium' 
-                                                : 'text-gray-400'
+                                                ? 'text-textPrimary' 
+                                                : 'text-textSecondary'
                                         }`}
                                     >
                                         {displayName}

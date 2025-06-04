@@ -11,25 +11,25 @@ const currentUser = {
 
 export default function Header() {
   return (
-    <header className="bg-white border-b border-gray-200 dark:bg-gray-900 dark:border-gray-800">
-      <div className="container mx-auto px-4 py-4 flex items-center justify-between w-full max-w-screen-3xl">
-        <Link to="/" className="flex items-center space-x-2">
-          <div className="h-8 w-8 bg-primary rounded-full flex items-center justify-center text-white font-bold">
+    <header className="gradient-header border-b border-gray-200">
+      <div className="container mx-auto px-6 py-4 flex items-center justify-between w-full max-w-screen-3xl">
+        <Link to="/" className="flex items-center space-x-3">
+          <div className="h-8 w-8 bg-darkBlue rounded-lg flex items-center justify-center text-white font-bold text-sm">
             TP
           </div>
-          <span className="text-xl font-bold">Team Pulse</span>
+          <span className="text-xl font-bold text-textPrimary">Team Pulse</span>
         </Link>
         {/* Current user info */}
         <div className="flex items-center gap-3">
           <div className="flex flex-col text-right">
-            <span className="font-semibold text-sm text-gray-900 dark:text-gray-100">{currentUser.name}</span>
-            <span className="text-xs text-gray-500 dark:text-gray-400">{currentUser.email}</span>
+            <span className="font-semibold text-sm text-textPrimary">{currentUser.name}</span>
+            <span className="text-xs text-textSecondary">{currentUser.email}</span>
           </div>
           <Avatar className="h-9 w-9 ml-2">
             {currentUser.avatarUrl ? (
               <AvatarImage src={currentUser.avatarUrl} alt={currentUser.name} />
             ) : (
-              <AvatarFallback>
+              <AvatarFallback className="bg-darkBlue text-white font-medium">
                 {currentUser.name
                   .split(" ")
                   .map((n) => n[0])
