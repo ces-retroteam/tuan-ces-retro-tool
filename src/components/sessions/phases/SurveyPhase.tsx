@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Timer } from "@/components/ui/timer";
 import { TimerConfig } from "./TimerConfig";
 import { SurveyPage } from "@/types/survey";
+import { Progress } from "@/components/ui/progress";
 
 const PAGE_ANIMATION = {
   initial: { opacity: 0, y: 30 },
@@ -91,15 +92,14 @@ export default function SurveyPhase({
     .filter((q) => q.required)
     .every((q) => responses[q.id] >= 1 && responses[q.id] <= 10);
 
-  // For one-question mode, determine if current question is complete
   const currentSectionQuestions = getCurrentSectionQuestions();
   const currentQuestion = currentSectionQuestions[currentQuestionIndex];
+  
   const isCurrentQuestionValid = () => {
     if (!currentQuestion) return true;
     return responses[currentQuestion.id] >= 1 && responses[currentQuestion.id] <= 10;
   };
 
-  // Determine if next button should be disabled based on display mode
   const isNextDisabled = () => {
     if (isSubmitted) return true;
     
@@ -110,7 +110,6 @@ export default function SurveyPhase({
       return false;
     }
     
-    // For grouped and all-questions modes
     if (currentPage === "delivery") {
       return !isDeliveryValid;
     } else if (currentPage === "collaboration") {
@@ -118,6 +117,25 @@ export default function SurveyPhase({
     }
     
     return false;
+  };
+
+  const getProgressPercentage = () => {
+    if (displayMode === "all-questions") {
+      const totalQuestions = deliveryQuestions.length + collaborationQuestions.length;
+      const answeredQuestions = [...deliveryQuestions, ...collaborationQuestions]
+        .filter(q => responses[q.id] >= 1 && responses[q.id] <= 10).length;
+      return (answeredQuestions / totalQuestions) * 100;
+    }
+    
+    if (displayMode === "one-question") {
+      const totalQuestions = currentSectionQuestions.length;
+      return ((currentQuestionIndex + 1) / totalQuestions) * 100;
+    }
+    
+    // For grouped mode
+    const pageOrder = ["delivery", "collaboration", "additional"];
+    const currentIndex = pageOrder.indexOf(currentPage);
+    return ((currentIndex + 1) / pageOrder.length) * 100;
   };
 
   const renderOneQuestion = () => {
@@ -133,67 +151,62 @@ export default function SurveyPhase({
           exit="exit"
           transition={PAGE_ANIMATION.transition}
         >
-          <div className="bg-white rounded-2xl px-6 py-6 mb-4 shadow-sm border border-gray-100">
-            <SurveyQuestionRow
-              key={currentQuestion.id}
-              question={currentQuestion}
-              value={responses[currentQuestion.id]}
-              comment={comments[currentQuestion.id] || ""}
-              onValueChange={val => handleResponseChange(currentQuestion.id, val)}
-              onCommentChange={val => handleCommentChange(currentQuestion.id, val)}
-              disabled={isSubmitted}
-            />
-          </div>
+          <SurveyQuestionRow
+            key={currentQuestion.id}
+            question={currentQuestion}
+            value={responses[currentQuestion.id]}
+            comment={comments[currentQuestion.id] || ""}
+            onValueChange={val => handleResponseChange(currentQuestion.id, val)}
+            onCommentChange={val => handleCommentChange(currentQuestion.id, val)}
+            disabled={isSubmitted}
+          />
         </motion.div>
       </AnimatePresence>
     );
   };
 
-  // New function to render all questions across all sections
   const renderAllQuestionsMode = () => {
     return (
       <div className="space-y-8">
         {/* Delivery Section */}
         <div>
-          <h3 className="text-lg font-semibold mb-4">Delivery & Execution</h3>
-          <div className="space-y-2">
+          <h3 className="text-section-title font-semibold mb-6 text-textPrimary">Delivery & Execution</h3>
+          <div className="space-y-4">
             {deliveryQuestions.map(question => (
-              <div key={question.id} className="bg-white rounded-2xl px-6 py-6 mb-4 shadow-sm border border-gray-100">
-                <SurveyQuestionRow
-                  question={question}
-                  value={responses[question.id]}
-                  comment={comments[question.id] || ""}
-                  onValueChange={val => handleResponseChange(question.id, val)}
-                  onCommentChange={val => handleCommentChange(question.id, val)}
-                  disabled={isSubmitted || (timers.delivery.enabled && timers.delivery.paused)}
-                />
-              </div>
+              <SurveyQuestionRow
+                key={question.id}
+                question={question}
+                value={responses[question.id]}
+                comment={comments[question.id] || ""}
+                onValueChange={val => handleResponseChange(question.id, val)}
+                onCommentChange={val => handleCommentChange(question.id, val)}
+                disabled={isSubmitted || (timers.delivery.enabled && timers.delivery.paused)}
+              />
             ))}
           </div>
         </div>
         
         {/* Collaboration Section */}
         <div>
-          <h3 className="text-lg font-semibold mb-4">Team Collaboration</h3>
-          <div className="space-y-2">
+          <h3 className="text-section-title font-semibold mb-6 text-textPrimary">Team Collaboration</h3>
+          <div className="space-y-4">
             {collaborationQuestions.map(question => (
-              <div key={question.id} className="bg-white rounded-2xl px-6 py-6 mb-4 shadow-sm border border-gray-100">
-                <SurveyQuestionRow
-                  question={question}
-                  value={responses[question.id]}
-                  comment={comments[question.id] || ""}
-                  onValueChange={val => handleResponseChange(question.id, val)}
-                  onCommentChange={val => handleCommentChange(question.id, val)}
-                  disabled={isSubmitted || (timers.collaboration.enabled && timers.collaboration.paused)}
-                />
-              </div>
+              <SurveyQuestionRow
+                key={question.id}
+                question={question}
+                value={responses[question.id]}
+                comment={comments[question.id] || ""}
+                onValueChange={val => handleResponseChange(question.id, val)}
+                onCommentChange={val => handleCommentChange(question.id, val)}
+                disabled={isSubmitted || (timers.collaboration.enabled && timers.collaboration.paused)}
+              />
             ))}
           </div>
         </div>
         
         {/* Additional Questions Section */}
         <div>
-          <h3 className="text-lg font-semibold mb-4">Additional Questions</h3>
+          <h3 className="text-section-title font-semibold mb-6 text-textPrimary">Additional Questions</h3>
           <AdditionalSectionStep
             prompt={additionalPrompt}
             items={additionalItems}
@@ -206,91 +219,96 @@ export default function SurveyPhase({
     );
   };
 
-  // Get the current timer based on page
   const getCurrentTimer = () => {
     return timers[currentPage as keyof typeof timers];
   };
 
-  // Handle timer events based on display mode
   const onTimerExpire = () => {
     if (isSubmitted) return;
-    
-    // Pause the timer
     setTimerPaused(currentPage, true);
-    
-    // Handle expiration based on display mode
     handleTimerExpire();
   };
 
   return (
-    <Card>
-      <CardContent className="space-y-10 pt-6 pb-2">
-        <div>
-          <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
-            <div
-              className="text-lg font-bold"
-              style={{ fontFamily: "Clarendon, serif" }}
-            >
-              {displayMode === "all-questions" ? (
-                "All Questions"
-              ) : (
-                <>
-                  {currentPage === "delivery" && "Delivery & Execution"}
-                  {currentPage === "collaboration" && "Team Collaboration"}
-                  {currentPage === "additional" && "Additional Questions"}
-                </>
-              )}
-            </div>
+    <div className="space-y-6">
+      {/* Header with Progress */}
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-section-title font-semibold text-textPrimary">
+            {displayMode === "all-questions" ? (
+              "Survey"
+            ) : (
+              <>
+                {currentPage === "delivery" && "Delivery & Execution"}
+                {currentPage === "collaboration" && "Team Collaboration"}
+                {currentPage === "additional" && "Additional Questions"}
+              </>
+            )}
+          </h2>
+          
+          <div className="flex items-center gap-4">
+            <DisplayModeSelector 
+              currentMode={displayMode} 
+              onChange={handleDisplayModeChange} 
+            />
             
-            <div className="flex items-center gap-4">
-              <DisplayModeSelector 
-                currentMode={displayMode} 
-                onChange={handleDisplayModeChange} 
+            {!isParticipant && (
+              <TimerConfig
+                isEnabled={getCurrentTimer()?.enabled || false}
+                onToggle={(enabled) => setTimerEnabled(currentPage, enabled)}
+                duration={getCurrentTimer()?.duration || 0}
+                onDurationChange={(duration) => setTimerDuration(currentPage, duration)}
+                displayMode={displayMode}
+                currentPage={currentPage}
+                isPaused={getCurrentTimer()?.paused || false}
               />
-              
-              {!isParticipant && (
-                <TimerConfig
-                  isEnabled={getCurrentTimer()?.enabled || false}
-                  onToggle={(enabled) => setTimerEnabled(currentPage, enabled)}
-                  duration={getCurrentTimer()?.duration || 0}
-                  onDurationChange={(duration) => setTimerDuration(currentPage, duration)}
-                  displayMode={displayMode}
-                  currentPage={currentPage}
-                  isPaused={getCurrentTimer()?.paused || false}
-                />
-              )}
-            </div>
+            )}
           </div>
+        </div>
 
-          {/* Timer display for participants */}
-          {isParticipant && getCurrentTimer()?.enabled && (
-            <div className="mb-4 bg-orange-50 border border-orange-100 p-3 rounded-md flex items-center justify-between">
-              <div className="text-sm text-orange-800">
-                {displayMode === "one-question" 
-                  ? "Time remaining for this question:" 
-                  : displayMode === "grouped" 
-                    ? `Time remaining for ${currentPage} section:` 
-                    : "Time remaining for the survey:"}
-              </div>
-              <Timer 
-                duration={getCurrentTimer().duration}
-                onExpire={onTimerExpire}
-                autoStart={true}
-                isPaused={getCurrentTimer().paused}
-                size="lg"
-                className="text-orange-800"
-              />
+        {/* Progress Bar */}
+        <div className="space-y-2">
+          <div className="flex justify-between text-sm text-textSecondary">
+            <span>Progress</span>
+            <span>{Math.round(getProgressPercentage())}%</span>
+          </div>
+          <Progress 
+            value={getProgressPercentage()} 
+            className="h-2"
+            style={{ backgroundColor: '#f1f5f9' }}
+          />
+        </div>
+
+        {/* Timer display for participants */}
+        {isParticipant && getCurrentTimer()?.enabled && (
+          <div className="mt-4 bg-orange-50 border border-orange-200 p-3 rounded-lg flex items-center justify-between">
+            <div className="text-sm text-orange-800 font-medium">
+              {displayMode === "one-question" 
+                ? "Time remaining for this question:" 
+                : displayMode === "grouped" 
+                  ? `Time remaining for ${currentPage} section:` 
+                  : "Time remaining for the survey:"}
             </div>
-          )}
+            <Timer 
+              duration={getCurrentTimer().duration}
+              onExpire={onTimerExpire}
+              autoStart={true}
+              isPaused={getCurrentTimer().paused}
+              size="lg"
+              className="text-orange-800 font-bold"
+            />
+          </div>
+        )}
+      </div>
 
+      {/* Content Area */}
+      <Card className="border border-gray-200">
+        <CardContent className="p-6">
           {displayMode === "all-questions" ? (
-            // All questions mode - show everything at once
             renderAllQuestionsMode()
           ) : displayMode === "one-question" && currentPage !== "additional" ? (
-            // One question per page mode
             renderOneQuestion()
           ) : (
-            // Grouped or All questions modes
             <AnimatePresence mode="wait" initial={false}>
               <motion.div
                 key={currentPage}
@@ -339,54 +357,51 @@ export default function SurveyPhase({
           )}
 
           {isSubmitted && (
-            <div className="bg-accent p-4 rounded-lg text-center mt-2">
-              <h3 className="text-lg font-medium">Thank You!</h3>
-              <p className="text-muted-foreground">
-                Your responses have been recorded.
+            <div className="bg-green-50 border border-green-200 p-6 rounded-lg text-center mt-6">
+              <h3 className="text-lg font-semibold text-green-800">Thank You!</h3>
+              <p className="text-green-700">
+                Your responses have been recorded successfully.
               </p>
             </div>
           )}
-        </div>
-      </CardContent>
+        </CardContent>
 
-      {!isSubmitted && (
-        <CardFooter className="flex flex-col gap-4 items-end">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            {displayMode === "one-question" && currentPage !== "additional" && (
-              <span>
-                Question {currentQuestionIndex + 1} of {currentSectionQuestions.length}
-              </span>
-            )}
-          </div>
-          
-          {displayMode !== "all-questions" ? (
-            <SurveyNavigation
-              currentPage={currentPage}
-              onPrevious={goToPrevPage}
-              onNext={goToNextPage}
-              isNextDisabled={isNextDisabled() || (getCurrentTimer()?.enabled && getCurrentTimer()?.paused)}
-              isPreviousDisabled={currentPage === "delivery" && (displayMode !== "one-question" || currentQuestionIndex === 0)}
-              isSubmitting={isSubmitting}
-              isLastPage={currentPage === "additional"}
-            />
-          ) : (
-            <Button
-              onClick={goToNextPage}
-              disabled={isSubmitting || !isDeliveryValid || !isCollabValid || (timers.delivery.enabled && timers.delivery.paused)}
-              className="font-bold"
-              style={{
-                backgroundColor: "#E15D2F",
-                color: "#fff",
-                textTransform: "uppercase",
-                letterSpacing: "0.04em",
-                fontFamily: "Inter, Helvetica, Arial, sans-serif",
-              }}
-            >
-              {isSubmitting ? "Submitting..." : "Submit Survey"}
-            </Button>
-          )}
-        </CardFooter>
-      )}
-    </Card>
+        {!isSubmitted && (
+          <CardFooter className="bg-gray-50 border-t border-gray-200 p-6">
+            <div className="w-full">
+              {displayMode === "one-question" && currentPage !== "additional" && (
+                <div className="text-center mb-4">
+                  <span className="text-sm text-textSecondary">
+                    Question {currentQuestionIndex + 1} of {currentSectionQuestions.length}
+                  </span>
+                </div>
+              )}
+              
+              {displayMode !== "all-questions" ? (
+                <SurveyNavigation
+                  currentPage={currentPage}
+                  onPrevious={goToPrevPage}
+                  onNext={goToNextPage}
+                  isNextDisabled={isNextDisabled() || (getCurrentTimer()?.enabled && getCurrentTimer()?.paused)}
+                  isPreviousDisabled={currentPage === "delivery" && (displayMode !== "one-question" || currentQuestionIndex === 0)}
+                  isSubmitting={isSubmitting}
+                  isLastPage={currentPage === "additional"}
+                />
+              ) : (
+                <div className="flex justify-end">
+                  <Button
+                    onClick={goToNextPage}
+                    disabled={isSubmitting || !isDeliveryValid || !isCollabValid || (timers.delivery.enabled && timers.delivery.paused)}
+                    className="bg-darkBlue hover:bg-navy text-white font-semibold px-8 py-2"
+                  >
+                    {isSubmitting ? "Submitting..." : "Submit Survey"}
+                  </Button>
+                </div>
+              )}
+            </div>
+          </CardFooter>
+        )}
+      </Card>
+    </div>
   );
 }

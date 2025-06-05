@@ -10,18 +10,18 @@ const currentUser = {
   avatarUrl: "",
 };
 
-// Updated color array to accommodate 10 scores
+// Updated color array to accommodate 10 scores with navy theme
 const COLORS = [
-  "bg-[#ea384c] text-white", // 1 - Red
-  "bg-[#E15D2F] text-white", // 2 
-  "bg-[#aa9231] text-white", // 3
-  "bg-[#aa9231] text-white", // 4
-  "bg-[#aa9231] text-white", // 5
-  "bg-[#aa9231] text-white", // 6
-  "bg-[#6ca543] text-white", // 7
-  "bg-[#6ca543] text-white", // 8
-  "bg-[#55bb6a] text-white", // 9
-  "bg-[#55bb6a] text-white", // 10 - Green
+  "bg-red-500 text-white", // 1 - Red
+  "bg-red-400 text-white", // 2 
+  "bg-orange-500 text-white", // 3
+  "bg-orange-400 text-white", // 4
+  "bg-yellow-500 text-white", // 5
+  "bg-yellow-400 text-white", // 6
+  "bg-green-400 text-white", // 7
+  "bg-green-500 text-white", // 8
+  "bg-green-600 text-white", // 9
+  "bg-green-700 text-white", // 10 - Green
 ];
 
 export interface SurveyQuestionRowProps {
@@ -49,49 +49,44 @@ export default function SurveyQuestionRow({
   const anySelected = typeof value === "number" && Array.from({length: 10}, (_, i) => i + 1).includes(value);
 
   return (
-    <div className="bg-white rounded-2xl px-6 py-6 my-6 flex flex-col gap-4 relative">
-      {/* QUESTION TEXT */}
-      <div className="flex flex-col gap-1">
-        <Label
-          className="
-            text-[1.125rem] font-bold leading-tight text-[#222]
-            flex items-center gap-2 uppercase tracking-tight
-          "
-        >
+    <div className="bg-white rounded-lg border border-gray-200 p-6 space-y-4">
+      {/* Question Header */}
+      <div className="space-y-2">
+        <h3 className="text-lg font-bold text-textPrimary uppercase tracking-wide">
           {question.text}
           {question.required && (
-            <span className="text-[#ea384c] text-lg" aria-label="Required">*</span>
+            <span className="text-red-500 ml-1" aria-label="Required">*</span>
           )}
-        </Label>
+        </h3>
         {question.description && (
-          <span className="text-sm text-[#555] font-normal">{question.description}</span>
+          <p className="text-sm text-textSecondary leading-relaxed">
+            {question.description}
+          </p>
         )}
       </div>
 
-      {/* SCORE SCALE */}
-      <div className="flex flex-row items-center gap-8">
-        <div className="flex flex-row gap-2 flex-wrap">
+      {/* Score Scale */}
+      <div className="space-y-4">
+        <div className="flex flex-wrap gap-2">
           {Array.from({length: 10}, (_, i) => i + 1).map((num, idx) => {
             const isSelected = value === num;
-            const colorClass =
-              anySelected
-                ? (isSelected ? COLORS[idx] : "bg-gray-300 text-white")
-                : COLORS[idx];
+            const colorClass = anySelected
+              ? (isSelected ? COLORS[idx] : "bg-gray-200 text-gray-600")
+              : COLORS[idx];
 
             return (
               <button
                 key={num}
                 type="button"
-                className={[
-                  "w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border-2 transition focus-visible:ring-2 ring-[#E15D2F]",
-                  isSelected
-                    ? "ring-2 border-orange-500 ring-orange-500 scale-110"
-                    : "border-gray-200 opacity-80",
-                  colorClass,
-                  disabled
-                    ? "opacity-60 cursor-not-allowed"
-                    : "hover:brightness-110 hover:scale-105",
-                ].join(" ")}
+                className={`
+                  w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold
+                  transition-all duration-200 border-2
+                  ${isSelected 
+                    ? `${colorClass} border-darkBlue scale-110 shadow-lg` 
+                    : `${colorClass} border-transparent hover:scale-105 hover:shadow-md`
+                  }
+                  ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
+                `}
                 disabled={disabled}
                 onClick={() => !disabled && onValueChange(num)}
                 aria-label={`Score ${num}`}
@@ -101,21 +96,21 @@ export default function SurveyQuestionRow({
             );
           })}
         </div>
-        <div className="flex flex-row items-center gap-2">
-          <div className="flex flex-col items-start">
-            <span className="text-xs text-gray-600 font-medium">1: Never / Poor performance</span>
-            <span className="text-xs text-gray-600">10: Always / Excellent performance</span>
-          </div>
+        
+        {/* Scale Labels */}
+        <div className="flex justify-between text-xs text-textSecondary">
+          <span>1: Never / Poor performance</span>
+          <span>10: Always / Excellent performance</span>
         </div>
       </div>
 
-      {/* COMMENT INPUT WITH OVERLAPPING AVATAR */}
-      <div className="relative w-full">
-        <Avatar className="absolute -left-3 -top-0 z-10 h-8 w-8 shrink-0 border">
+      {/* Comment Input */}
+      <div className="relative">
+        <Avatar className="absolute left-3 top-3 z-10 h-8 w-8 border-2 border-white shadow-sm">
           {currentUser.avatarUrl ? (
             <AvatarImage src={currentUser.avatarUrl} alt={currentUser.name} />
           ) : (
-            <AvatarFallback>
+            <AvatarFallback className="bg-darkBlue text-white text-xs font-medium">
               {currentUser.name
                 .split(" ")
                 .map((n) => n[0])
@@ -126,19 +121,17 @@ export default function SurveyQuestionRow({
           )}
         </Avatar>
         <Textarea
-          placeholder="Add a comment (optional)..."
-          className="bg-[#F7F7F7] border border-gray-200 text-[#222] min-h-[42px] pl-12 py-2 text-base flex-1 resize-none shadow-sm rounded-lg focus-visible:border-orange-500"
+          placeholder="Add comments (one per line)..."
+          className="bg-gray-50 border border-gray-200 text-textPrimary min-h-[80px] pl-14 pr-4 py-3 text-sm resize-none rounded-lg focus:border-darkBlue focus:ring-1 focus:ring-darkBlue"
           value={comment}
           onChange={e => onCommentChange(e.target.value)}
           disabled={disabled}
           id={"comment_" + question.id}
-          maxLength={256}
-          style={{
-            fontFamily: "Inter, Helvetica, Arial, sans-serif",
-            lineHeight: 1.5,
-            fontWeight: 400,
-          }}
+          maxLength={500}
         />
+        <div className="text-xs text-textSecondary mt-1 text-right">
+          Press Enter for new line. Each line will be saved as a separate comment.
+        </div>
       </div>
     </div>
   );

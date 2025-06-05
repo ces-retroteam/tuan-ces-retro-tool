@@ -33,15 +33,10 @@ export default function DeliverySectionStep({
   setName,
 }: DeliverySectionStepProps) {
   return (
-    <div className="bg-white rounded-2xl px-6 py-6 mb-4 shadow-sm border border-gray-100">
-      <h2 className="font-bold text-[1.35rem] text-[#222] mb-2"
-        style={{ fontFamily: "Clarendon, serif" }}>
-        Delivery & Execution
-      </h2>
+    <div className="space-y-6">
       {!sessionIsAnonymous && !isSubmitted && (
-        <div className="mb-6">
-          <Label htmlFor="name" className="text-[#222] font-semibold mb-1 block"
-            style={{ fontFamily: "Inter, Helvetica, Arial, sans-serif" }}>
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <Label htmlFor="name" className="text-textPrimary font-semibold mb-2 block">
             Your Name
           </Label>
           <Input
@@ -50,12 +45,12 @@ export default function DeliverySectionStep({
             value={name}
             onChange={e => setName(e.target.value)}
             required
-            className="bg-[#F7F7F7] text-[#222] border border-gray-200 px-4 py-2 rounded-lg"
-            style={{ fontFamily: "Inter, Helvetica, Arial, sans-serif" }}
+            className="bg-gray-50 text-textPrimary border-gray-200 focus:border-darkBlue focus:ring-1 focus:ring-darkBlue"
           />
         </div>
       )}
-      <div className="space-y-6">
+      
+      <div className="space-y-4">
         {questions.map((question) => (
           <SurveyQuestionRow
             key={question.id}
