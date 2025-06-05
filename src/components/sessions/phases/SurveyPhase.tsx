@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { useSession } from "@/context/SessionContext";
 import { Session } from "@/types";
@@ -168,9 +169,31 @@ export default function SurveyPhase({
   const renderAllQuestionsMode = () => {
     return (
       <div className="space-y-8">
+        {/* Name Input for non-anonymous sessions */}
+        {!session.isAnonymous && !isSubmitted && (
+          <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
+            <label htmlFor="name" className="block text-sm font-semibold text-primary-900 mb-3">
+              Your Name *
+            </label>
+            <input
+              id="name"
+              type="text"
+              placeholder="Enter your name"
+              value={name}
+              onChange={e => setName(e.target.value)}
+              required
+              className="w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 text-primary-900 placeholder-gray-500 focus:border-primary-600 focus:ring-2 focus:ring-primary-100 focus:bg-white transition-all"
+            />
+          </div>
+        )}
+
         {/* Delivery Section */}
-        <div>
-          <h3 className="text-section-title font-semibold mb-6 text-textPrimary">Delivery & Execution</h3>
+        <div className="space-y-6">
+          <div className="bg-gradient-to-r from-primary-50 to-primary-100 p-6 rounded-xl">
+            <h2 className="text-xl font-bold text-primary-900 mb-2">Delivery & Execution</h2>
+            <p className="text-sm text-primary-700">Rate your team's performance in delivering results</p>
+          </div>
+          
           <div className="space-y-4">
             {deliveryQuestions.map(question => (
               <SurveyQuestionRow
@@ -187,8 +210,12 @@ export default function SurveyPhase({
         </div>
         
         {/* Collaboration Section */}
-        <div>
-          <h3 className="text-section-title font-semibold mb-6 text-textPrimary">Team Collaboration</h3>
+        <div className="space-y-6">
+          <div className="bg-gradient-to-r from-primary-50 to-primary-100 p-6 rounded-xl">
+            <h2 className="text-xl font-bold text-primary-900 mb-2">Team Collaboration</h2>
+            <p className="text-sm text-primary-700">Evaluate how well your team works together</p>
+          </div>
+          
           <div className="space-y-4">
             {collaborationQuestions.map(question => (
               <SurveyQuestionRow
@@ -205,8 +232,12 @@ export default function SurveyPhase({
         </div>
         
         {/* Additional Questions Section */}
-        <div>
-          <h3 className="text-section-title font-semibold mb-6 text-textPrimary">Additional Questions</h3>
+        <div className="space-y-6">
+          <div className="bg-gradient-to-r from-primary-50 to-primary-100 p-6 rounded-xl">
+            <h2 className="text-xl font-bold text-primary-900 mb-2">Additional Questions</h2>
+            <p className="text-sm text-primary-700">Share any additional feedback or suggestions</p>
+          </div>
+          
           <AdditionalSectionStep
             prompt={additionalPrompt}
             items={additionalItems}
@@ -230,149 +261,161 @@ export default function SurveyPhase({
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header with Progress */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-section-title font-semibold text-textPrimary">
-            {displayMode === "all-questions" ? (
-              "Survey"
-            ) : (
-              <>
-                {currentPage === "delivery" && "Delivery & Execution"}
-                {currentPage === "collaboration" && "Team Collaboration"}
-                {currentPage === "additional" && "Additional Questions"}
-              </>
-            )}
-          </h2>
-          
-          <div className="flex items-center gap-4">
-            <DisplayModeSelector 
-              currentMode={displayMode} 
-              onChange={handleDisplayModeChange} 
-            />
-            
-            {!isParticipant && (
-              <TimerConfig
-                isEnabled={getCurrentTimer()?.enabled || false}
-                onToggle={(enabled) => setTimerEnabled(currentPage, enabled)}
-                duration={getCurrentTimer()?.duration || 0}
-                onDurationChange={(duration) => setTimerDuration(currentPage, duration)}
-                displayMode={displayMode}
-                currentPage={currentPage}
-                isPaused={getCurrentTimer()?.paused || false}
-              />
-            )}
-          </div>
-        </div>
-
-        {/* Progress Bar */}
-        <div className="space-y-2">
-          <div className="flex justify-between text-sm text-textSecondary">
-            <span>Progress</span>
-            <span>{Math.round(getProgressPercentage())}%</span>
-          </div>
-          <Progress 
-            value={getProgressPercentage()} 
-            className="h-2"
-            style={{ backgroundColor: '#f1f5f9' }}
-          />
-        </div>
-
-        {/* Timer display for participants */}
-        {isParticipant && getCurrentTimer()?.enabled && (
-          <div className="mt-4 bg-orange-50 border border-orange-200 p-3 rounded-lg flex items-center justify-between">
-            <div className="text-sm text-orange-800 font-medium">
-              {displayMode === "one-question" 
-                ? "Time remaining for this question:" 
-                : displayMode === "grouped" 
-                  ? `Time remaining for ${currentPage} section:` 
-                  : "Time remaining for the survey:"}
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-4xl mx-auto px-6">
+        {/* Header Section */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h1 className="text-3xl font-bold text-primary-900 mb-2">
+                {displayMode === "all-questions" ? (
+                  "Team Pulse Survey"
+                ) : (
+                  <>
+                    {currentPage === "delivery" && "Delivery & Execution"}
+                    {currentPage === "collaboration" && "Team Collaboration"}
+                    {currentPage === "additional" && "Additional Questions"}
+                  </>
+                )}
+              </h1>
+              <p className="text-gray-600">Share your honest feedback to help improve team performance</p>
             </div>
-            <Timer 
-              duration={getCurrentTimer().duration}
-              onExpire={onTimerExpire}
-              autoStart={true}
-              isPaused={getCurrentTimer().paused}
-              size="lg"
-              className="text-orange-800 font-bold"
-            />
+            
+            <div className="flex items-center gap-4">
+              <DisplayModeSelector 
+                currentMode={displayMode} 
+                onChange={handleDisplayModeChange} 
+              />
+              
+              {!isParticipant && (
+                <TimerConfig
+                  isEnabled={getCurrentTimer()?.enabled || false}
+                  onToggle={(enabled) => setTimerEnabled(currentPage, enabled)}
+                  duration={getCurrentTimer()?.duration || 0}
+                  onDurationChange={(duration) => setTimerDuration(currentPage, duration)}
+                  displayMode={displayMode}
+                  currentPage={currentPage}
+                  isPaused={getCurrentTimer()?.paused || false}
+                />
+              )}
+            </div>
           </div>
-        )}
-      </div>
 
-      {/* Content Area */}
-      <Card className="border border-gray-200">
-        <CardContent className="p-6">
+          {/* Progress Section */}
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-medium text-gray-700">Progress</span>
+              <span className="text-sm font-bold text-primary-600">{Math.round(getProgressPercentage())}% Complete</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-3">
+              <div 
+                className="bg-gradient-to-r from-primary-500 to-primary-600 h-3 rounded-full transition-all duration-300 ease-out"
+                style={{ width: `${getProgressPercentage()}%` }}
+              />
+            </div>
+          </div>
+
+          {/* Timer display for participants */}
+          {isParticipant && getCurrentTimer()?.enabled && (
+            <div className="mt-6 bg-orange-50 border border-orange-200 p-4 rounded-lg flex items-center justify-between">
+              <div className="text-sm text-orange-800 font-medium">
+                {displayMode === "one-question" 
+                  ? "Time remaining for this question:" 
+                  : displayMode === "grouped" 
+                    ? `Time remaining for ${currentPage} section:` 
+                    : "Time remaining for the survey:"}
+              </div>
+              <Timer 
+                duration={getCurrentTimer().duration}
+                onExpire={onTimerExpire}
+                autoStart={true}
+                isPaused={getCurrentTimer().paused}
+                size="lg"
+                className="text-orange-800 font-bold"
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Content Area */}
+        <div className="space-y-6">
           {displayMode === "all-questions" ? (
             renderAllQuestionsMode()
           ) : displayMode === "one-question" && currentPage !== "additional" ? (
-            renderOneQuestion()
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+              {renderOneQuestion()}
+            </div>
           ) : (
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.div
-                key={currentPage}
-                variants={PAGE_ANIMATION}
-                initial="initial"
-                animate="animate"
-                exit="exit"
-                transition={PAGE_ANIMATION.transition}
-              >
-                {currentPage === "delivery" && (
-                  <DeliverySectionStep
-                    questions={deliveryQuestions}
-                    responses={responses}
-                    comments={comments}
-                    onResponseChange={handleResponseChange}
-                    onCommentChange={handleCommentChange}
-                    isSubmitted={isSubmitted || (timers.delivery.enabled && timers.delivery.paused)}
-                    sessionIsAnonymous={session.isAnonymous}
-                    name={name}
-                    setName={setName}
-                  />
-                )}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                  key={currentPage}
+                  variants={PAGE_ANIMATION}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
+                  transition={PAGE_ANIMATION.transition}
+                >
+                  {currentPage === "delivery" && (
+                    <DeliverySectionStep
+                      questions={deliveryQuestions}
+                      responses={responses}
+                      comments={comments}
+                      onResponseChange={handleResponseChange}
+                      onCommentChange={handleCommentChange}
+                      isSubmitted={isSubmitted || (timers.delivery.enabled && timers.delivery.paused)}
+                      sessionIsAnonymous={session.isAnonymous}
+                      name={name}
+                      setName={setName}
+                    />
+                  )}
 
-                {currentPage === "collaboration" && (
-                  <CollaborationSectionStep
-                    questions={collaborationQuestions}
-                    responses={responses}
-                    comments={comments}
-                    onResponseChange={handleResponseChange}
-                    onCommentChange={handleCommentChange}
-                    isSubmitted={isSubmitted || (timers.collaboration.enabled && timers.collaboration.paused)}
-                  />
-                )}
+                  {currentPage === "collaboration" && (
+                    <CollaborationSectionStep
+                      questions={collaborationQuestions}
+                      responses={responses}
+                      comments={comments}
+                      onResponseChange={handleResponseChange}
+                      onCommentChange={handleCommentChange}
+                      isSubmitted={isSubmitted || (timers.collaboration.enabled && timers.collaboration.paused)}
+                    />
+                  )}
 
-                {currentPage === "additional" && (
-                  <AdditionalSectionStep
-                    prompt={additionalPrompt}
-                    items={additionalItems}
-                    onItemChange={handleAdditionalItemChange}
-                    addItem={addAdditionalItem}
-                    isSubmitted={isSubmitted || (timers.additional.enabled && timers.additional.paused)}
-                  />
-                )}
-              </motion.div>
-            </AnimatePresence>
+                  {currentPage === "additional" && (
+                    <AdditionalSectionStep
+                      prompt={additionalPrompt}
+                      items={additionalItems}
+                      onItemChange={handleAdditionalItemChange}
+                      addItem={addAdditionalItem}
+                      isSubmitted={isSubmitted || (timers.additional.enabled && timers.additional.paused)}
+                    />
+                  )}
+                </motion.div>
+              </AnimatePresence>
+            </div>
           )}
 
           {isSubmitted && (
-            <div className="bg-green-50 border border-green-200 p-6 rounded-lg text-center mt-6">
-              <h3 className="text-lg font-semibold text-green-800">Thank You!</h3>
+            <div className="bg-green-50 border border-green-200 p-8 rounded-xl text-center">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
+                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-green-800 mb-2">Thank You!</h3>
               <p className="text-green-700">
-                Your responses have been recorded successfully.
+                Your responses have been recorded successfully. Your feedback helps improve team performance.
               </p>
             </div>
           )}
-        </CardContent>
 
-        {!isSubmitted && (
-          <CardFooter className="bg-gray-50 border-t border-gray-200 p-6">
-            <div className="w-full">
+          {/* Navigation Footer */}
+          {!isSubmitted && (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
               {displayMode === "one-question" && currentPage !== "additional" && (
-                <div className="text-center mb-4">
-                  <span className="text-sm text-textSecondary">
-                    Question {currentQuestionIndex + 1} of {currentSectionQuestions.length}
+                <div className="text-center mb-6">
+                  <span className="text-sm text-gray-600">
+                    Question <span className="font-semibold text-primary-600">{currentQuestionIndex + 1}</span> of <span className="font-semibold">{currentSectionQuestions.length}</span>
                   </span>
                 </div>
               )}
@@ -392,16 +435,16 @@ export default function SurveyPhase({
                   <Button
                     onClick={goToNextPage}
                     disabled={isSubmitting || !isDeliveryValid || !isCollabValid || (timers.delivery.enabled && timers.delivery.paused)}
-                    className="bg-darkBlue hover:bg-navy text-white font-semibold px-8 py-2"
+                    className="bg-primary-600 hover:bg-primary-700 text-white font-semibold px-8 py-3 rounded-lg text-lg"
                   >
                     {isSubmitting ? "Submitting..." : "Submit Survey"}
                   </Button>
                 </div>
               )}
             </div>
-          </CardFooter>
-        )}
-      </Card>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
