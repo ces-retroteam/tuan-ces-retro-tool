@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Template } from "@/types";
 import { templates } from "@/data/templates";
@@ -219,6 +218,28 @@ export default function SessionTemplateDialog({ open, onOpenChange }: Props) {
                     </PopoverContent>
                   </Popover>
                 </div>
+
+                <div className="pt-4">
+                  <div className="flex justify-between">
+                    <Button
+                      variant="outline"
+                      type="button"
+                      onClick={handleBack}
+                      disabled={isSubmitting}
+                      className="px-8"
+                    >
+                      Back
+                    </Button>
+                    <Button
+                      type="button"
+                      onClick={handleCreate}
+                      disabled={isSubmitting || !sessionName}
+                      className="bg-darkBlue hover:bg-navy text-white px-8"
+                    >
+                      {isSubmitting ? "Creating..." : "Create"}
+                    </Button>
+                  </div>
+                </div>
               </TabsContent>
               
               <TabsContent value="options" className={`${isMobile ? 'p-4' : 'p-6'} space-y-6 mt-0`}>
@@ -261,29 +282,29 @@ export default function SessionTemplateDialog({ open, onOpenChange }: Props) {
                     </div>
                   </div>
                 </div>
+
+                <div className="pt-4">
+                  <div className="flex justify-between">
+                    <Button
+                      variant="outline"
+                      type="button"
+                      onClick={handleBack}
+                      disabled={isSubmitting}
+                      className="px-8"
+                    >
+                      Back
+                    </Button>
+                    <Button
+                      type="button"
+                      onClick={handleCreate}
+                      disabled={isSubmitting || !sessionName}
+                      className="bg-darkBlue hover:bg-navy text-white px-8"
+                    >
+                      {isSubmitting ? "Creating..." : "Create"}
+                    </Button>
+                  </div>
+                </div>
               </TabsContent>
-            </div>
-            
-            <div className={`${isMobile ? 'p-4' : 'p-6'} border-t bg-gray-50`}>
-              <div className="flex justify-between">
-                <Button
-                  variant="outline"
-                  type="button"
-                  onClick={handleBack}
-                  disabled={isSubmitting}
-                  className="px-8"
-                >
-                  Back
-                </Button>
-                <Button
-                  type="button"
-                  onClick={handleCreate}
-                  disabled={isSubmitting || !sessionName}
-                  className="bg-darkBlue hover:bg-navy text-white px-8"
-                >
-                  {isSubmitting ? "Creating..." : "Create"}
-                </Button>
-              </div>
             </div>
           </Tabs>
         </div>
