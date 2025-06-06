@@ -170,13 +170,13 @@ export default function SessionTemplateDialog({ open, onOpenChange }: Props) {
                   <TabsList className="grid w-full grid-cols-2 bg-transparent p-0 h-auto">
                     <TabsTrigger 
                       value="general" 
-                      className="text-orange-500 border-b-2 border-transparent data-[state=active]:border-orange-500 data-[state=active]:bg-transparent rounded-none px-4 py-3 font-medium"
+                      className="text-darkBlue border-b-2 border-transparent data-[state=active]:border-darkBlue data-[state=active]:bg-transparent rounded-none px-4 py-3 font-medium"
                     >
                       GENERAL
                     </TabsTrigger>
                     <TabsTrigger 
                       value="options"
-                      className="text-gray-600 border-b-2 border-transparent data-[state=active]:border-orange-500 data-[state=active]:bg-transparent data-[state=active]:text-orange-500 rounded-none px-4 py-3 font-medium"
+                      className="text-gray-600 border-b-2 border-transparent data-[state=active]:border-darkBlue data-[state=active]:bg-transparent data-[state=active]:text-darkBlue rounded-none px-4 py-3 font-medium"
                     >
                       OPTIONS
                     </TabsTrigger>
@@ -237,7 +237,7 @@ export default function SessionTemplateDialog({ open, onOpenChange }: Props) {
                               onCheckedChange={(checked) => handleDisplayModeChange('oneByOne', checked)}
                             />
                           </div>
-                          <div className="flex items-center justify-between p-4 border rounded-lg bg-orange-50 border-orange-200">
+                          <div className="flex items-center justify-between p-4 border rounded-lg bg-blue-50 border-darkBlue/20">
                             <span className="text-textPrimary">Section by section</span>
                             <Switch 
                               checked={sectionBySection} 
@@ -283,7 +283,7 @@ export default function SessionTemplateDialog({ open, onOpenChange }: Props) {
                       type="button"
                       onClick={handleCreate}
                       disabled={isSubmitting || !sessionName}
-                      className="bg-orange-500 hover:bg-orange-600 text-white px-8"
+                      className="bg-darkBlue hover:bg-navy text-white px-8"
                     >
                       {isSubmitting ? "Creating..." : "Create"}
                     </Button>
